@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Idea, Project, Profile } from '@/types';
-import { SEED_IDEAS, SEED_PROJECTS } from '@/types';
+import type { Note, Project, Profile } from '@/types';
+import { SEED_NOTES, SEED_PROJECTS } from '@/types';
 import { computeDisplayStrings } from '@/utils/time';
 
 const KEYS = {
-  ideas: '@kaori_ideas',
+  notes: '@kaori_notes',
   projects: '@kaori_projects',
   profile: '@kaori_profile',
 } as const;
@@ -19,13 +19,13 @@ const DEFAULT_PROFILE: Profile = {
 };
 
 type StoreContextValue = {
-  ideas: Idea[];
+  notes: Note[];
   projects: Project[];
   profile: Profile;
-  addIdea: (text: string, projectId: string | null) => Promise<void>;
+  addNote: (text: string, projectId: string | null) => Promise<void>;
   addProject: (name: string, color: string, note: string) => Promise<void>;
-  updateIdea: (id: string, patch: Partial<Pick<Idea, 'text' | 'project' | 'pinned'>>) => Promise<void>;
-  deleteIdea: (id: string) => Promise<void>;
+  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned'>>) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
   updateProfile: (patch: Partial<Profile>) => Promise<void>;
   pinProject: (id: string, pinned: boolean) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
@@ -33,13 +33,13 @@ type StoreContextValue = {
 };
 
 const StoreContext = createContext<StoreContextValue>({
-  ideas: SEED_IDEAS,
+  notes: SEED_NOTES,
   projects: SEED_PROJECTS,
   profile: DEFAULT_PROFILE,
-  addIdea: async () => {},
+  addNote: async () => {},
   addProject: async () => {},
-  updateIdea: async () => {},
-  deleteIdea: async () => {},
+  updateNote: async () => {},
+  deleteNote: async () => {},
   updateProfile: async () => {},
   pinProject: async () => {},
   deleteProject: async () => {},
@@ -47,26 +47,26 @@ const StoreContext = createContext<StoreContextValue>({
 });
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [ideas, setIdeas] = useState<Idea[]>(SEED_IDEAS);
+  const [notes, setNotes] = useState<Note[]>(SEED_NOTES);
   const [projects, setProjects] = useState<Project[]>(SEED_PROJECTS);
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
 
   useEffect(() => {
     AsyncStorage.getItem(RESET_KEY).then(async (resetDone) => {
       if (!resetDone) {
-        await AsyncStorage.multiRemove([KEYS.ideas, KEYS.projects, KEYS.profile]);
+        await AsyncStorage.multiRemove([KEYS.notes, KEYS.projects, KEYS.profile]);
         await AsyncStorage.setItem(RESET_KEY, '1');
       }
 
-      AsyncStorage.multiGet([KEYS.ideas, KEYS.projects, KEYS.profile]).then((results) => {
-      const rawIdeas = results[0][1];
+      AsyncStorage.multiGet([KEYS.notes, KEYS.projects, KEYS.profile]).then((results) => {
+      const rawNotes = results[0][1];
       const rawProjects = results[1][1];
       const rawProfile = results[2][1];
 
-      if (!rawIdeas) {
+      if (!rawNotes) {
         // First launch: seed and persist
         AsyncStorage.multiSet([
-          [KEYS.ideas, JSON.stringify(SEED_IDEAS)],
+          [KEYS.notes, JSON.stringify(SEED_NOTES)],
           [KEYS.projects, JSON.stringify(SEED_PROJECTS)],
           [KEYS.profile, JSON.stringify(DEFAULT_PROFILE)],
         ]);
@@ -74,18 +74,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        if (rawIdeas) setIdeas(JSON.parse(rawIdeas));
+        if (rawNotes) setNotes(JSON.parse(rawNotes));
         if (rawProjects) setProjects(JSON.parse(rawProjects));
         if (rawProfile) setProfile({ ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) });
-      } catch {}
+      } catch (e) {
+        console.warn('[Kaori] Failed to parse stored data:', e);
+      }
       });
     });
   }, []);
 
-  async function addIdea(text: string, projectId: string | null) {
+  async function addNote(text: string, projectId: string | null) {
     const createdAt = new Date().toISOString();
     const { time, date } = computeDisplayStrings(createdAt);
-    const newIdea: Idea = {
+    const newNote: Note = {
       id: Date.now().toString(),
       project: projectId,
       text,
@@ -96,7 +98,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       pinned: false,
     };
 
-    const nextIdeas = [newIdea, ...ideas];
+    const nextNotes = [newNote, ...notes];
 
     const nextProjects = projectId
       ? projects.map((p) => {
@@ -105,11 +107,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         })
       : projects;
 
-    setIdeas(nextIdeas);
+    setNotes(nextNotes);
     setProjects(nextProjects);
 
     await AsyncStorage.multiSet([
-      [KEYS.ideas, JSON.stringify(nextIdeas)],
+      [KEYS.notes, JSON.stringify(nextNotes)],
       [KEYS.projects, JSON.stringify(nextProjects)],
     ]);
   }
@@ -139,12 +141,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   async function deleteProject(id: string) {
     const nextProjects = projects.filter(p => p.id !== id);
-    const nextIdeas = ideas.map(i => i.project === id ? { ...i, project: null } : i);
+    const nextNotes = notes.map(n => n.project === id ? { ...n, project: null } : n);
     setProjects(nextProjects);
-    setIdeas(nextIdeas);
+    setNotes(nextNotes);
     await AsyncStorage.multiSet([
       [KEYS.projects, JSON.stringify(nextProjects)],
-      [KEYS.ideas, JSON.stringify(nextIdeas)],
+      [KEYS.notes, JSON.stringify(nextNotes)],
     ]);
   }
 
@@ -154,22 +156,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(KEYS.projects, JSON.stringify(nextProjects));
   }
 
-  async function updateIdea(id: string, patch: Partial<Pick<Idea, 'text' | 'project' | 'pinned'>>) {
-    const nextIdeas = ideas.map(i => i.id === id ? { ...i, ...patch } : i);
-    setIdeas(nextIdeas);
-    await AsyncStorage.setItem(KEYS.ideas, JSON.stringify(nextIdeas));
+  async function updateNote(id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned'>>) {
+    const nextNotes = notes.map(n => n.id === id ? { ...n, ...patch } : n);
+    setNotes(nextNotes);
+    await AsyncStorage.setItem(KEYS.notes, JSON.stringify(nextNotes));
   }
 
-  async function deleteIdea(id: string) {
-    const idea = ideas.find(i => i.id === id);
-    const nextIdeas = ideas.filter(i => i.id !== id);
-    const nextProjects = idea?.project
-      ? projects.map(p => p.id !== idea.project ? p : { ...p, count: Math.max(0, p.count - 1) })
+  async function deleteNote(id: string) {
+    const note = notes.find(n => n.id === id);
+    const nextNotes = notes.filter(n => n.id !== id);
+    const nextProjects = note?.project
+      ? projects.map(p => p.id !== note.project ? p : { ...p, count: Math.max(0, p.count - 1) })
       : projects;
-    setIdeas(nextIdeas);
+    setNotes(nextNotes);
     setProjects(nextProjects);
     await AsyncStorage.multiSet([
-      [KEYS.ideas, JSON.stringify(nextIdeas)],
+      [KEYS.notes, JSON.stringify(nextNotes)],
       [KEYS.projects, JSON.stringify(nextProjects)],
     ]);
   }
@@ -181,7 +183,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <StoreContext.Provider value={{ ideas, projects, profile, addIdea, addProject, updateIdea, deleteIdea, updateProfile, pinProject, deleteProject, updateProjectColor }}>
+    <StoreContext.Provider value={{ notes, projects, profile, addNote, addProject, updateNote, deleteNote, updateProfile, pinProject, deleteProject, updateProjectColor }}>
       {children}
     </StoreContext.Provider>
   );

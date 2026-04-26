@@ -46,6 +46,13 @@ export function getColors(tone: Tone = 'warm-ink', accent: Accent = 'amber') {
   };
 }
 
+export type ThemeColors = ReturnType<typeof getColors>;
+
+export function resolveColor(color: string | undefined, colors: ThemeColors): string | undefined {
+  if (!color) return undefined;
+  return color in colors ? colors[color as keyof ThemeColors] : color;
+}
+
 // Dims a hex color toward black by the given opacity factor
 function blend(hex: string, opacity: number): string {
   const r = parseInt(hex.slice(1, 3), 16);

@@ -4,17 +4,17 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { GrainOverlay, ThemeText, HeaderText, Underline, ScreenHeader, CustomSwitch, TextInput } from '@/components/ui';
+import { GrainOverlay, ThemeText, HeaderText, Underline, ScreenHeader, CustomSwitch, CountedInput } from '@/components/ui';
 import { FONT } from '@/theme';
 import { CloudIcon, ArrowIcon, ChevronIcon } from '@/assets/icons';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { profile, ideas, projects, updateProfile } = useStore();
+  const { profile, notes, projects, updateProfile } = useStore();
 
   async function handleExport() {
-    const exportText = ideas.map(i => {
+    const exportText = notes.map(i => {
       const proj = projects.find(p => p.id === i.project)?.name ?? i.project;
       return `[${proj}] ${i.text}`;
     }).join('\n\n');
@@ -35,8 +35,8 @@ export default function ProfileScreen() {
   }
 
   const daysActive = (() => {
-    if (!ideas.length) return 0;
-    const oldest = ideas.reduce((min, i) => (i.createdAt < min ? i.createdAt : min), ideas[0].createdAt);
+    if (!notes.length) return 0;
+    const oldest = notes.reduce((min, i) => (i.createdAt < min ? i.createdAt : min), notes[0].createdAt);
     return Math.floor((Date.now() - new Date(oldest).getTime()) / 86_400_000);
   })();
 
@@ -70,7 +70,7 @@ export default function ProfileScreen() {
           </LinearGradient>
 
           {editing ? (
-            <TextInput
+            <CountedInput
               value={draft}
               onChangeText={setDraft}
               maxLength={30}
@@ -93,7 +93,7 @@ export default function ProfileScreen() {
         {/* Stats row */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 28 }}>
           {[
-            { val: ideas.length, label: 'ideas' },
+            { val: notes.length, label: 'notes' },
             { val: projects.length, label: 'folders' },
             { val: daysActive, label: 'days' },
           ].map(({ val, label }) => (
@@ -132,7 +132,7 @@ export default function ProfileScreen() {
             <CloudIcon size={18} color={colors.ink3} strokeWidth={1.4} />
             <View style={{ flex: 1 }}>
               <ThemeText variant="label">cloud — synced</ThemeText>
-              <ThemeText variant="meta" color="ink4" style={{ marginTop: 2 }}>just now · all {ideas.length} ideas</ThemeText>
+              <ThemeText variant="meta" color="ink4" style={{ marginTop: 2 }}>just now · all {notes.length} notes</ThemeText>
             </View>
             <CustomSwitch value={true} />
           </View>
@@ -141,7 +141,7 @@ export default function ProfileScreen() {
           <TouchableOpacity onPress={handleExport} activeOpacity={0.7}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 }}>
             <ArrowIcon size={18} color={colors.ink3} strokeWidth={1.4} />
-            <ThemeText variant="label" style={{ flex: 1 }}>export ideas</ThemeText>
+            <ThemeText variant="label" style={{ flex: 1 }}>export notes</ThemeText>
             <ChevronIcon size={12} color={colors.ink4} />
           </TouchableOpacity>
         </View>

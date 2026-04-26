@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { PlusIcon } from '@/assets/icons';
 import { ThemeText } from '../primitives/ThemeText';
+import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 type Props = {
   onPress: () => void;
@@ -56,9 +57,9 @@ export function FAB({
         elevation: 10,
       }}
     >
-      <PlusIcon size={26} color="#1a140a" strokeWidth={2.4} />
+      <PlusIcon size={26} color={BUTTON_TEXT_ON_ACCENT} strokeWidth={2.4} />
       {wide && (
-        <ThemeText variant="button" color="#1a140a" letterSpacing={0.2}>
+        <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT} letterSpacing={0.2}>
           {label}
         </ThemeText>
       )}

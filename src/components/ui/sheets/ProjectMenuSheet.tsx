@@ -5,12 +5,13 @@ import { useStore } from '@/providers/StoreProvider';
 import { useProjectMenuSheet } from '@/providers/ProjectMenuSheetProvider';
 import { useHapticFeedback } from '@/hooks';
 import { BottomSheet } from './BottomSheet';
+import { SheetButtonRow } from './SheetButtonRow';
+import { ColorSwatchPicker } from './ColorSwatchPicker';
+import { ProjectAvatar } from '../cards/ProjectAvatar';
 import { ThemeText } from '../primitives/ThemeText';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { EditIcon, BookmarkIcon, FolderIcon, TrashIcon, ChevronIcon } from '@/assets/icons';
-import { PROJECT_COLORS } from '@/constants';
-
-const CORAL = '#c97060';
+import { DELETE_COLOR, SHEET_PADDING_H } from '@/constants';
 
 export function ProjectMenuSheet() {
   const { colors } = useTheme();
@@ -61,22 +62,11 @@ export function ProjectMenuSheet() {
         <GrainOverlay />
 
         {/* Project header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 22, paddingTop: 8, paddingBottom: 16 }}>
-          <View style={{
-            width: 42, height: 42, borderRadius: 12,
-            backgroundColor: `${proj.color}1c`,
-            borderWidth: 1,
-            borderColor: `${proj.color}33`,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <ThemeText variant="heading" color={proj.color}>
-              {proj.name.charAt(0).toLowerCase()}
-            </ThemeText>
-          </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: SHEET_PADDING_H, paddingTop: 8, paddingBottom: 16 }}>
+          <ProjectAvatar name={proj.name} color={proj.color} />
           <View>
             <ThemeText variant="title">{proj.name}</ThemeText>
-            <ThemeText variant="meta" color="ink3">{proj.count} ideas</ThemeText>
+            <ThemeText variant="meta" color="ink3">{proj.count} notes</ThemeText>
           </View>
         </View>
 
@@ -84,41 +74,20 @@ export function ProjectMenuSheet() {
         <View style={{ height: 1, backgroundColor: colors.line2, marginHorizontal: -0 }} />
 
         {/* Color picker */}
-        <View style={{ paddingHorizontal: 22, paddingTop: 14, paddingBottom: 14 }}>
+        <View style={{ paddingHorizontal: SHEET_PADDING_H, paddingTop: 14, paddingBottom: 14 }}>
           <ThemeText variant="meta" style={{ marginBottom: 10, fontFamily: FONT.kalam }} color="ink3">change color</ThemeText>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-            {PROJECT_COLORS.map((color) => {
-              const isSelected = proj.color === color;
-              return (
-                <TouchableOpacity
-                  key={color}
-                  onPress={() => handleColorSelect(color)}
-                  activeOpacity={0.8}
-                  style={{
-                    width: 36, height: 36, borderRadius: 18,
-                    backgroundColor: color,
-                    alignItems: 'center', justifyContent: 'center',
-                    borderWidth: isSelected ? 2 : 0,
-                    borderColor: isSelected ? `${color}88` : 'transparent',
-                  }}
-                >
-                  {isSelected && (
-                    <ThemeText variant="meta" style={{ color: '#1a140a', fontFamily: FONT.kalam, fontSize: 14 }}>✓</ThemeText>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <ColorSwatchPicker selectedColor={proj.color} onSelect={handleColorSelect} />
         </View>
 
         {/* Divider */}
         <View style={{ height: 1, backgroundColor: colors.line2 }} />
 
         {/* Menu rows */}
-        {/* Rename */}
+        {/* Rename — TODO: implement */}
         <TouchableOpacity
+          disabled
           activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
+          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14, opacity: 0.4 }}
         >
           <EditIcon size={18} color={colors.ink3} />
           <ThemeText variant="body" style={{ flex: 1 }} color="ink2">rename</ThemeText>
@@ -129,17 +98,18 @@ export function ProjectMenuSheet() {
         <TouchableOpacity
           onPress={handlePin}
           activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
+          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
         >
           <BookmarkIcon size={18} color={colors.ink3} />
           <ThemeText variant="body" style={{ flex: 1 }} color="ink2">{proj.pinned ? 'unpin' : 'pin to top'}</ThemeText>
           <ChevronIcon size={14} color={colors.ink4} />
         </TouchableOpacity>
 
-        {/* Archive */}
+        {/* Archive — TODO: implement */}
         <TouchableOpacity
+          disabled
           activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
+          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14, opacity: 0.4 }}
         >
           <FolderIcon size={18} color={colors.ink3} />
           <View style={{ flex: 1 }}>
@@ -153,31 +123,21 @@ export function ProjectMenuSheet() {
         <TouchableOpacity
           onPress={handleDelete}
           activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, gap: 14 }}
+          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, gap: 14 }}
         >
-          <TrashIcon size={18} color={CORAL} />
+          <TrashIcon size={18} color={DELETE_COLOR} />
           <View style={{ flex: 1 }}>
-            <ThemeText variant="body" color={CORAL}>
+            <ThemeText variant="body" color={DELETE_COLOR}>
               {confirmDelete ? 'tap again to confirm' : 'delete project'}
             </ThemeText>
-            <ThemeText variant="meta" color={confirmDelete ? CORAL : 'ink4'}>ideas inside become unfiled</ThemeText>
+            <ThemeText variant="meta" color={confirmDelete ? DELETE_COLOR : 'ink4'}>notes inside become unfiled</ThemeText>
           </View>
           <ChevronIcon size={14} color={colors.ink4} />
         </TouchableOpacity>
 
         {/* Cancel */}
-        <View style={{ paddingHorizontal: 22, marginTop: 12 }}>
-          <TouchableOpacity
-            onPress={closeProjectMenu}
-            style={{
-              height: 48, borderRadius: 14,
-              borderWidth: 1, borderColor: colors.line2,
-              alignItems: 'center', justifyContent: 'center',
-            }}
-            activeOpacity={0.7}
-          >
-            <ThemeText variant="label" size={14} color="ink2" style={{ fontFamily: FONT.geistMedium }}>cancel</ThemeText>
-          </TouchableOpacity>
+        <View style={{ paddingHorizontal: SHEET_PADDING_H, marginTop: 12 }}>
+          <SheetButtonRow onCancel={closeProjectMenu} />
         </View>
       </View>
     </BottomSheet>

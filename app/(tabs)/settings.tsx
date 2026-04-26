@@ -16,7 +16,7 @@ import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors, settings, setSetting } = useTheme();
-  const { ideas, projects, profile } = useStore();
+  const { notes, projects, profile } = useStore();
   const { setOpenSheet } = useSettingSheet();
   const insets = useSafeAreaInsets();
 
@@ -58,7 +58,7 @@ export default function SettingsScreen() {
             <View style={{ flex: 1 }}>
               <ThemeText variant="heading" lineHeight={26}>{profile.name}</ThemeText>
               <ThemeText variant="meta" style={{ marginTop: 4 }}>
-                {ideas.length} ideas · {projects.length} folders
+                {notes.length} notes · {projects.length} folders
               </ThemeText>
             </View>
           </View>

@@ -1,6 +1,6 @@
 // primitives
 export { Input } from './primitives/Input';
-export { TextInput } from './primitives/TextInput';
+export { CountedInput } from './primitives/CountedInput';
 export { ThemeText } from './primitives/ThemeText';
 export { HeaderText } from './primitives/HeaderText';
 export { SectionLabel } from './primitives/SectionLabel';
@@ -18,9 +18,12 @@ export { SettingRow, CustomSwitch } from './layout/SettingRow';
 
 // cards
 export { PaperCard } from './cards/PaperCard';
+export { ProjectAvatar } from './cards/ProjectAvatar';
 
 // sheets
 export { BottomSheet } from './sheets/BottomSheet';
+export { SheetButtonRow } from './sheets/SheetButtonRow';
+export { ColorSwatchPicker } from './sheets/ColorSwatchPicker';
 export { NewNoteSheet } from './sheets/NewNoteSheet';
 export { NewProjectSheet } from './sheets/NewProjectSheet';
 export { ProjectMenuSheet } from './sheets/ProjectMenuSheet';

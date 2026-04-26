@@ -28,7 +28,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       if (raw) {
         try {
           setSettings({ ...DEFAULTS, ...JSON.parse(raw) });
-        } catch {}
+        } catch (e) {
+          console.warn('[Kaori] Failed to parse settings:', e);
+        }
       }
     });
   }, []);

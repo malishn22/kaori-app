@@ -1,4 +1,5 @@
 import type { TimeOfDay } from '@/types';
+import { MS_PER_DAY } from '@/constants';
 
 export function getTimeOfDay(): TimeOfDay {
   const h = new Date().getHours();
@@ -19,7 +20,7 @@ export function computeDisplayStrings(createdAt: string): { time: string; date: 
 
   const createdDay = new Date(created.getFullYear(), created.getMonth(), created.getDate());
   const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffDays = Math.round((todayDay.getTime() - createdDay.getTime()) / 86400000);
+  const diffDays = Math.floor((todayDay.getTime() - createdDay.getTime()) / MS_PER_DAY);
 
   let date: string;
   if (diffDays === 0) date = 'today';

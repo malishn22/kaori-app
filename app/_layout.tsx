@@ -7,7 +7,6 @@ import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme, getColors } from '@/theme';
-import type { Tone, Accent } from '@/theme';
 import { SettingsProvider } from '@/providers/SettingsProvider';
 import { StoreProvider, useStore } from '@/providers/StoreProvider';
 import { NewNoteSheetProvider } from '@/providers/NewNoteSheetProvider';
@@ -16,21 +15,7 @@ import { ProjectMenuSheetProvider } from '@/providers/ProjectMenuSheetProvider';
 import { SettingSheetProvider, useSettingSheet } from '@/providers/SettingSheetProvider';
 import { NewNoteSheet, NewProjectSheet, ProjectMenuSheet, SettingSheet } from '@/components/ui';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-const TONE_OPTIONS: { value: Tone; label: string }[] = [
-  { value: 'warm-ink',   label: 'warm ink' },
-  { value: 'pure-black', label: 'pure black' },
-  { value: 'cool',       label: 'cool' },
-  { value: 'forest',     label: 'forest' },
-];
-
-const ACCENT_OPTIONS: { value: Accent; label: string }[] = [
-  { value: 'amber', label: 'amber' },
-  { value: 'cream', label: 'cream' },
-  { value: 'coral', label: 'coral' },
-  { value: 'sage',  label: 'sage' },
-  { value: 'mono',  label: 'none' },
-];
+import { TONE_OPTIONS, ACCENT_OPTIONS } from '@/constants/options';
 
 function RootSettingSheets() {
   const { settings, setSetting } = useTheme();
@@ -100,7 +85,7 @@ export default function RootLayout() {
                       <Stack.Screen name="(tabs)" />
                       <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
                       <Stack.Screen name="project/[id]" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="idea/[id]" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="note/[id]" options={{ animation: 'slide_from_right' }} />
                     </Stack>
                     <NewNoteSheet />
                   </NewNoteSheetProvider>

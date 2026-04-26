@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, type TextProps, type TextStyle } from 'react-native';
 import { useTheme, FONT } from '@/theme';
+import { resolveColor } from '@/theme/colors';
 
 type Variant = 'display' | 'heading' | 'subheading' | 'title' | 'body' | 'caption' | 'meta' | 'label' | 'button' | 'chip' | 'tab';
 
@@ -37,11 +38,6 @@ const VARIANTS: Record<Variant, VariantDef> = {
   chip:       { fontFamily: FONT.kalam, fontSize: 14, color: 'ink' },
   tab:        { fontFamily: FONT.kalam, fontSize: 10.5, letterSpacing: 0.2 },
 };
-
-function resolveColor(color: string | undefined, colors: Record<string, string>): string | undefined {
-  if (!color) return undefined;
-  return color in colors ? colors[color] : color;
-}
 
 export function ThemeText({ variant = 'body', color, size, lineHeight, letterSpacing, uppercase, style, children, ...rest }: ThemeTextProps) {
   const { colors } = useTheme();

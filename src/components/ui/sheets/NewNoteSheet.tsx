@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, ScrollView } from 'react-native';
+import { View, ScrollView, TextInput as RNTextInput } from 'react-native';
 import { useTheme } from '@/theme';
 import { useHapticFeedback } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
 import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { BottomSheet } from './BottomSheet';
+import { SheetButtonRow } from './SheetButtonRow';
 import { Underline } from '../primitives/Underline';
 import { ThemeText } from '../primitives/ThemeText';
 import { Input } from '../primitives/Input';
 import { Chip } from '../primitives/Chip';
 import { SectionLabel } from '../primitives/SectionLabel';
-import { ArrowIcon } from '@/assets/icons';
-import { FONT } from '@/theme';
 import { GrainOverlay } from '../primitives/GrainOverlay';
+import { SHEET_PADDING_H } from '@/constants';
 
 export function NewNoteSheet() {
   const { colors } = useTheme();
   const { impactOnSave } = useHapticFeedback();
-  const { projects, addIdea } = useStore();
+  const { projects, addNote } = useStore();
   const { bottomSheetRef, initialProjectId, resetKey, closeNewNote } = useNewNoteSheet();
-  const textInputRef = useRef<any>(null);
+  const textInputRef = useRef<RNTextInput>(null);
   const [text, setText] = useState('');
   const [activeProject, setActiveProject] = useState<string | null>(
     initialProjectId ?? (projects.length > 0 ? projects[0].id : null)
@@ -32,7 +32,7 @@ export function NewNoteSheet() {
 
   async function handleSave() {
     if (!text.trim()) return;
-    await addIdea(text.trim(), activeProject);
+    await addNote(text.trim(), activeProject);
     impactOnSave();
     closeNewNote();
   }
@@ -40,7 +40,7 @@ export function NewNoteSheet() {
   return (
     <BottomSheet sheetRef={bottomSheetRef} onChange={(index) => { if (index === 0) setTimeout(() => textInputRef.current?.focus(), 100); }}>
       <View style={{
-        paddingHorizontal: 22,
+        paddingHorizontal: SHEET_PADDING_H,
         paddingTop: 8,
         overflow: 'hidden',
       }}>
@@ -66,7 +66,7 @@ export function NewNoteSheet() {
         />
 
         {/* Divider */}
-        <View style={{ height: 1, backgroundColor: colors.line2, marginHorizontal: -22, marginTop: 18, marginBottom: 14 }} />
+        <View style={{ height: 1, backgroundColor: colors.line2, marginHorizontal: -SHEET_PADDING_H, marginTop: 18, marginBottom: 14 }} />
 
         {/* Project chips */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
@@ -86,36 +86,12 @@ export function NewNoteSheet() {
         </ScrollView>
 
         {/* Buttons */}
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <TouchableOpacity
-            onPress={closeNewNote}
-            style={{
-              flex: 1, height: 48, borderRadius: 14,
-              borderWidth: 1, borderColor: colors.line2,
-              alignItems: 'center', justifyContent: 'center',
-            }}
-            activeOpacity={0.7}
-          >
-            <ThemeText variant="label" size={14} color="ink2" style={{ fontFamily: FONT.geistMedium }}>cancel</ThemeText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleSave}
-            disabled={!text.trim()}
-            style={{
-              flex: 2, height: 48, borderRadius: 14,
-              backgroundColor: colors.amber,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              opacity: text.trim() ? 1 : 0.4,
-            }}
-            activeOpacity={0.85}
-          >
-            <ThemeText variant="button" color="#1a140a">save it</ThemeText>
-            <ArrowIcon size={16} color="#1a140a" strokeWidth={2.2} />
-          </TouchableOpacity>
-        </View>
+        <SheetButtonRow
+          onCancel={closeNewNote}
+          onAction={handleSave}
+          actionLabel="save it"
+          actionDisabled={!text.trim()}
+        />
       </View>
     </BottomSheet>
   );

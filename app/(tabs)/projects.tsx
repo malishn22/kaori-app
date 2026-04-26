@@ -5,21 +5,22 @@ import { useRouter } from 'expo-router';
 import { useNewProjectSheet } from '@/providers/NewProjectSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { Underline, FAB, GrainOverlay, ThemeText, HeaderText } from '@/components/ui';
+import { Underline, FAB, GrainOverlay, ThemeText, HeaderText, ProjectAvatar } from '@/components/ui';
 import { ChevronIcon, BookmarkIcon } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
+import { SHADOW_CARD } from '@/constants';
 
 export default function ProjectsScreen() {
   const router = useRouter();
   const { openNewProject } = useNewProjectSheet();
   const { colors } = useTheme();
-  const { projects, ideas } = useStore();
-  const ideaCounts = useMemo(
-    () => ideas.reduce<Record<string, number>>((acc, idea) => {
-      if (idea.project) acc[idea.project] = (acc[idea.project] ?? 0) + 1;
+  const { projects, notes } = useStore();
+  const noteCounts = useMemo(
+    () => notes.reduce<Record<string, number>>((acc, note) => {
+      if (note.project) acc[note.project] = (acc[note.project] ?? 0) + 1;
       return acc;
     }, {}),
-    [ideas]
+    [notes]
   );
   const sortedProjects = useMemo(
     () => [...projects].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)),
@@ -54,35 +55,20 @@ export default function ProjectsScreen() {
                   borderWidth: 1,
                   borderColor: colors.line,
                   transform: [{ rotate: `${tilt}deg` }],
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 6 },
-                  shadowOpacity: 0.22,
-                  shadowRadius: 14,
-                  elevation: 5,
+                  ...SHADOW_CARD,
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 14,
                   overflow: 'hidden',
                 }}>
                   <GrainOverlay />
-                  <View style={{
-                    width: 42, height: 42, borderRadius: 12,
-                    backgroundColor: `${p.color}1c`,
-                    borderWidth: 1,
-                    borderColor: `${p.color}33`,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                    <ThemeText variant="heading" color={p.color}>
-                      {p.name.charAt(0).toLowerCase()}
-                    </ThemeText>
-                  </View>
+                  <ProjectAvatar name={p.name} color={p.color} />
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <ThemeText variant="title">
                       {p.name}
                     </ThemeText>
                     <ThemeText variant="meta" style={{ marginTop: 4 }}>
-                      {ideaCounts[p.id] ?? 0} ideas · {p.updated}
+                      {noteCounts[p.id] ?? 0} notes · {p.updated}
                     </ThemeText>
                   </View>
                   {p.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}

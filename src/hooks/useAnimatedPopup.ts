@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { Animated } from 'react-native';
+import { ANIM_POPUP_OPEN, ANIM_POPUP_CLOSE } from '@/constants';
 
 export function useAnimatedPopup() {
   const anim = useRef(new Animated.Value(0)).current;
@@ -13,7 +14,7 @@ export function useAnimatedPopup() {
     anim.setValue(0);
     Animated.timing(anim, {
       toValue: 1,
-      duration: 160,
+      duration: ANIM_POPUP_OPEN,
       useNativeDriver: true,
     }).start();
   }
@@ -21,7 +22,7 @@ export function useAnimatedPopup() {
   function close(cb?: () => void) {
     Animated.timing(anim, {
       toValue: 0,
-      duration: 130,
+      duration: ANIM_POPUP_CLOSE,
       useNativeDriver: true,
     }).start(cb);
   }

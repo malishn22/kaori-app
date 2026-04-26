@@ -3,7 +3,7 @@ import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
-import { useProjectIdeas } from '@/hooks';
+import { useProjectNotes } from '@/hooks';
 import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { useProjectMenuSheet } from '@/providers/ProjectMenuSheetProvider';
 import { PaperCard, FAB, GrainOverlay, ThemeText, HeaderText, ColorDot, ScreenHeader, ShowMoreButton } from '@/components/ui';
@@ -14,7 +14,7 @@ export default function ProjectDetailScreen() {
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const { proj, ideas, ideasThisWeek, pinnedCount } = useProjectIdeas(id);
+  const { proj, notes, notesThisWeek, pinnedCount } = useProjectNotes(id);
   const { openNewNote } = useNewNoteSheet();
   const { openProjectMenu } = useProjectMenuSheet();
 
@@ -70,8 +70,8 @@ export default function ProjectDetailScreen() {
             </ThemeText>
             <View style={{ flexDirection: 'row', gap: 18, marginTop: 18 }}>
               {[
-                { val: ideas.length, label: 'ideas' },
-                { val: ideasThisWeek, label: 'this week' },
+                { val: notes.length, label: 'notes' },
+                { val: notesThisWeek, label: 'this week' },
                 { val: pinnedCount, label: 'pinned' },
               ].map(({ val, label }) => (
                 <ThemeText key={label} variant="meta">
@@ -83,11 +83,11 @@ export default function ProjectDetailScreen() {
           </View>
         </View>
 
-        {/* Ideas list */}
+        {/* Notes list */}
         <View style={{ paddingHorizontal: 18, paddingTop: 24, gap: 12 }}>
-          {ideas.map((idea, ix) => (
-            <TouchableOpacity key={idea.id} onPress={() => router.push(`/idea/${idea.id}`)} activeOpacity={0.85}>
-              <PaperCard idea={idea} project={proj} index={ix + 1} />
+          {notes.map((note, ix) => (
+            <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
+              <PaperCard note={note} project={proj} index={ix + 1} />
             </TouchableOpacity>
           ))}
         </View>

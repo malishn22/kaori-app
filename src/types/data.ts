@@ -9,7 +9,7 @@ export type Project = {
   pinned: boolean;
 };
 
-export type Idea = {
+export type Note = {
   id: string;
   project: string | null;
   text: string;
@@ -30,4 +30,4 @@ export type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night';
 
 export const SEED_PROJECTS: Project[] = [];
 
-export const SEED_IDEAS: Idea[] = [];
+export const SEED_NOTES: Note[] = [];

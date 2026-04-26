@@ -1,16 +1,16 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, TextInput as RNTextInput } from 'react-native';
 import { useTheme, FONT } from '@/theme';
 import { Input } from './Input';
 import { ThemeText } from './ThemeText';
 import type { TextInputProps as RNTextInputProps } from 'react-native';
 
-interface TextInputProps extends RNTextInputProps {
+interface CountedInputProps extends RNTextInputProps {
   asBottomSheet?: boolean;
   maxLength: number;
 }
 
-export const TextInput = React.forwardRef<any, TextInputProps>(
+export const CountedInput = React.forwardRef<RNTextInput, CountedInputProps>(
   ({ asBottomSheet, style, value = '', maxLength, ...props }, ref) => {
     const { colors } = useTheme();
     return (

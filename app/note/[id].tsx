@@ -7,20 +7,19 @@ import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useAnimatedPopup } from '@/hooks';
 import { GrainOverlay, ThemeText, ColorDot, Chip, ScreenHeader, HeaderEditButton, ShowMoreButton } from '@/components/ui';
 import { FONT } from '@/theme';
+import { POPUP_WIDTH, SHADOW_POPUP, BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 
-const POPUP_WIDTH = 220;
-
-export default function IdeaDetailScreen() {
+export default function NoteDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { ideas, projects, updateIdea, deleteIdea } = useStore();
-  const idea = ideas.find(i => i.id === id);
-  const proj = idea?.project ? projects.find(p => p.id === idea.project) : undefined;
+  const { notes, projects, updateNote, deleteNote } = useStore();
+  const note = notes.find(n => n.id === id);
+  const proj = note?.project ? projects.find(p => p.id === note.project) : undefined;
 
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(idea?.text ?? '');
+  const [draft, setDraft] = useState(note?.text ?? '');
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [movingProject, setMovingProject] = useState(false);
@@ -29,9 +28,9 @@ export default function IdeaDetailScreen() {
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
 
-  if (!idea) return null;
+  if (!note) return null;
 
-  const wordCount = (editing ? draft : idea.text).trim().split(/\s+/).filter(Boolean).length;
+  const wordCount = (editing ? draft : note.text).trim().split(/\s+/).filter(Boolean).length;
 
   function openMenu() {
     setConfirmDelete(false);
@@ -49,19 +48,19 @@ export default function IdeaDetailScreen() {
 
   async function handleSave() {
     if (!draft.trim()) return;
-    await updateIdea(idea!.id, { text: draft.trim() });
+    await updateNote(note!.id, { text: draft.trim() });
     impactOnSave();
     setEditing(false);
   }
 
   async function handleShare() {
     closeMenu(async () => {
-      await Share.share({ message: idea?.text ?? '' });
+      await Share.share({ message: note?.text ?? '' });
     });
   }
 
   async function handlePin() {
-    await updateIdea(idea?.id ?? '', { pinned: !idea?.pinned });
+    await updateNote(note?.id ?? '', { pinned: !note?.pinned });
     impact();
     closeMenu();
   }
@@ -72,20 +71,20 @@ export default function IdeaDetailScreen() {
       return;
     }
     notificationWarning();
-    await deleteIdea(idea!.id);
+    await deleteNote(note!.id);
     setMenuOpen(false);
     router.back();
   }
 
   async function handleMoveProject(projectId: string | null) {
-    await updateIdea(idea!.id, { project: projectId });
+    await updateNote(note!.id, { project: projectId });
     impact();
     closeMenu();
   }
 
   function handleBack() {
     if (editing) {
-      setDraft(idea!.text);
+      setDraft(note!.text);
       setEditing(false);
     } else {
       router.back();
@@ -103,7 +102,7 @@ export default function IdeaDetailScreen() {
       <ScreenHeader
         onBack={handleBack}
         rightActions={[
-          { icon: <HeaderEditButton color={editing ? colors.amber : colors.ink2} onPress={() => { setDraft(idea.text); setEditing(true); }} /> },
+          { icon: <HeaderEditButton color={editing ? colors.amber : colors.ink2} onPress={() => { setDraft(note.text); setEditing(true); }} /> },
           { icon: <ShowMoreButton color={colors.ink2} onPress={openMenu} /> },
         ]}
       />
@@ -139,14 +138,14 @@ export default function IdeaDetailScreen() {
             />
           ) : (
             <ThemeText variant="heading" size={26} lineHeight={36} letterSpacing={0.1} color="ink">
-              {idea.text}
+              {note.text}
             </ThemeText>
           )}
 
           {/* Meta */}
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 18 }}>
             <ThemeText variant="meta">
-              {idea.date === 'today' ? 'today' : idea.date}, {idea.time}
+              {note.date === 'today' ? 'today' : note.date}, {note.time}
             </ThemeText>
             <ThemeText variant="meta" style={{ opacity: 0.4 }}>·</ThemeText>
             <ThemeText variant="meta">{wordCount} words</ThemeText>
@@ -154,7 +153,7 @@ export default function IdeaDetailScreen() {
         </View>
 
         {/* Tags */}
-        {idea.tags.length > 0 && (
+        {note.tags.length > 0 && (
           <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
             <View style={{
               backgroundColor: colors.paper,
@@ -169,7 +168,7 @@ export default function IdeaDetailScreen() {
                 tags
               </ThemeText>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                {idea.tags.map((tag) => (
+                {note.tags.map((tag) => (
                   <Chip key={tag} paddingVertical={4}>
                     <ThemeText variant="chip" size={13} color="ink2">#{tag}</ThemeText>
                   </Chip>
@@ -196,7 +195,7 @@ export default function IdeaDetailScreen() {
           }}
           activeOpacity={0.85}
         >
-          <ThemeText variant="button" color="#1a140a">save</ThemeText>
+          <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
         </TouchableOpacity>
       ) : (
         <View style={{ height: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
@@ -227,11 +226,7 @@ export default function IdeaDetailScreen() {
               borderWidth: 1,
               borderColor: colors.line2,
               overflow: 'hidden',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.3,
-              shadowRadius: 20,
-              elevation: 12,
+              ...SHADOW_POPUP,
               opacity: popupOpacity,
               transform: [
                 { translateX: POPUP_WIDTH / 2 },
@@ -272,12 +267,12 @@ export default function IdeaDetailScreen() {
               <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View style={{ flexDirection: 'row', gap: 6 }}>
-                    <Chip active={idea.project === null} onPress={() => handleMoveProject(null)}>
-                      <ThemeText variant="chip" size={13} color={idea.project === null ? 'ink' : 'ink2'}>none</ThemeText>
+                    <Chip active={note.project === null} onPress={() => handleMoveProject(null)}>
+                      <ThemeText variant="chip" size={13} color={note.project === null ? 'ink' : 'ink2'}>none</ThemeText>
                     </Chip>
                     {projects.map(p => (
-                      <Chip key={p.id} color={p.color} active={idea.project === p.id} dot dotSize={5} onPress={() => handleMoveProject(p.id)}>
-                        <ThemeText variant="chip" size={13} color={idea.project === p.id ? p.color : 'ink2'}>{p.name}</ThemeText>
+                      <Chip key={p.id} color={p.color} active={note.project === p.id} dot dotSize={5} onPress={() => handleMoveProject(p.id)}>
+                        <ThemeText variant="chip" size={13} color={note.project === p.id ? p.color : 'ink2'}>{p.name}</ThemeText>
                       </Chip>
                     ))}
                   </View>
@@ -298,8 +293,8 @@ export default function IdeaDetailScreen() {
                 borderBottomColor: colors.line,
               }}
             >
-              <ThemeText variant="body" style={{ flex: 1 }}>{idea.pinned ? 'unpin' : 'pin'}</ThemeText>
-              {idea.pinned && <ThemeText variant="meta" color="amber">pinned</ThemeText>}
+              <ThemeText variant="body" style={{ flex: 1 }}>{note.pinned ? 'unpin' : 'pin'}</ThemeText>
+              {note.pinned && <ThemeText variant="meta" color="amber">pinned</ThemeText>}
             </TouchableOpacity>
 
             {/* Share */}
@@ -329,7 +324,7 @@ export default function IdeaDetailScreen() {
                 paddingVertical: 14,
               }}
             >
-              <ThemeText variant="body" color="#c97060">
+              <ThemeText variant="body" color={DELETE_COLOR}>
                 {confirmDelete ? 'tap again to confirm' : 'delete'}
               </ThemeText>
             </TouchableOpacity>

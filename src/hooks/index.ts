@@ -1,4 +1,4 @@
 export { useHapticFeedback } from './useHapticFeedback';
 export { useBottomSheetControl } from './useBottomSheetControl';
-export { useProjectIdeas } from './useProjectIdeas';
+export { useProjectNotes } from './useProjectNotes';
 export { useAnimatedPopup } from './useAnimatedPopup';

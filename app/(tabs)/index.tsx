@@ -9,25 +9,26 @@ import { getTimeOfDay, getDayName } from '@/utils/time';
 import { PaperCard, Underline, FAB, ThemeText, HeaderText, SectionLabel } from '@/components/ui';
 import { SettingsIcon } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
+import { SHADOW_EMPTY } from '@/constants';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { openNewNote } = useNewNoteSheet();
   const { colors } = useTheme();
-  const { ideas, projects, profile } = useStore();
+  const { notes, projects, profile } = useStore();
   const insets = useSafeAreaInsets();
 
   const timeOfDay = getTimeOfDay();
   const dayName = getDayName();
-  const todayCount = ideas.filter(i => i.date === 'today').length;
-  const yesterdayCount = ideas.filter(i => i.date === 'yesterday').length;
+  const todayCount = notes.filter(i => i.date === 'today').length;
+  const yesterdayCount = notes.filter(i => i.date === 'yesterday').length;
 
-  if (ideas.length === 0) {
+  if (notes.length === 0) {
     return <EmptyState onFAB={() => openNewNote()} />;
   }
 
   const subtitleParts = [];
-  if (todayCount > 0) subtitleParts.push(`${todayCount} ${todayCount === 1 ? 'idea' : 'ideas'} waiting`);
+  if (todayCount > 0) subtitleParts.push(`${todayCount} ${todayCount === 1 ? 'note' : 'notes'} waiting`);
   if (yesterdayCount > 0) subtitleParts.push(`${yesterdayCount} from yesterday`);
   const subtitle = subtitleParts.length > 0 ? subtitleParts.join(', ') + '.' : 'nothing yet today.';
 
@@ -55,22 +56,22 @@ export default function HomeScreen() {
           </ThemeText>
         </View>
 
-        {/* Recent Ideas */}
+        {/* Recent Notes */}
         <View style={{ paddingTop: 28 }}>
           <View style={{ paddingHorizontal: 24, paddingBottom: 12, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
             <View>
-              <SectionLabel>recent ideas</SectionLabel>
+              <SectionLabel>recent notes</SectionLabel>
               <Underline width={72} />
             </View>
             <ThemeText variant="meta">see all</ThemeText>
           </View>
 
           <View style={{ paddingHorizontal: 18, gap: 12 }}>
-            {ideas.slice(0, 4).map((idea, i) => {
-              const proj = projects.find(p => p.id === idea.project);
+            {notes.slice(0, 4).map((note, i) => {
+              const proj = projects.find(p => p.id === note.project);
               return (
-                <TouchableOpacity key={idea.id} onPress={() => router.push(`/idea/${idea.id}`)} activeOpacity={0.85}>
-                  <PaperCard idea={idea} project={proj} index={i} />
+                <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
+                  <PaperCard note={note} project={proj} index={i} />
                 </TouchableOpacity>
               );
             })}
@@ -96,11 +97,7 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
           borderWidth: 1,
           borderColor: colors.line2,
           transform: [{ rotate: '-3deg' }],
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 16 },
-          shadowOpacity: 0.4,
-          shadowRadius: 40,
-          elevation: 12,
+          ...SHADOW_EMPTY,
           overflow: 'hidden',
           marginBottom: 32,
         }}>
