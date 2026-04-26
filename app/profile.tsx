@@ -148,7 +148,7 @@ export default function ProfileScreen() {
 
         {/* Tagline */}
         <View style={{ alignItems: 'center', paddingTop: 36 }}>
-          <ThemeText variant="meta" color="ink4" style={{ fontStyle: 'italic', fontFamily: FONT.kalam, fontSize: 16 }}>
+          <ThemeText variant="meta" color="ink4" style={{ fontStyle: 'normal', fontFamily: FONT.kalam, fontSize: 16 }}>
             rest well, {profile.initial}.
           </ThemeText>
         </View>
