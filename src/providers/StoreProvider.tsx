@@ -13,7 +13,7 @@ const KEYS = {
 const RESET_KEY = '@kaori_reset_v2';
 
 const DEFAULT_PROFILE: Profile = {
-  name: 'margaret',
+  name: 'Mali',
   initial: 'm',
   defaultProject: 'inbox',
 };
