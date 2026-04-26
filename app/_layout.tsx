@@ -1,0 +1,117 @@
+import '../global.css';
+import { Kalam_700Bold, useFonts as useKalamFonts } from '@expo-google-fonts/kalam';
+import * as SplashScreen from 'expo-splash-screen';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { useFonts } from 'expo-font';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useTheme, getColors } from '@/theme';
+import type { Tone, Accent } from '@/theme';
+import { SettingsProvider } from '@/providers/SettingsProvider';
+import { StoreProvider, useStore } from '@/providers/StoreProvider';
+import { NewNoteSheetProvider } from '@/providers/NewNoteSheetProvider';
+import { NewProjectSheetProvider } from '@/providers/NewProjectSheetProvider';
+import { ProjectMenuSheetProvider } from '@/providers/ProjectMenuSheetProvider';
+import { SettingSheetProvider, useSettingSheet } from '@/providers/SettingSheetProvider';
+import { NewNoteSheet, NewProjectSheet, ProjectMenuSheet, SettingSheet } from '@/components/ui';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+const TONE_OPTIONS: { value: Tone; label: string }[] = [
+  { value: 'warm-ink',   label: 'warm ink' },
+  { value: 'pure-black', label: 'pure black' },
+  { value: 'cool',       label: 'cool' },
+  { value: 'forest',     label: 'forest' },
+];
+
+const ACCENT_OPTIONS: { value: Accent; label: string }[] = [
+  { value: 'amber', label: 'amber' },
+  { value: 'cream', label: 'cream' },
+  { value: 'coral', label: 'coral' },
+  { value: 'sage',  label: 'sage' },
+  { value: 'mono',  label: 'none' },
+];
+
+function RootSettingSheets() {
+  const { settings, setSetting } = useTheme();
+  const { projects, profile, updateProfile } = useStore();
+  const { openSheet, setOpenSheet } = useSettingSheet();
+  const folderOptions = projects.map(p => ({ value: p.id, label: p.name }));
+
+  return (
+    <>
+      <SettingSheet
+        visible={openSheet === 'tone'}
+        title="theme"
+        options={TONE_OPTIONS}
+        value={settings.tone}
+        onSelect={(v) => setSetting('tone', v)}
+        onClose={() => setOpenSheet(null)}
+      />
+      <SettingSheet
+        visible={openSheet === 'accent'}
+        title="accent"
+        options={ACCENT_OPTIONS}
+        value={settings.accent}
+        onSelect={(v) => setSetting('accent', v)}
+        onClose={() => setOpenSheet(null)}
+      />
+      <SettingSheet
+        visible={openSheet === 'folder'}
+        title="default folder"
+        options={folderOptions}
+        value={profile.defaultProject}
+        onSelect={(v) => { updateProfile({ defaultProject: v }); setOpenSheet(null); }}
+        onClose={() => setOpenSheet(null)}
+      />
+    </>
+  );
+}
+
+SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  const [kalamLoaded] = useKalamFonts({ Kalam_700Bold });
+  const [geistLoaded] = useFonts({
+    'Geist-Regular': require('../assets/fonts/Geist-Regular.ttf'),
+    'Geist-Medium': require('../assets/fonts/Geist-Medium.ttf'),
+    'Geist-Bold': require('../assets/fonts/Geist-Bold.ttf'),
+  });
+
+  const loaded = kalamLoaded && geistLoaded;
+
+  useEffect(() => {
+    if (loaded) SplashScreen.hideAsync();
+  }, [loaded]);
+
+  if (!loaded) return null;
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: getColors().bg }}>
+      <SafeAreaProvider>
+        <SettingsProvider>
+          <StoreProvider>
+            <SettingSheetProvider>
+              <ProjectMenuSheetProvider>
+                <NewProjectSheetProvider>
+                  <NewNoteSheetProvider>
+                    <StatusBar style="light" />
+                    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>
+                      <Stack.Screen name="(tabs)" />
+                      <Stack.Screen name="project/[id]" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="idea/[id]" options={{ animation: 'slide_from_right' }} />
+                    </Stack>
+                    <NewNoteSheet />
+                  </NewNoteSheetProvider>
+                  <NewProjectSheet />
+                </NewProjectSheetProvider>
+                <ProjectMenuSheet />
+              </ProjectMenuSheetProvider>
+              <RootSettingSheets />
+            </SettingSheetProvider>
+          </StoreProvider>
+        </SettingsProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
