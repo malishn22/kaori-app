@@ -18,7 +18,7 @@ export function NewNoteSheet() {
   const { colors } = useTheme();
   const { impactOnSave } = useHapticFeedback();
   const { projects, addIdea } = useStore();
-  const { bottomSheetRef, initialProjectId, closeNewNote } = useNewNoteSheet();
+  const { bottomSheetRef, initialProjectId, resetKey, closeNewNote } = useNewNoteSheet();
   const textInputRef = useRef<any>(null);
   const [text, setText] = useState('');
   const [activeProject, setActiveProject] = useState<string | null>(
@@ -28,7 +28,7 @@ export function NewNoteSheet() {
   useEffect(() => {
     setActiveProject(initialProjectId ?? (projects.length > 0 ? projects[0].id : null));
     setText('');
-  }, [initialProjectId]);
+  }, [initialProjectId, resetKey]);
 
   async function handleSave() {
     if (!text.trim()) return;

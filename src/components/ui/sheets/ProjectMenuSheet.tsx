@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
@@ -20,6 +20,10 @@ export function ProjectMenuSheet() {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const proj = projects.find(p => p.id === activeProjectId);
+
+  useEffect(() => {
+    setConfirmDelete(false);
+  }, [activeProjectId]);
 
   function handleSheetChange(index: number) {
     if (index === -1) setConfirmDelete(false);

@@ -11,11 +11,10 @@ export function useAnimatedPopup() {
 
   function open() {
     anim.setValue(0);
-    Animated.spring(anim, {
+    Animated.timing(anim, {
       toValue: 1,
+      duration: 160,
       useNativeDriver: true,
-      damping: 20,
-      stiffness: 300,
     }).start();
   }
 

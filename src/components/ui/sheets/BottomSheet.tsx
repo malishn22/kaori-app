@@ -1,6 +1,7 @@
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, Keyboard } from 'react-native';
 import GorhomBottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useReducedMotion, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 
@@ -21,8 +22,9 @@ export function BottomSheet({ sheetRef, children, onChange }: BottomSheetProps) 
       index={-1}
       enableDynamicSizing
       enablePanDownToClose
+      enableContentPanningGesture={false}
       keyboardBehavior="interactive"
-      keyboardBlurBehavior="restore"
+      keyboardBlurBehavior="none"
       backdropComponent={(props) => (
         <BottomSheetBackdrop
           {...props}
@@ -39,7 +41,10 @@ export function BottomSheet({ sheetRef, children, onChange }: BottomSheetProps) 
         borderColor: colors.line2,
       }}
       handleIndicatorStyle={{ backgroundColor: colors.ink4, width: 40 }}
-      onChange={onChange}
+      onChange={(index) => {
+        if (index === -1) Keyboard.dismiss();
+        onChange?.(index);
+      }}
     >
       <BottomSheetView style={{ paddingBottom: 44 + bottomInset }}>
         {children}

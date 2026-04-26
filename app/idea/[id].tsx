@@ -24,6 +24,7 @@ export default function IdeaDetailScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [movingProject, setMovingProject] = useState(false);
+  const [popupHeight, setPopupHeight] = useState(0);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
@@ -215,6 +216,7 @@ export default function IdeaDetailScreen() {
 
           {/* Animated popup card */}
           <Animated.View
+            onLayout={e => setPopupHeight(e.nativeEvent.layout.height)}
             style={{
               position: 'absolute',
               top: popupTop,
@@ -233,9 +235,9 @@ export default function IdeaDetailScreen() {
               opacity: popupOpacity,
               transform: [
                 { translateX: POPUP_WIDTH / 2 },
-                { translateY: -60 },
+                { translateY: -popupHeight / 2 },
                 { scale: popupScale },
-                { translateY: 60 },
+                { translateY: popupHeight / 2 },
                 { translateX: -POPUP_WIDTH / 2 },
               ],
             }}

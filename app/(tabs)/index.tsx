@@ -87,7 +87,7 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
   const { colors } = useTheme();
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, marginTop: -80 }}>
         {/* Blank tilted paper */}
         <View style={{
           width: 220, height: 280,
@@ -125,7 +125,7 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
           your notebook{'\n'}is <HeaderText size={32} lineHeight={38} color="amber">empty</HeaderText>.
         </HeaderText>
         <ThemeText variant="meta" size={13.5} color="ink2" style={{ lineHeight: 21, textAlign: 'center', marginTop: 14, maxWidth: 290 }}>
-          tap the amber button below to write your first idea. no rules — anything that arrives is welcome.
+          tap the button below to write your first note. 
         </ThemeText>
       </View>
       <FAB onPress={onFAB} wide label="first note" bottomOffset={TAB_BAR_BASE_HEIGHT} />
