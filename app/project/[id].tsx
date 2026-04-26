@@ -7,7 +7,6 @@ import { useProjectNotes } from '@/hooks';
 import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { useProjectMenuSheet } from '@/providers/ProjectMenuSheetProvider';
 import { PaperCard, FAB, GrainOverlay, ThemeText, HeaderText, ColorDot, ScreenHeader, ShowMoreButton } from '@/components/ui';
-import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function ProjectDetailScreen() {
   const router = useRouter();
@@ -93,7 +92,7 @@ export default function ProjectDetailScreen() {
         </View>
       </ScrollView>
 
-      <FAB onPress={() => openNewNote(proj.id)} bottomGap={TAB_BAR_BASE_HEIGHT} />
+      <FAB onPress={() => openNewNote(proj.id)}  />
     </View>
   );
 }

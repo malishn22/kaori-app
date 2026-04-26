@@ -80,7 +80,7 @@ export default function ProjectsScreen() {
         </View>
       </ScrollView>
 
-      <FAB onPress={() => openNewProject()} bottomOffset={TAB_BAR_BASE_HEIGHT} />
+      <FAB onPress={() => openNewProject()}  />
     </SafeAreaView>
   );
 }

@@ -5,12 +5,12 @@ import { useTheme } from '@/theme';
 import { PlusIcon } from '@/assets/icons';
 import { ThemeText } from '../primitives/ThemeText';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
+import { TAB_BAR_BASE_HEIGHT, TAB_BAR_BOTTOM_INSET } from '@/constants/layout';
 
 type Props = {
   onPress: () => void;
   wide?: boolean;
   label?: string;
-  bottomOffset?: number;
   rightOffset?: number;
   bottomGap?: number;
 };
@@ -19,7 +19,6 @@ export function FAB({
   onPress,
   wide = false,
   label = '',
-  bottomOffset = 0,
   rightOffset = 20,
   bottomGap = 20,
 }: Props) {
@@ -31,7 +30,7 @@ export function FAB({
     ? Math.min(rawBottomInset, 12)
     : rawBottomInset;
 
-  const bottom = bottomInsetForFab + bottomOffset + bottomGap;
+  const bottom = bottomInsetForFab + TAB_BAR_BASE_HEIGHT + TAB_BAR_BOTTOM_INSET + bottomGap;
   return (
     <TouchableOpacity
       onPress={onPress}

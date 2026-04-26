@@ -79,7 +79,7 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <FAB onPress={() => openNewNote()} bottomOffset={TAB_BAR_BASE_HEIGHT} />
+      <FAB onPress={() => openNewNote()}  />
     </SafeAreaView>
   );
 }
@@ -125,7 +125,7 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
           tap the button below to write your first note. 
         </ThemeText>
       </View>
-      <FAB onPress={onFAB} wide label="first note" bottomOffset={TAB_BAR_BASE_HEIGHT} />
+      <FAB onPress={onFAB} wide label="first note"  />
     </SafeAreaView>
   );
 }
