@@ -1,11 +1,9 @@
 import React from 'react';
+import Svg, { Path } from 'react-native-svg';
 import type { SvgProps } from 'react-native-svg';
 
 import PlusSvg from './plus.svg';
-import SearchSvg from './search.svg';
 import FolderSvg from './folder.svg';
-import BookmarkSvg from './bookmark.svg';
-import BookmarkFilledSvg from './bookmark-filled.svg';
 import CheckSvg from './check.svg';
 import CircleSvg from './circle.svg';
 import ChevSvg from './chev.svg';
@@ -16,12 +14,9 @@ import SparkleSvg from './sparkle.svg';
 import CloudSvg from './cloud.svg';
 import BellSvg from './bell.svg';
 import MoonSvg from './moon.svg';
-import UserSvg from './user.svg';
+import GearSvg from './gear.svg';
 import PenSvg from './pen.svg';
-import CoffeeSvg from './coffee.svg';
 import TrashSvg from './trash.svg';
-import TagSvg from './tag.svg';
-import RainSvg from './rain.svg';
 
 export type IconProps = { size?: number; color?: string; strokeWidth?: number };
 
@@ -33,28 +28,30 @@ function icon(Svg: React.FC<SvgProps>, defaultSize: number) {
   );
 }
 
-export const IconPlus = icon(PlusSvg, 22);
-export const IconSearch = icon(SearchSvg, 20);
-export const IconFolder = icon(FolderSvg, 20);
-export const IconBookmark = icon(BookmarkSvg, 20);
-export const IconBookmarkFilled = icon(BookmarkFilledSvg, 20);
-export const IconCheck = icon(CheckSvg, 16);
-export const IconCircle = icon(CircleSvg, 18);
-export const IconArrow = icon(ArrowSvg, 18);
-export const IconBack = icon(BackSvg, 18);
-export const IconMore = icon(MoreSvg, 18);
-export const IconSparkle = icon(SparkleSvg, 16);
-export const IconCloud = icon(CloudSvg, 16);
-export const IconBell = icon(BellSvg, 18);
-export const IconMoon = icon(MoonSvg, 18);
-export const IconUser = icon(UserSvg, 18);
-export const IconPen = icon(PenSvg, 18);
-export const IconCoffee = icon(CoffeeSvg, 18);
-export const IconTrash = icon(TrashSvg, 18);
-export const IconTag = icon(TagSvg, 16);
-export const IconRain = icon(RainSvg, 24);
+export const PlusIcon = icon(PlusSvg, 22);
+export const FolderIcon = icon(FolderSvg, 20);
+export const CheckIcon = icon(CheckSvg, 16);
+export const CircleIcon = icon(CircleSvg, 18);
+export const ArrowIcon = icon(ArrowSvg, 18);
+export const BackIcon = icon(BackSvg, 18);
+export const MoreIcon = icon(MoreSvg, 18);
+export const SparkleIcon = icon(SparkleSvg, 16);
+export const CloudIcon = icon(CloudSvg, 16);
+export const BellIcon = icon(BellSvg, 18);
+export const MoonIcon = icon(MoonSvg, 18);
+export const SettingsIcon = icon(GearSvg, 18);
+export const EditIcon = icon(PenSvg, 18);
+export const TrashIcon = icon(TrashSvg, 18);
 
-export function IconChev({ size = 16, color, strokeWidth, dir = 'right' }: IconProps & { dir?: ChevDir }) {
+export function BookmarkIcon({ size = 20, color = 'currentColor', fill = 'transparent' }: { size?: number; color?: string; fill?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M6 4h12v17l-6-4-6 4V4z" fill={fill} stroke={color} strokeWidth={1.4} strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+export function ChevronIcon({ size = 16, color, strokeWidth, dir = 'right' }: IconProps & { dir?: ChevDir }) {
   const rotation = { right: '0deg', left: '180deg', up: '-90deg', down: '90deg' }[dir];
   return (
     <ChevSvg

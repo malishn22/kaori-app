@@ -1,32 +1,24 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, Switch, Share } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettingSheet } from '@/providers/SettingSheetProvider';
-import { Underline, GrainOverlay, ThemeText, HeaderText, ColorDot } from '@/components/ui';
+import { Underline, GrainOverlay, ThemeText, HeaderText, ColorDot, SettingRow, CustomSwitch } from '@/components/ui';
 import {
-  IconMoon, IconSparkle,
-  IconFolder, IconBell, IconCloud, IconArrow, IconChev,
+  MoonIcon, SparkleIcon,
+  BellIcon, ChevronIcon,
 } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const { colors, settings, setSetting } = useTheme();
   const { ideas, projects, profile } = useStore();
   const { setOpenSheet } = useSettingSheet();
   const insets = useSafeAreaInsets();
-
-  const defaultFolderName = projects.find(p => p.id === profile.defaultProject)?.name ?? 'inbox';
-
-  async function handleExport() {
-    const exportText = ideas.map(i => {
-      const proj = projects.find(p => p.id === i.project)?.name ?? i.project;
-      return `[${proj}] ${i.text}`;
-    }).join('\n\n');
-    await Share.share({ message: exportText });
-  }
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -41,6 +33,7 @@ export default function SettingsScreen() {
 
         {/* Profile card */}
         <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
+          <TouchableOpacity onPress={() => router.push('/profile')} activeOpacity={0.85}>
           <View style={{
             backgroundColor: colors.paper,
             borderRadius: 16,
@@ -69,6 +62,7 @@ export default function SettingsScreen() {
               </ThemeText>
             </View>
           </View>
+          </TouchableOpacity>
         </View>
 
         {/* FEEL section */}
@@ -79,21 +73,21 @@ export default function SettingsScreen() {
 
             <TouchableOpacity onPress={() => setOpenSheet('tone')} activeOpacity={0.7}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-              <IconMoon size={17} color={colors.ink3} strokeWidth={1.4} />
+              <MoonIcon size={17} color={colors.ink3} strokeWidth={1.4} />
               <ThemeText variant="label" style={{ flex: 1 }}>theme</ThemeText>
               <ThemeText variant="meta" size={13}>{settings.tone}</ThemeText>
-              <IconChev size={12} color={colors.ink4} />
+              <ChevronIcon size={12} color={colors.ink4} />
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => setOpenSheet('accent')} activeOpacity={0.7}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-              <IconSparkle size={17} color={colors.ink3} />
+              <SparkleIcon size={17} color={colors.ink3} />
               <ThemeText variant="label" style={{ flex: 1 }}>accent</ThemeText>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <ColorDot color={colors.amber} size={10} />
                 <ThemeText variant="meta" size={13}>{settings.accent}</ThemeText>
               </View>
-              <IconChev size={12} color={colors.ink4} />
+              <ChevronIcon size={12} color={colors.ink4} />
             </TouchableOpacity>
 
           </View>
@@ -105,46 +99,11 @@ export default function SettingsScreen() {
           <Underline width={42} />
           <View style={{ marginTop: 12 }}>
 
-            <TouchableOpacity onPress={() => setOpenSheet('folder')} activeOpacity={0.7}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-              <IconFolder size={17} color={colors.ink3} strokeWidth={1.4} />
-              <ThemeText variant="label" style={{ flex: 1 }}>default folder</ThemeText>
-              <ThemeText variant="meta" size={13}>{defaultFolderName}</ThemeText>
-              <IconChev size={12} color={colors.ink4} />
-            </TouchableOpacity>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13 }}>
-              <IconBell size={17} color={colors.ink3} strokeWidth={1.4} />
-              <ThemeText variant="label" style={{ flex: 1 }}>haptic on save</ThemeText>
-              <Switch
-                value={settings.hapticOnSave}
-                onValueChange={(v) => setSetting('hapticOnSave', v)}
-                trackColor={{ false: colors.ink4, true: colors.amber }}
-                thumbColor={colors.cream}
-                ios_backgroundColor={colors.ink4}
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* DATA section */}
-        <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
-          <ThemeText variant="subheading" style={{ marginBottom: 6 }}>data</ThemeText>
-          <Underline width={42} />
-          <View style={{ marginTop: 12 }}>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-              <IconCloud size={17} color={colors.ink3} strokeWidth={1.4} />
-              <ThemeText variant="label" style={{ flex: 1 }}>sync</ThemeText>
-              <ThemeText variant="meta" size={13}>local</ThemeText>
-            </View>
-
-            <TouchableOpacity onPress={handleExport} activeOpacity={0.7}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13 }}>
-              <IconArrow size={17} color={colors.ink3} strokeWidth={1.4} />
-              <ThemeText variant="label" style={{ flex: 1 }}>export ideas</ThemeText>
-              <IconChev size={12} color={colors.ink4} />
-            </TouchableOpacity>
+            <SettingRow
+              icon={<BellIcon size={17} color={colors.ink3} strokeWidth={1.4} />}
+              label="haptic on save"
+              right={<CustomSwitch value={settings.hapticOnSave} onValueChange={(v) => setSetting('hapticOnSave', v)} />}
+            />
           </View>
         </View>
 

@@ -6,7 +6,7 @@ import { useNewProjectSheet } from '@/providers/NewProjectSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { Underline, FAB, GrainOverlay, ThemeText, HeaderText } from '@/components/ui';
-import { IconChev, IconBookmarkFilled } from '@/assets/icons';
+import { ChevronIcon, BookmarkIcon } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function ProjectsScreen() {
@@ -85,8 +85,8 @@ export default function ProjectsScreen() {
                       {ideaCounts[p.id] ?? 0} ideas · {p.updated}
                     </ThemeText>
                   </View>
-                  {p.pinned && <IconBookmarkFilled size={13} color={colors.amber} />}
-                  <IconChev size={14} color={colors.ink4} />
+                  {p.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}
+                  <ChevronIcon size={14} color={colors.ink4} />
                 </View>
               </TouchableOpacity>
             );

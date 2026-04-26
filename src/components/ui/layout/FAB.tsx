@@ -2,7 +2,7 @@ import React from 'react';
 import { Platform, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
-import { IconPlus } from '@/assets/icons';
+import { PlusIcon } from '@/assets/icons';
 import { ThemeText } from '../primitives/ThemeText';
 
 type Props = {
@@ -56,7 +56,7 @@ export function FAB({
         elevation: 10,
       }}
     >
-      <IconPlus size={26} color="#1a140a" strokeWidth={2.4} />
+      <PlusIcon size={26} color="#1a140a" strokeWidth={2.4} />
       {wide && (
         <ThemeText variant="button" color="#1a140a" letterSpacing={0.2}>
           {label}

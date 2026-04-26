@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { useTheme } from '@/theme';
 import { useHapticFeedback } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
@@ -8,9 +7,10 @@ import { useNewProjectSheet } from '@/providers/NewProjectSheetProvider';
 import { BottomSheet } from './BottomSheet';
 import { Underline } from '../primitives/Underline';
 import { ThemeText } from '../primitives/ThemeText';
+import { TextInput } from '../primitives/TextInput';
 import { SectionLabel } from '../primitives/SectionLabel';
 import { GrainOverlay } from '../primitives/GrainOverlay';
-import { IconCheck, IconArrow } from '@/assets/icons';
+import { CheckIcon, ArrowIcon } from '@/assets/icons';
 import { FONT } from '@/theme';
 import { PROJECT_COLORS } from '@/constants';
 
@@ -47,34 +47,14 @@ export function NewProjectSheet() {
 
         {/* Name input */}
         <ThemeText variant="meta" style={{ marginTop: 18, marginBottom: 6, fontFamily: FONT.kalam }} color="ink3">name</ThemeText>
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          borderWidth: 1,
-          borderColor: colors.line2,
-          borderRadius: 12,
-          paddingHorizontal: 14,
-          paddingVertical: 10,
-        }}>
-          <BottomSheetTextInput
-            ref={textInputRef}
-            style={{
-              flex: 1,
-              fontSize: 16,
-              color: colors.ink,
-              letterSpacing: -0.05,
-              fontFamily: FONT.kalam,
-            }}
-            placeholder="project name..."
-            placeholderTextColor={colors.ink4}
-            value={name}
-            onChangeText={setName}
-            maxLength={30}
-            selectionColor={colors.amber}
-            cursorColor={colors.amber}
-          />
-          <ThemeText variant="meta" color="ink4" style={{ fontFamily: FONT.kalam }}>{name.length}/30</ThemeText>
-        </View>
+        <TextInput
+          asBottomSheet
+          ref={textInputRef}
+          placeholder="project name..."
+          value={name}
+          onChangeText={setName}
+          maxLength={30}
+        />
 
         {/* Color picker */}
         <ThemeText variant="meta" style={{ marginTop: 18, marginBottom: 10, fontFamily: FONT.kalam }} color="ink3">color</ThemeText>
@@ -97,7 +77,7 @@ export function NewProjectSheet() {
                   borderColor: isSelected ? `${color}88` : 'transparent',
                 }}
               >
-                {isSelected && <IconCheck size={14} color="#1a140a" />}
+                {isSelected && <CheckIcon size={14} color="#1a140a" />}
               </TouchableOpacity>
             );
           })}
@@ -134,7 +114,7 @@ export function NewProjectSheet() {
             activeOpacity={0.85}
           >
             <ThemeText variant="button" color="#1a140a">create project</ThemeText>
-            <IconArrow size={16} color="#1a140a" strokeWidth={2.2} />
+            <ArrowIcon size={16} color="#1a140a" strokeWidth={2.2} />
           </TouchableOpacity>
         </View>
       </View>

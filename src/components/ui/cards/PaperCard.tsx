@@ -5,7 +5,7 @@ import type { Idea, Project } from '@/types';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { ColorDot } from '../primitives/ColorDot';
-import { IconBookmarkFilled } from '@/assets/icons';
+import { BookmarkIcon } from '@/assets/icons';
 
 const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
 
@@ -46,7 +46,7 @@ export function PaperCard({ idea, project: proj, index = 0 }: Props) {
           <View />
         )}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          {idea.pinned && <IconBookmarkFilled size={11} color={colors.amber} />}
+          {idea.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
           <ThemeText variant="meta" size={11} color="ink4">{idea.time}</ThemeText>
         </View>
       </View>

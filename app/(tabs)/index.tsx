@@ -7,7 +7,7 @@ import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
 import { PaperCard, Underline, FAB, ThemeText, HeaderText, SectionLabel } from '@/components/ui';
-import { IconUser } from '@/assets/icons';
+import { SettingsIcon } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function HomeScreen() {
@@ -47,7 +47,7 @@ export default function HomeScreen() {
               {timeOfDay}, <HeaderText size={38} lineHeight={42} color="amber">{profile.initial}.</HeaderText>
             </HeaderText>
             <TouchableOpacity onPress={() => router.push('/settings')} hitSlop={12} activeOpacity={0.7} style={{ paddingTop: 6, paddingLeft: 12 }}>
-              <IconUser size={22} color={colors.ink2} strokeWidth={1.4} />
+              <SettingsIcon size={22} color={colors.ink2} strokeWidth={1.4} />
             </TouchableOpacity>
           </View>
           <ThemeText variant="meta" size={13} color="ink2" style={{ marginTop: 6, lineHeight: 20 }}>

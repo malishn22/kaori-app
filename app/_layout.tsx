@@ -98,6 +98,7 @@ export default function RootLayout() {
                     <StatusBar style="light" />
                     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>
                       <Stack.Screen name="(tabs)" />
+                      <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
                       <Stack.Screen name="project/[id]" options={{ animation: 'slide_from_right' }} />
                       <Stack.Screen name="idea/[id]" options={{ animation: 'slide_from_right' }} />
                     </Stack>

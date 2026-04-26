@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, TouchableOpacity, ScrollView } from 'react-native';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { useTheme } from '@/theme';
 import { useHapticFeedback } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
@@ -8,9 +7,10 @@ import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { BottomSheet } from './BottomSheet';
 import { Underline } from '../primitives/Underline';
 import { ThemeText } from '../primitives/ThemeText';
+import { Input } from '../primitives/Input';
 import { Chip } from '../primitives/Chip';
 import { SectionLabel } from '../primitives/SectionLabel';
-import { IconArrow } from '@/assets/icons';
+import { ArrowIcon } from '@/assets/icons';
 import { FONT } from '@/theme';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 
@@ -50,25 +50,19 @@ export function NewNoteSheet() {
         <Underline width={84} />
 
         {/* Text input */}
-        <BottomSheetTextInput
+        <Input
+          asBottomSheet
           style={{
             marginTop: 18,
             minHeight: 110,
-            fontSize: 16,
-            color: colors.ink,
             lineHeight: 25,
-            letterSpacing: -0.05,
-            fontFamily: FONT.kalam,
             textAlignVertical: 'top',
           }}
           placeholder="what's on your mind..."
-          placeholderTextColor={colors.ink4}
           value={text}
           onChangeText={setText}
           ref={textInputRef}
           multiline
-          selectionColor={colors.amber}
-          cursorColor={colors.amber}
         />
 
         {/* Divider */}
@@ -119,7 +113,7 @@ export function NewNoteSheet() {
             activeOpacity={0.85}
           >
             <ThemeText variant="button" color="#1a140a">save it</ThemeText>
-            <IconArrow size={16} color="#1a140a" strokeWidth={2.2} />
+            <ArrowIcon size={16} color="#1a140a" strokeWidth={2.2} />
           </TouchableOpacity>
         </View>
       </View>

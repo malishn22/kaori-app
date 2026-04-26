@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
-import { IconBack } from '@/assets/icons';
+import { BackIcon } from '@/assets/icons';
 
 type HeaderAction = { icon: React.ReactNode; onPress?: () => void };
 
@@ -25,7 +25,7 @@ export function ScreenHeader({ onBack, rightActions = [] }: Props) {
         gap: 6,
       }}>
         <TouchableOpacity onPress={onBack} hitSlop={12} activeOpacity={0.7}>
-          <IconBack size={20} color={colors.ink2} />
+          <BackIcon size={20} color={colors.ink2} />
         </TouchableOpacity>
         <View style={{ flex: 1 }} />
         {rightActions.map((action, i) => (

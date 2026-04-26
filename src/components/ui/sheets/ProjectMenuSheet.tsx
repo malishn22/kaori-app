@@ -7,7 +7,7 @@ import { useHapticFeedback } from '@/hooks';
 import { BottomSheet } from './BottomSheet';
 import { ThemeText } from '../primitives/ThemeText';
 import { GrainOverlay } from '../primitives/GrainOverlay';
-import { IconPen, IconBookmark, IconFolder, IconTrash, IconChev } from '@/assets/icons';
+import { EditIcon, BookmarkIcon, FolderIcon, TrashIcon, ChevronIcon } from '@/assets/icons';
 import { PROJECT_COLORS } from '@/constants';
 
 const CORAL = '#c97060';
@@ -116,9 +116,9 @@ export function ProjectMenuSheet() {
           activeOpacity={0.7}
           style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
         >
-          <IconPen size={18} color={colors.ink3} />
+          <EditIcon size={18} color={colors.ink3} />
           <ThemeText variant="body" style={{ flex: 1 }} color="ink2">rename</ThemeText>
-          <IconChev size={14} color={colors.ink4} />
+          <ChevronIcon size={14} color={colors.ink4} />
         </TouchableOpacity>
 
         {/* Pin to top */}
@@ -127,9 +127,9 @@ export function ProjectMenuSheet() {
           activeOpacity={0.7}
           style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
         >
-          <IconBookmark size={18} color={colors.ink3} />
+          <BookmarkIcon size={18} color={colors.ink3} />
           <ThemeText variant="body" style={{ flex: 1 }} color="ink2">{proj.pinned ? 'unpin' : 'pin to top'}</ThemeText>
-          <IconChev size={14} color={colors.ink4} />
+          <ChevronIcon size={14} color={colors.ink4} />
         </TouchableOpacity>
 
         {/* Archive */}
@@ -137,12 +137,12 @@ export function ProjectMenuSheet() {
           activeOpacity={0.7}
           style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
         >
-          <IconFolder size={18} color={colors.ink3} />
+          <FolderIcon size={18} color={colors.ink3} />
           <View style={{ flex: 1 }}>
             <ThemeText variant="body" color="ink2">archive</ThemeText>
             <ThemeText variant="meta" color="ink4">hide without deleting</ThemeText>
           </View>
-          <IconChev size={14} color={colors.ink4} />
+          <ChevronIcon size={14} color={colors.ink4} />
         </TouchableOpacity>
 
         {/* Delete */}
@@ -151,14 +151,14 @@ export function ProjectMenuSheet() {
           activeOpacity={0.7}
           style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, paddingVertical: 16, gap: 14 }}
         >
-          <IconTrash size={18} color={CORAL} />
+          <TrashIcon size={18} color={CORAL} />
           <View style={{ flex: 1 }}>
             <ThemeText variant="body" color={CORAL}>
               {confirmDelete ? 'tap again to confirm' : 'delete project'}
             </ThemeText>
             <ThemeText variant="meta" color={confirmDelete ? CORAL : 'ink4'}>ideas inside become unfiled</ThemeText>
           </View>
-          <IconChev size={14} color={colors.ink4} />
+          <ChevronIcon size={14} color={colors.ink4} />
         </TouchableOpacity>
 
         {/* Cancel */}

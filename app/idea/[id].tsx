@@ -16,17 +16,19 @@ export default function IdeaDetailScreen() {
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { ideas, projects, updateIdea, deleteIdea } = useStore();
-  const idea = ideas.find(i => i.id === id) ?? ideas[0];
+  const idea = ideas.find(i => i.id === id);
   const proj = idea?.project ? projects.find(p => p.id === idea.project) : undefined;
 
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(idea.text);
+  const [draft, setDraft] = useState(idea?.text ?? '');
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [movingProject, setMovingProject] = useState(false);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
+
+  if (!idea) return null;
 
   const wordCount = (editing ? draft : idea.text).trim().split(/\s+/).filter(Boolean).length;
 
@@ -46,19 +48,19 @@ export default function IdeaDetailScreen() {
 
   async function handleSave() {
     if (!draft.trim()) return;
-    await updateIdea(idea.id, { text: draft.trim() });
+    await updateIdea(idea!.id, { text: draft.trim() });
     impactOnSave();
     setEditing(false);
   }
 
   async function handleShare() {
     closeMenu(async () => {
-      await Share.share({ message: idea.text });
+      await Share.share({ message: idea?.text ?? '' });
     });
   }
 
   async function handlePin() {
-    await updateIdea(idea.id, { pinned: !idea.pinned });
+    await updateIdea(idea?.id ?? '', { pinned: !idea?.pinned });
     impact();
     closeMenu();
   }
@@ -69,20 +71,20 @@ export default function IdeaDetailScreen() {
       return;
     }
     notificationWarning();
-    await deleteIdea(idea.id);
+    await deleteIdea(idea!.id);
     setMenuOpen(false);
     router.back();
   }
 
   async function handleMoveProject(projectId: string | null) {
-    await updateIdea(idea.id, { project: projectId });
+    await updateIdea(idea!.id, { project: projectId });
     impact();
     closeMenu();
   }
 
   function handleBack() {
     if (editing) {
-      setDraft(idea.text);
+      setDraft(idea!.text);
       setEditing(false);
     } else {
       router.back();

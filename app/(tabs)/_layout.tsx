@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Platform, View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
-import { IconCircle, IconFolder } from '@/assets/icons';
+import { CircleIcon, FolderIcon } from '@/assets/icons';
 import { ThemeText } from '@/components/ui';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,8 +20,8 @@ function KaoriTabBar({ state, navigation }: BottomTabBarProps) {
   const tabBarPaddingBottom = bottomInsetForTabBar + 16;
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + tabBarPaddingBottom;
   const tabs = [
-    { key: 'index', label: 'today', Icon: IconCircle },
-    { key: 'projects', label: 'projects', Icon: IconFolder },
+    { key: 'index', label: 'today', Icon: CircleIcon },
+    { key: 'projects', label: 'projects', Icon: FolderIcon },
   ];
 
   return (
