@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, TextInput as RNTextInput } from 'react-native';
-import { useTheme, FONT } from '@/theme';
+import { FONT } from '@/theme';
 import { useHapticFeedback } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
 import { useNewProjectSheet } from '@/providers/NewProjectSheetProvider';
@@ -12,10 +12,10 @@ import { ThemeText } from '../primitives/ThemeText';
 import { CountedInput } from '../primitives/CountedInput';
 import { SectionLabel } from '../primitives/SectionLabel';
 import { GrainOverlay } from '../primitives/GrainOverlay';
+import { Divider } from '../primitives/Divider';
 import { PROJECT_COLORS, SHEET_PADDING_H } from '@/constants';
 
 export function NewProjectSheet() {
-  const { colors } = useTheme();
   const { impactOnSave } = useHapticFeedback();
   const { addProject } = useStore();
   const { bottomSheetRef, closeNewProject } = useNewProjectSheet();
@@ -60,8 +60,7 @@ export function NewProjectSheet() {
         <ThemeText variant="meta" style={{ marginTop: 18, marginBottom: 10, fontFamily: FONT.kalam }} color="ink3">color</ThemeText>
         <ColorSwatchPicker selectedColor={selectedColor} onSelect={setSelectedColor} />
 
-        {/* Divider */}
-        <View style={{ height: 1, backgroundColor: colors.line2, marginHorizontal: -SHEET_PADDING_H, marginTop: 20, marginBottom: 14 }} />
+        <Divider marginHorizontal={-SHEET_PADDING_H} style={{ marginTop: 20, marginBottom: 14 }} />
 
         {/* Buttons */}
         <SheetButtonRow

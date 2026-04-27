@@ -4,8 +4,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { useHapticFeedback, useAnimatedPopup } from '@/hooks';
-import { GrainOverlay, ThemeText, ColorDot, Chip, ScreenHeader, HeaderEditButton, ShowMoreButton, LinkedText, ConfirmationDialog } from '@/components/ui';
+import { useHapticFeedback, useAnimatedPopup, useInlineEdit, useConfirmAction } from '@/hooks';
+import { GrainOverlay, ThemeText, ColorDot, Chip, ScreenHeader, HeaderEditButton, ShowMoreButton, LinkedText, ConfirmationDialog, MenuRow } from '@/components/ui';
 import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
 import { FONT } from '@/theme';
 import { POPUP_WIDTH, SHADOW_POPUP, BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
@@ -20,23 +20,39 @@ export default function NoteDetailScreen() {
   const note = notes.find(n => n.id === id);
   const proj = note?.project ? projects.find(p => p.id === note.project) : undefined;
 
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(note?.text ?? '');
+  const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
+
+  const { editing, draft, setDraft, startEditing, cancelEdit } = useInlineEdit({
+    initialValue: note?.text ?? '',
+    onSave: async (trimmed) => {
+      const { text, links } = fromEditableText(trimmed);
+      await updateNote(note!.id, { text, links });
+      impactOnSave();
+    },
+  });
+
+  const confirmDelete = useConfirmAction({
+    onConfirm: async () => {
+      await deleteNote(note!.id);
+      setMenuOpen(false);
+      router.back();
+    },
+    onHaptic: notificationWarning,
+  });
+
   const [menuOpen, setMenuOpen] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [movingProject, setMovingProject] = useState(false);
   const [popupHeight, setPopupHeight] = useState(0);
   const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
-  const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
 
   if (!note) return null;
 
   const wordCount = (editing ? draft : note.text).trim().split(/\s+/).filter(Boolean).length;
 
   function openMenu() {
-    setConfirmDelete(false);
+    confirmDelete.reset();
     setMovingProject(false);
     setMenuOpen(true);
     openPopup();
@@ -54,7 +70,7 @@ export default function NoteDetailScreen() {
     const { text, links } = fromEditableText(draft.trim());
     await updateNote(note!.id, { text, links });
     impactOnSave();
-    setEditing(false);
+    cancelEdit();
   }
 
   async function handleShare() {
@@ -69,17 +85,6 @@ export default function NoteDetailScreen() {
     closeMenu();
   }
 
-  async function handleDelete() {
-    if (!confirmDelete) {
-      setConfirmDelete(true);
-      return;
-    }
-    notificationWarning();
-    await deleteNote(note!.id);
-    setMenuOpen(false);
-    router.back();
-  }
-
   async function handleMoveProject(projectId: string | null) {
     await updateNote(note!.id, { project: projectId });
     impact();
@@ -88,7 +93,7 @@ export default function NoteDetailScreen() {
 
   function handleBack() {
     if (editing) {
-      setEditing(false);
+      cancelEdit();
     } else {
       router.back();
     }
@@ -99,8 +104,6 @@ export default function NoteDetailScreen() {
   }
 
   const popupScale = menuAnim;
-
-  // Header height for popup positioning: safe area top + 16 padding + 52 row height
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
@@ -109,7 +112,7 @@ export default function NoteDetailScreen() {
       <ScreenHeader
         onBack={handleBack}
         rightActions={[
-          { icon: <HeaderEditButton color={editing ? colors.amber : colors.ink2} onPress={() => { setDraft(toEditableText(note.text, note.links)); setEditing(true); }} /> },
+          { icon: <HeaderEditButton color={editing ? colors.amber : colors.ink2} onPress={() => startEditing(toEditableText(note.text, note.links))} /> },
           { icon: <ShowMoreButton color={colors.ink2} onPress={openMenu} /> },
         ]}
       />
@@ -192,7 +195,7 @@ export default function NoteDetailScreen() {
         )}
       </ScrollView>
 
-      {/* Save bar / Home indicator */}
+      {/* Save bar */}
       {editing ? (
         <TouchableOpacity
           onPress={handleSave}
@@ -215,14 +218,12 @@ export default function NoteDetailScreen() {
       {/* Popup menu */}
       {menuOpen && (
         <>
-          {/* Backdrop */}
           <TouchableOpacity
             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
             activeOpacity={1}
             onPress={() => closeMenu()}
           />
 
-          {/* Animated popup card */}
           <Animated.View
             onLayout={e => setPopupHeight(e.nativeEvent.layout.height)}
             style={{
@@ -249,27 +250,17 @@ export default function NoteDetailScreen() {
             <GrainOverlay />
 
             {/* Move to project */}
-            <TouchableOpacity
-              onPress={() => setMovingProject(v => !v)}
-              activeOpacity={0.7}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-                borderBottomWidth: 1,
-                borderBottomColor: colors.line,
-              }}
-            >
-              <ThemeText variant="body" style={{ flex: 1 }}>move to project</ThemeText>
-              {proj
+            <MenuRow
+              label="move to project"
+              right={proj
                 ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                     <ColorDot color={proj.color} size={6} />
                     <ThemeText variant="meta">{proj.name}</ThemeText>
                   </View>
                 : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
               }
-            </TouchableOpacity>
+              onPress={() => setMovingProject(v => !v)}
+            />
 
             {/* Project chips (expanded) */}
             {movingProject && (
@@ -289,75 +280,30 @@ export default function NoteDetailScreen() {
               </View>
             )}
 
-            {/* Pin / Unpin */}
-            <TouchableOpacity
+            <MenuRow
+              label={note.pinned ? 'unpin' : 'pin'}
+              right={note.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
               onPress={handlePin}
-              activeOpacity={0.7}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-                borderBottomWidth: 1,
-                borderBottomColor: colors.line,
-              }}
-            >
-              <ThemeText variant="body" style={{ flex: 1 }}>{note.pinned ? 'unpin' : 'pin'}</ThemeText>
-              {note.pinned && <ThemeText variant="meta" color="amber">pinned</ThemeText>}
-            </TouchableOpacity>
+            />
 
-            {/* Share */}
-            <TouchableOpacity
-              onPress={handleShare}
-              activeOpacity={0.7}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-                borderBottomWidth: 1,
-                borderBottomColor: colors.line,
-              }}
-            >
-              <ThemeText variant="body">share</ThemeText>
-            </TouchableOpacity>
+            <MenuRow label="share" onPress={handleShare} />
 
-            {/* Archive */}
-            <TouchableOpacity
+            <MenuRow
+              label="archive"
               onPress={async () => {
                 await archiveNote(note!.id, true);
                 impact();
                 setMenuOpen(false);
                 router.back();
               }}
-              activeOpacity={0.7}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-                borderBottomWidth: 1,
-                borderBottomColor: colors.line,
-              }}
-            >
-              <ThemeText variant="body">archive</ThemeText>
-            </TouchableOpacity>
+            />
 
-            {/* Delete */}
-            <TouchableOpacity
-              onPress={handleDelete}
-              activeOpacity={0.7}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-              }}
-            >
-              <ThemeText variant="body" color={DELETE_COLOR}>
-                {confirmDelete ? 'tap again to confirm' : 'delete'}
-              </ThemeText>
-            </TouchableOpacity>
+            <MenuRow
+              label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}
+              labelColor={DELETE_COLOR}
+              onPress={confirmDelete.handlePress}
+              borderBottom={false}
+            />
           </Animated.View>
         </>
       )}

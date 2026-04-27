@@ -47,6 +47,7 @@ export default function HomeScreen() {
           <HeaderText size={38} lineHeight={42} style={{ marginTop: 8 }}>
             {timeOfDay}, <HeaderText size={38} lineHeight={42} color="amber">{profile.initial}.</HeaderText>
           </HeaderText>
+          <Underline width={92} />
           <ThemeText variant="meta" size={13} color="ink2" style={{ marginTop: 6, lineHeight: 20 }}>
             {subtitle}
           </ThemeText>

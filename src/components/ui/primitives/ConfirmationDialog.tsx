@@ -4,6 +4,7 @@ import { useTheme } from '@/theme';
 import { resolveColor } from '@/theme/colors';
 import { ThemeText } from './ThemeText';
 import { GrainOverlay } from './GrainOverlay';
+import { Divider } from './Divider';
 
 export type DialogAction = {
   label: string;
@@ -52,8 +53,7 @@ export function ConfirmationDialog({ visible, title, subtitle, actions, onClose 
             )}
           </View>
 
-          {/* Divider */}
-          <View style={{ height: 1, backgroundColor: colors.line2 }} />
+          <Divider />
 
           {/* Actions */}
           {actions.map((action, i) => (

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, TextInput as RNTextInput } from 'react-native';
-import { useTheme } from '@/theme';
 import { useHapticFeedback } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
 import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
@@ -12,10 +11,10 @@ import { Input } from '../primitives/Input';
 import { Chip } from '../primitives/Chip';
 import { SectionLabel } from '../primitives/SectionLabel';
 import { GrainOverlay } from '../primitives/GrainOverlay';
+import { Divider } from '../primitives/Divider';
 import { SHEET_PADDING_H } from '@/constants';
 
 export function NewNoteSheet() {
-  const { colors } = useTheme();
   const { impactOnSave } = useHapticFeedback();
   const { projects, addNote } = useStore();
   const { bottomSheetRef, initialProjectId, resetKey, closeNewNote } = useNewNoteSheet();
@@ -65,8 +64,7 @@ export function NewNoteSheet() {
           multiline
         />
 
-        {/* Divider */}
-        <View style={{ height: 1, backgroundColor: colors.line2, marginHorizontal: -SHEET_PADDING_H, marginTop: 18, marginBottom: 14 }} />
+        <Divider marginHorizontal={-SHEET_PADDING_H} style={{ marginTop: 18, marginBottom: 14 }} />
 
         {/* Project chips */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>

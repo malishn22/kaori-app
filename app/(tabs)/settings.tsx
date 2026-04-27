@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettingSheet } from '@/providers/SettingSheetProvider';
-import { Underline, GrainOverlay, ThemeText, HeaderText, ColorDot, SettingRow, CustomSwitch } from '@/components/ui';
+import { Underline, GrainOverlay, ThemeText, HeaderText, ColorDot, SettingRow, CustomSwitch, SectionHeader } from '@/components/ui';
 import {
   MoonIcon, SparkleIcon,
   BellIcon, ChevronIcon,
@@ -67,36 +67,40 @@ export default function SettingsScreen() {
 
         {/* FEEL section */}
         <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
-          <ThemeText variant="subheading" style={{ marginBottom: 6 }}>feel</ThemeText>
-          <Underline width={42} />
+          <SectionHeader title="feel" underlineWidth={42} />
           <View style={{ marginTop: 12 }}>
 
-            <TouchableOpacity onPress={() => setOpenSheet('tone')} activeOpacity={0.7}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-              <MoonIcon size={17} color={colors.ink3} strokeWidth={1.4} />
-              <ThemeText variant="label" style={{ flex: 1 }}>theme</ThemeText>
-              <ThemeText variant="meta" size={13}>{settings.tone}</ThemeText>
-              <ChevronIcon size={12} color={colors.ink4} />
-            </TouchableOpacity>
+            <SettingRow
+              icon={<MoonIcon size={17} color={colors.ink3} strokeWidth={1.4} />}
+              label="theme"
+              right={<>
+                <ThemeText variant="meta" size={13}>{settings.tone}</ThemeText>
+                <ChevronIcon size={12} color={colors.ink4} />
+              </>}
+              onPress={() => setOpenSheet('tone')}
+              borderBottom
+            />
 
-            <TouchableOpacity onPress={() => setOpenSheet('accent')} activeOpacity={0.7}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-              <SparkleIcon size={17} color={colors.ink3} />
-              <ThemeText variant="label" style={{ flex: 1 }}>accent</ThemeText>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <ColorDot color={colors.amber} size={10} />
-                <ThemeText variant="meta" size={13}>{settings.accent}</ThemeText>
-              </View>
-              <ChevronIcon size={12} color={colors.ink4} />
-            </TouchableOpacity>
+            <SettingRow
+              icon={<SparkleIcon size={17} color={colors.ink3} />}
+              label="accent"
+              right={<>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <ColorDot color={colors.amber} size={10} />
+                  <ThemeText variant="meta" size={13}>{settings.accent}</ThemeText>
+                </View>
+                <ChevronIcon size={12} color={colors.ink4} />
+              </>}
+              onPress={() => setOpenSheet('accent')}
+              borderBottom
+            />
 
           </View>
         </View>
 
         {/* CAPTURE section */}
         <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
-          <ThemeText variant="subheading" style={{ marginBottom: 6 }}>capture</ThemeText>
-          <Underline width={42} />
+          <SectionHeader title="capture" underlineWidth={42} />
           <View style={{ marginTop: 12 }}>
 
             <SettingRow

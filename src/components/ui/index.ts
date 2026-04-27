@@ -10,6 +10,8 @@ export { Underline } from './primitives/Underline';
 export { GrainOverlay } from './primitives/GrainOverlay';
 export { LinkedText } from './primitives/LinkedText';
 export { ConfirmationDialog } from './primitives/ConfirmationDialog';
+export { SectionHeader } from './primitives/SectionHeader';
+export { Divider } from './primitives/Divider';
 
 // layout
 export { ScreenHeader } from './layout/ScreenHeader';
@@ -19,10 +21,12 @@ export { FAB } from './layout/FAB';
 export { TabBar } from './layout/TabBar';
 export { SettingsButton } from './layout/SettingsButton';
 export { SettingRow, CustomSwitch } from './layout/SettingRow';
+export { MenuRow } from './layout/MenuRow';
 
 // cards
 export { PaperCard } from './cards/PaperCard';
 export { ProjectAvatar } from './cards/ProjectAvatar';
+export { ProfileCard } from './cards/ProfileCard';
 
 // sheets
 export { BottomSheet } from './sheets/BottomSheet';

@@ -4,7 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback } from '@/hooks';
-import { GrainOverlay, ThemeText, HeaderText, Underline, ScreenHeader, PaperCard, ProjectAvatar } from '@/components/ui';
+import { GrainOverlay, ThemeText, HeaderText, Underline, ScreenHeader, PaperCard, ProjectAvatar, SectionHeader } from '@/components/ui';
 import { ChevronIcon } from '@/assets/icons';
 import { SHADOW_CARD } from '@/constants';
 
@@ -51,8 +51,7 @@ export default function ArchivedScreen() {
         {archivedProjects.length > 0 && (
           <View style={{ marginBottom: 28 }}>
             <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
-              <ThemeText variant="subheading">projects</ThemeText>
-              <Underline width={52} />
+              <SectionHeader title="projects" underlineWidth={52} />
             </View>
 
             <View style={{ gap: 12 }}>
@@ -108,8 +107,7 @@ export default function ArchivedScreen() {
         {archivedNotes.length > 0 && (
           <View>
             <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
-              <ThemeText variant="subheading">notes</ThemeText>
-              <Underline width={38} />
+              <SectionHeader title="notes" underlineWidth={38} />
             </View>
 
             <View style={{ gap: 12 }}>

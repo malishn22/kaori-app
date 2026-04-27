@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, TextInput, BackHandler } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, TextInput, BackHandler } from 'react-native';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useProjectMenuSheet } from '@/providers/ProjectMenuSheetProvider';
-import { useHapticFeedback } from '@/hooks';
+import { useHapticFeedback, useInlineEdit, useConfirmAction } from '@/hooks';
 import { BottomSheet } from './BottomSheet';
 import { SheetButtonRow } from './SheetButtonRow';
 import { ColorSwatchPicker } from './ColorSwatchPicker';
 import { ProjectAvatar } from '../cards/ProjectAvatar';
 import { ThemeText } from '../primitives/ThemeText';
 import { GrainOverlay } from '../primitives/GrainOverlay';
-import { EditIcon, BookmarkIcon, FolderIcon, TrashIcon, ChevronIcon } from '@/assets/icons';
+import { Divider } from '../primitives/Divider';
+import { MenuRow } from '../layout/MenuRow';
+import { EditIcon, BookmarkIcon, FolderIcon, TrashIcon } from '@/assets/icons';
 import { DELETE_COLOR, SHEET_PADDING_H } from '@/constants';
 
 export function ProjectMenuSheet() {
@@ -18,22 +20,38 @@ export function ProjectMenuSheet() {
   const { notes, projects, pinProject, deleteProject, updateProjectColor, renameProject, archiveProject } = useStore();
   const { bottomSheetRef, activeProjectId, closeProjectMenu, onDeleteCallback } = useProjectMenuSheet();
   const { impact, notificationWarning } = useHapticFeedback();
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [renaming, setRenaming] = useState(false);
-  const [draftName, setDraftName] = useState('');
   const inputRef = useRef<TextInput>(null);
 
   const proj = projects.find(p => p.id === activeProjectId);
 
+  const { editing: renaming, draft: draftName, setDraft: setDraftName, startEditing: startRename, commitEdit: saveRename, cancelEdit: cancelRename } = useInlineEdit({
+    initialValue: proj?.name ?? '',
+    onSave: async (name) => {
+      if (!proj) return;
+      await renameProject(proj.id, name);
+      impact();
+    },
+  });
+
+  const confirmDelete = useConfirmAction({
+    onConfirm: async () => {
+      if (!proj) return;
+      await deleteProject(proj.id);
+      closeProjectMenu();
+      onDeleteCallback.current?.();
+    },
+    onHaptic: notificationWarning,
+  });
+
   useEffect(() => {
-    setConfirmDelete(false);
-    setRenaming(false);
+    confirmDelete.reset();
+    cancelRename();
   }, [activeProjectId]);
 
   useEffect(() => {
     if (!renaming) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      setRenaming(false);
+      cancelRename();
       return true;
     });
     return () => sub.remove();
@@ -41,23 +59,15 @@ export function ProjectMenuSheet() {
 
   function handleSheetChange(index: number) {
     if (index === -1) {
-      setConfirmDelete(false);
-      setRenaming(false);
+      confirmDelete.reset();
+      cancelRename();
     }
   }
 
   function handleStartRename() {
     if (!proj) return;
-    setDraftName(proj.name);
-    setRenaming(true);
+    startRename();
     setTimeout(() => inputRef.current?.focus(), 100);
-  }
-
-  async function handleSaveRename() {
-    if (!proj || !draftName.trim()) return;
-    await renameProject(proj.id, draftName.trim());
-    setRenaming(false);
-    impact();
   }
 
   async function handleColorSelect(color: string) {
@@ -70,18 +80,6 @@ export function ProjectMenuSheet() {
     await pinProject(proj.id, !proj.pinned);
     impact();
     closeProjectMenu();
-  }
-
-  async function handleDelete() {
-    if (!proj) return;
-    if (!confirmDelete) {
-      setConfirmDelete(true);
-      return;
-    }
-    notificationWarning();
-    await deleteProject(proj.id);
-    closeProjectMenu();
-    onDeleteCallback.current?.();
   }
 
   if (!proj) return null;
@@ -100,7 +98,7 @@ export function ProjectMenuSheet() {
                 ref={inputRef}
                 value={draftName}
                 onChangeText={setDraftName}
-                onSubmitEditing={handleSaveRename}
+                onSubmitEditing={saveRename}
                 maxLength={30}
                 style={{ fontFamily: FONT.kalam, fontSize: 16, color: colors.ink, padding: 0, borderBottomWidth: 1, borderBottomColor: colors.line }}
               />
@@ -111,8 +109,7 @@ export function ProjectMenuSheet() {
           </View>
         </View>
 
-        {/* Divider */}
-        <View style={{ height: 1, backgroundColor: colors.line2, marginHorizontal: -0 }} />
+        <Divider />
 
         {/* Color picker */}
         <View style={{ paddingHorizontal: SHEET_PADDING_H, paddingTop: 14, paddingBottom: 14 }}>
@@ -120,34 +117,31 @@ export function ProjectMenuSheet() {
           <ColorSwatchPicker selectedColor={proj.color} onSelect={handleColorSelect} />
         </View>
 
-        {/* Divider */}
-        <View style={{ height: 1, backgroundColor: colors.line2 }} />
+        <Divider />
 
         {/* Menu rows */}
-        {/* Rename */}
-        <TouchableOpacity
-          onPress={renaming ? handleSaveRename : handleStartRename}
-          activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
-        >
-          <EditIcon size={18} color={colors.ink3} />
-          <ThemeText variant="body" style={{ flex: 1 }} color="ink2">{renaming ? 'save name' : 'rename'}</ThemeText>
-          <ChevronIcon size={14} color={colors.ink4} />
-        </TouchableOpacity>
+        <MenuRow
+          icon={<EditIcon size={18} color={colors.ink3} />}
+          label={renaming ? 'save name' : 'rename'}
+          onPress={renaming ? saveRename : handleStartRename}
+          showChevron
+          paddingHorizontal={SHEET_PADDING_H}
+          paddingVertical={16}
+        />
 
-        {/* Pin to top */}
-        <TouchableOpacity
+        <MenuRow
+          icon={<BookmarkIcon size={18} color={colors.ink3} />}
+          label={proj.pinned ? 'unpin' : 'pin to top'}
           onPress={handlePin}
-          activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
-        >
-          <BookmarkIcon size={18} color={colors.ink3} />
-          <ThemeText variant="body" style={{ flex: 1 }} color="ink2">{proj.pinned ? 'unpin' : 'pin to top'}</ThemeText>
-          <ChevronIcon size={14} color={colors.ink4} />
-        </TouchableOpacity>
+          showChevron
+          paddingHorizontal={SHEET_PADDING_H}
+          paddingVertical={16}
+        />
 
-        {/* Archive */}
-        <TouchableOpacity
+        <MenuRow
+          icon={<FolderIcon size={18} color={colors.ink3} />}
+          label="archive"
+          subtitle="hide without deleting"
           onPress={async () => {
             if (!proj) return;
             await archiveProject(proj.id, true);
@@ -155,32 +149,23 @@ export function ProjectMenuSheet() {
             closeProjectMenu();
             onDeleteCallback.current?.();
           }}
-          activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 14 }}
-        >
-          <FolderIcon size={18} color={colors.ink3} />
-          <View style={{ flex: 1 }}>
-            <ThemeText variant="body" color="ink2">archive</ThemeText>
-            <ThemeText variant="meta" color="ink4">hide without deleting</ThemeText>
-          </View>
-          <ChevronIcon size={14} color={colors.ink4} />
-        </TouchableOpacity>
+          showChevron
+          paddingHorizontal={SHEET_PADDING_H}
+          paddingVertical={16}
+        />
 
-        {/* Delete */}
-        <TouchableOpacity
-          onPress={handleDelete}
-          activeOpacity={0.7}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: SHEET_PADDING_H, paddingVertical: 16, gap: 14 }}
-        >
-          <TrashIcon size={18} color={DELETE_COLOR} />
-          <View style={{ flex: 1 }}>
-            <ThemeText variant="body" color={DELETE_COLOR}>
-              {confirmDelete ? 'tap again to confirm' : 'delete project'}
-            </ThemeText>
-            <ThemeText variant="meta" color={confirmDelete ? DELETE_COLOR : 'ink4'}>notes inside become unfiled</ThemeText>
-          </View>
-          <ChevronIcon size={14} color={colors.ink4} />
-        </TouchableOpacity>
+        <MenuRow
+          icon={<TrashIcon size={18} color={DELETE_COLOR} />}
+          label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete project'}
+          subtitle="notes inside become unfiled"
+          labelColor={DELETE_COLOR}
+          subtitleColor={confirmDelete.needsConfirm ? DELETE_COLOR : 'ink4'}
+          onPress={confirmDelete.handlePress}
+          showChevron
+          borderBottom={false}
+          paddingHorizontal={SHEET_PADDING_H}
+          paddingVertical={16}
+        />
 
         {/* Cancel */}
         <View style={{ paddingHorizontal: SHEET_PADDING_H, marginTop: 12 }}>
