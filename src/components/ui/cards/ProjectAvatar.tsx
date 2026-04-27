@@ -1,7 +1,7 @@
 import React from 'react';
-import { View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemeText } from '../primitives/ThemeText';
-import { projectAvatarStyle } from '@/constants';
+import { useTheme } from '@/theme';
 
 type Props = {
   name: string;
@@ -9,11 +9,18 @@ type Props = {
 };
 
 export function ProjectAvatar({ name, color }: Props) {
+  const { colors } = useTheme();
+
   return (
-    <View style={projectAvatarStyle(color)}>
-      <ThemeText variant="heading" color={color}>
+    <LinearGradient
+      colors={[color, colors.ink3]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+    >
+      <ThemeText variant="heading" color="bg">
         {name.charAt(0).toLowerCase()}
       </ThemeText>
-    </View>
+    </LinearGradient>
   );
 }

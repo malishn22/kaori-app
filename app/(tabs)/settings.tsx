@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettingSheet } from '@/providers/SettingSheetProvider';
-import { Underline, GrainOverlay, ThemeText, HeaderText, ColorDot, SettingRow, CustomSwitch, SectionHeader } from '@/components/ui';
+import { GrainOverlay, ThemeText, ColorDot, SettingRow, CustomSwitch, SectionTitle, PageHeader } from '@/components/ui';
 import {
   MoonIcon, SparkleIcon,
   BellIcon, ChevronIcon,
@@ -21,15 +21,9 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <PageHeader caption="your space" title="settings" underlineWidth={92} />
       <ScrollView contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }} showsVerticalScrollIndicator={false}>
-        <View style={{ paddingHorizontal: 24, paddingTop: 8 }}>
-          <ThemeText variant="caption">
-            your space
-          </ThemeText>
-          <HeaderText style={{ marginTop: 6 }}>settings</HeaderText>
-          <Underline width={92} />
-        </View>
 
         {/* Profile card */}
         <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
@@ -67,7 +61,7 @@ export default function SettingsScreen() {
 
         {/* FEEL section */}
         <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
-          <SectionHeader title="feel" underlineWidth={42} />
+          <SectionTitle underlineWidth={42}>feel</SectionTitle>
           <View style={{ marginTop: 12 }}>
 
             <SettingRow
@@ -100,7 +94,7 @@ export default function SettingsScreen() {
 
         {/* CAPTURE section */}
         <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
-          <SectionHeader title="capture" underlineWidth={42} />
+          <SectionTitle underlineWidth={42}>capture</SectionTitle>
           <View style={{ marginTop: 12 }}>
 
             <SettingRow
@@ -119,6 +113,6 @@ export default function SettingsScreen() {
         </View>
       </ScrollView>
 
-    </SafeAreaView>
+    </View>
   );
 }

@@ -9,7 +9,7 @@ import { Underline } from '../primitives/Underline';
 import { ThemeText } from '../primitives/ThemeText';
 import { Input } from '../primitives/Input';
 import { Chip } from '../primitives/Chip';
-import { SectionLabel } from '../primitives/SectionLabel';
+import { SectionTitle } from '../primitives/SectionTitle';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { Divider } from '../primitives/Divider';
 import { SHEET_PADDING_H } from '@/constants';
@@ -21,11 +21,11 @@ export function NewNoteSheet() {
   const textInputRef = useRef<RNTextInput>(null);
   const [text, setText] = useState('');
   const [activeProject, setActiveProject] = useState<string | null>(
-    initialProjectId ?? (projects.length > 0 ? projects[0].id : null)
+    initialProjectId ?? null
   );
 
   useEffect(() => {
-    setActiveProject(initialProjectId ?? (projects.length > 0 ? projects[0].id : null));
+    setActiveProject(initialProjectId ?? null);
     setText('');
   }, [initialProjectId, resetKey]);
 
@@ -45,7 +45,7 @@ export function NewNoteSheet() {
       }}>
         <GrainOverlay />
 
-        <SectionLabel size={28} lineHeight={32}>a new note</SectionLabel>
+        <SectionTitle size={28} lineHeight={32} showUnderline={false}>a new note</SectionTitle>
         <Underline width={84} />
 
         {/* Text input */}

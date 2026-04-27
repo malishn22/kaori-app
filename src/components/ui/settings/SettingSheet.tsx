@@ -4,7 +4,7 @@ import { useTheme } from '@/theme';
 import { useHapticFeedback, useBottomSheetControl } from '@/hooks';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
-import { SectionLabel } from '../primitives/SectionLabel';
+import { SectionTitle } from '../primitives/SectionTitle';
 import { ColorDot } from '../primitives/ColorDot';
 import { BottomSheet } from '../sheets/BottomSheet';
 
@@ -39,7 +39,7 @@ export function SettingSheet<T extends string>({ visible, title, options, value,
       <View style={{ paddingTop: 12, paddingHorizontal: 22 }}>
         <GrainOverlay />
 
-        <SectionLabel style={{ marginBottom: 16 }}>{title}</SectionLabel>
+        <SectionTitle showUnderline={false} style={{ marginBottom: 16 }}>{title}</SectionTitle>
 
         {options.map((opt, ix) => {
           const isActive = opt.value === value;

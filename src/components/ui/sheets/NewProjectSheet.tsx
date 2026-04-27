@@ -10,7 +10,7 @@ import { ColorSwatchPicker } from './ColorSwatchPicker';
 import { Underline } from '../primitives/Underline';
 import { ThemeText } from '../primitives/ThemeText';
 import { CountedInput } from '../primitives/CountedInput';
-import { SectionLabel } from '../primitives/SectionLabel';
+import { SectionTitle } from '../primitives/SectionTitle';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { Divider } from '../primitives/Divider';
 import { PROJECT_COLORS, SHEET_PADDING_H } from '@/constants';
@@ -42,7 +42,7 @@ export function NewProjectSheet() {
       <View style={{ paddingHorizontal: SHEET_PADDING_H, paddingTop: 8, overflow: 'hidden' }}>
         <GrainOverlay />
 
-        <SectionLabel size={28} lineHeight={32}>a new project</SectionLabel>
+        <SectionTitle size={28} lineHeight={32} showUnderline={false}>a new project</SectionTitle>
         <Underline width={116} />
 
         {/* Name input */}

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useInlineEdit } from '@/hooks';
-import { GrainOverlay, ThemeText, HeaderText, ScreenHeader, CustomSwitch, ProfileCard, SectionHeader, MenuRow } from '@/components/ui';
+import { GrainOverlay, ThemeText, HeaderText, PageHeader, CustomSwitch, ProfileCard, SectionTitle, MenuRow } from '@/components/ui';
 import { FONT } from '@/theme';
 import { CloudIcon, ArrowIcon, FolderIcon } from '@/assets/icons';
 
@@ -36,7 +36,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScreenHeader onBack={() => router.back()} />
+      <PageHeader onBack={() => router.back()} />
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
 
@@ -74,7 +74,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Archived section */}
-        <SectionHeader title="archived" underlineWidth={52} />
+        <SectionTitle underlineWidth={52}>archived</SectionTitle>
         <View style={{
           marginTop: 12,
           marginBottom: 28,
@@ -96,7 +96,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Sync section */}
-        <SectionHeader title="sync" underlineWidth={42} />
+        <SectionTitle underlineWidth={42}>sync</SectionTitle>
         <View style={{
           marginTop: 12,
           backgroundColor: colors.paper,

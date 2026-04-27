@@ -29,20 +29,6 @@ export const SHADOW_EMPTY: ViewStyle = {
   elevation: 12,
 };
 
-// Project avatar circle
-export function projectAvatarStyle(color: string): ViewStyle {
-  return {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: `${color}1c`,
-    borderWidth: 1,
-    borderColor: `${color}33`,
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-}
-
 // Color swatch button
 export function colorSwatchStyle(color: string, isSelected: boolean): ViewStyle {
   return {

@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
-import { PaperCard, Underline, FAB, ThemeText, HeaderText, SectionLabel, SettingsButton } from '@/components/ui';
+import { PaperCard, Underline, FAB, ThemeText, HeaderText, SectionTitle, PageHeader } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { SHADOW_EMPTY } from '@/constants';
 
@@ -17,6 +17,7 @@ export default function HomeScreen() {
   const { notes: allNotes, projects, profile } = useStore();
   const insets = useSafeAreaInsets();
   const notes = useMemo(() => allNotes.filter(n => !n.archived), [allNotes]);
+  const pinnedNotes = useMemo(() => notes.filter(n => n.pinned), [notes]);
 
   const timeOfDay = getTimeOfDay();
   const dayName = getDayName();
@@ -33,8 +34,8 @@ export default function HomeScreen() {
   const subtitle = subtitleParts.length > 0 ? subtitleParts.join(', ') + '.' : 'nothing yet today.';
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <SettingsButton />
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <PageHeader settingsButton />
       <ScrollView
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }}
         showsVerticalScrollIndicator={false}
@@ -53,14 +54,35 @@ export default function HomeScreen() {
           </ThemeText>
         </View>
 
+        {/* Pinned Notes */}
+        {pinnedNotes.length > 0 && (
+          <View style={{ paddingTop: 28 }}>
+            <View style={{ paddingHorizontal: 24, paddingBottom: 12 }}>
+              <SectionTitle underlineWidth={52}>pinned</SectionTitle>
+            </View>
+
+            <View style={{ paddingHorizontal: 18, gap: 12 }}>
+              {pinnedNotes.map((note, i) => {
+                const proj = projects.find(p => p.id === note.project);
+                return (
+                  <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
+                    <PaperCard note={note} project={proj} index={i} />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
         {/* Recent Notes */}
         <View style={{ paddingTop: 28 }}>
           <View style={{ paddingHorizontal: 24, paddingBottom: 12, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
             <View>
-              <SectionLabel>recent notes</SectionLabel>
-              <Underline width={72} />
+              <SectionTitle underlineWidth={72}>recent notes</SectionTitle>
             </View>
-            <ThemeText variant="meta">see all</ThemeText>
+            <TouchableOpacity onPress={() => router.push('/notes')} activeOpacity={0.7} hitSlop={8}>
+              <ThemeText variant="meta">see all</ThemeText>
+            </TouchableOpacity>
           </View>
 
           <View style={{ paddingHorizontal: 18, gap: 12 }}>
@@ -77,15 +99,15 @@ export default function HomeScreen() {
       </ScrollView>
 
       <FAB onPress={() => openNewNote()}  />
-    </SafeAreaView>
+    </View>
   );
 }
 
 function EmptyState({ onFAB }: { onFAB: () => void }) {
   const { colors } = useTheme();
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <SettingsButton />
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <PageHeader settingsButton />
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, marginTop: -80 }}>
         {/* Blank tilted paper */}
         <View style={{
@@ -124,6 +146,6 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
         </ThemeText>
       </View>
       <FAB onPress={onFAB} wide label="first note"  />
-    </SafeAreaView>
+    </View>
   );
 }

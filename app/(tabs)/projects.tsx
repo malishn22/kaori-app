@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useNewProjectSheet } from '@/providers/NewProjectSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { Underline, FAB, GrainOverlay, ThemeText, HeaderText, ProjectAvatar, SettingsButton } from '@/components/ui';
+import { FAB, GrainOverlay, ThemeText, ProjectAvatar, PageHeader } from '@/components/ui';
 import { ChevronIcon, BookmarkIcon } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { SHADOW_CARD } from '@/constants';
@@ -31,16 +31,9 @@ export default function ProjectsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <SettingsButton />
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <PageHeader caption="your folders" title="projects" underlineWidth={92} settingsButton />
       <ScrollView contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }} showsVerticalScrollIndicator={false}>
-        <View style={{ paddingHorizontal: 24, paddingTop: 8 }}>
-          <ThemeText variant="caption" letterSpacing={0.6}>
-            your folders
-          </ThemeText>
-          <HeaderText style={{ marginTop: 6 }}>projects</HeaderText>
-          <Underline width={92} />
-        </View>
 
         <View style={{ paddingHorizontal: 18, paddingTop: 24, gap: 14 }}>
           {sortedProjects.map((p, i) => {
@@ -84,6 +77,6 @@ export default function ProjectsScreen() {
       </ScrollView>
 
       <FAB onPress={() => openNewProject()}  />
-    </SafeAreaView>
+    </View>
   );
 }

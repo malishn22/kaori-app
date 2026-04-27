@@ -6,7 +6,6 @@ export {
   SHADOW_CARD,
   SHADOW_POPUP,
   SHADOW_EMPTY,
-  projectAvatarStyle,
   colorSwatchStyle,
   BUTTON_HEIGHT,
   BUTTON_RADIUS,

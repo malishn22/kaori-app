@@ -83,7 +83,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        if (rawNotes) setNotes(JSON.parse(rawNotes).map((n: Note) => ({ links: {}, ...n })));
+        if (rawNotes) setNotes(JSON.parse(rawNotes).map((n: Note) => ({ ...n, links: n.links ?? {} })));
         if (rawProjects) setProjects(JSON.parse(rawProjects));
         if (rawProfile) setProfile({ ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) });
       } catch (e) {

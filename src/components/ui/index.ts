@@ -3,18 +3,17 @@ export { Input } from './primitives/Input';
 export { CountedInput } from './primitives/CountedInput';
 export { ThemeText } from './primitives/ThemeText';
 export { HeaderText } from './primitives/HeaderText';
-export { SectionLabel } from './primitives/SectionLabel';
+export { SectionTitle } from './primitives/SectionTitle';
 export { ColorDot } from './primitives/ColorDot';
 export { Chip } from './primitives/Chip';
 export { Underline } from './primitives/Underline';
 export { GrainOverlay } from './primitives/GrainOverlay';
 export { LinkedText } from './primitives/LinkedText';
 export { ConfirmationDialog } from './primitives/ConfirmationDialog';
-export { SectionHeader } from './primitives/SectionHeader';
 export { Divider } from './primitives/Divider';
 
 // layout
-export { ScreenHeader } from './layout/ScreenHeader';
+export { PageHeader } from './layout/PageHeader';
 export { HeaderEditButton } from './layout/HeaderEditButton';
 export { ShowMoreButton } from './layout/ShowMoreButton';
 export { FAB } from './layout/FAB';

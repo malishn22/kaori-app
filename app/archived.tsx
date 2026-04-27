@@ -4,7 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback } from '@/hooks';
-import { GrainOverlay, ThemeText, HeaderText, Underline, ScreenHeader, PaperCard, ProjectAvatar, SectionHeader } from '@/components/ui';
+import { GrainOverlay, ThemeText, PaperCard, ProjectAvatar, SectionTitle, PageHeader } from '@/components/ui';
 import { ChevronIcon } from '@/assets/icons';
 import { SHADOW_CARD } from '@/constants';
 
@@ -32,14 +32,9 @@ export default function ArchivedScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Stack.Screen options={{ headerShown: false, animation: 'slide_from_right' }} />
-      <ScreenHeader onBack={() => router.back()} />
+      <PageHeader onBack={() => router.back()} caption="hidden items" title="archived" underlineWidth={62} />
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
-        <View style={{ paddingHorizontal: 6, marginBottom: 24 }}>
-          <ThemeText variant="caption" letterSpacing={0.6}>hidden items</ThemeText>
-          <HeaderText style={{ marginTop: 6 }}>archived</HeaderText>
-          <Underline width={62} />
-        </View>
 
         {empty && (
           <View style={{ alignItems: 'center', paddingTop: 60 }}>
@@ -51,7 +46,7 @@ export default function ArchivedScreen() {
         {archivedProjects.length > 0 && (
           <View style={{ marginBottom: 28 }}>
             <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
-              <SectionHeader title="projects" underlineWidth={52} />
+              <SectionTitle underlineWidth={52}>projects</SectionTitle>
             </View>
 
             <View style={{ gap: 12 }}>
@@ -107,7 +102,7 @@ export default function ArchivedScreen() {
         {archivedNotes.length > 0 && (
           <View>
             <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
-              <SectionHeader title="notes" underlineWidth={38} />
+              <SectionTitle underlineWidth={38}>notes</SectionTitle>
             </View>
 
             <View style={{ gap: 12 }}>

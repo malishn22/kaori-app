@@ -6,7 +6,7 @@ import { useTheme } from '@/theme';
 import { useProjectNotes } from '@/hooks';
 import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { useProjectMenuSheet } from '@/providers/ProjectMenuSheetProvider';
-import { PaperCard, FAB, GrainOverlay, ThemeText, HeaderText, ColorDot, ScreenHeader, ShowMoreButton } from '@/components/ui';
+import { PaperCard, FAB, GrainOverlay, ThemeText, HeaderText, ColorDot, PageHeader, ShowMoreButton } from '@/components/ui';
 
 export default function ProjectDetailScreen() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function ProjectDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScreenHeader
+      <PageHeader
         onBack={() => router.back()}
         rightActions={[
           { icon: <ShowMoreButton color={colors.ink2} onPress={() => openProjectMenu(proj.id, () => router.back())} /> },
