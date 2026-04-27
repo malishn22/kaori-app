@@ -2,7 +2,7 @@ import React from 'react';
 import { Platform, View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
 import { CircleIcon, FolderIcon } from '@/assets/icons';
-import { ThemeText } from '@/components/ui';
+import { ThemeText } from '../primitives/ThemeText';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TAB_BAR_BASE_HEIGHT, TAB_BAR_BOTTOM_INSET } from '@/constants/layout';

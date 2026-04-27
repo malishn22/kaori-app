@@ -5,22 +5,24 @@ import { useRouter } from 'expo-router';
 import { useNewProjectSheet } from '@/providers/NewProjectSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { Underline, FAB, GrainOverlay, ThemeText, HeaderText, ProjectAvatar } from '@/components/ui';
+import { Underline, FAB, GrainOverlay, ThemeText, HeaderText, ProjectAvatar, SettingsButton } from '@/components/ui';
 import { ChevronIcon, BookmarkIcon } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { SHADOW_CARD } from '@/constants';
+import { timeAgo } from '@/utils/time';
 
 export default function ProjectsScreen() {
   const router = useRouter();
   const { openNewProject } = useNewProjectSheet();
   const { colors } = useTheme();
-  const { projects, notes } = useStore();
+  const { projects: allProjects, notes: allNotes } = useStore();
+  const projects = useMemo(() => allProjects.filter(p => !p.archived), [allProjects]);
   const noteCounts = useMemo(
-    () => notes.reduce<Record<string, number>>((acc, note) => {
+    () => allNotes.reduce<Record<string, number>>((acc, note) => {
       if (note.project) acc[note.project] = (acc[note.project] ?? 0) + 1;
       return acc;
     }, {}),
-    [notes]
+    [allNotes]
   );
   const sortedProjects = useMemo(
     () => [...projects].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)),
@@ -30,6 +32,7 @@ export default function ProjectsScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
+      <SettingsButton />
       <ScrollView contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }} showsVerticalScrollIndicator={false}>
         <View style={{ paddingHorizontal: 24, paddingTop: 8 }}>
           <ThemeText variant="caption" letterSpacing={0.6}>
@@ -68,7 +71,7 @@ export default function ProjectsScreen() {
                       {p.name}
                     </ThemeText>
                     <ThemeText variant="meta" style={{ marginTop: 4 }}>
-                      {noteCounts[p.id] ?? 0} notes · {p.updated}
+                      {noteCounts[p.id] ?? 0} notes · {timeAgo(p.updated)}
                     </ThemeText>
                   </View>
                   {p.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}

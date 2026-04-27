@@ -7,6 +7,7 @@ export type Project = {
   note: string;
   createdAt: string;
   pinned: boolean;
+  archived?: boolean;
 };
 
 export type Note = {
@@ -18,6 +19,8 @@ export type Note = {
   createdAt: string;
   tags: string[];
   pinned: boolean;
+  links: Record<string, string>;
+  archived?: boolean;
 };
 
 export type Profile = {

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Note, Project, Profile } from '@/types';
 import { SEED_NOTES, SEED_PROJECTS } from '@/types';
 import { computeDisplayStrings } from '@/utils/time';
+import { resolveNoteLinks, extractUrls } from '@/utils/links';
 
 const KEYS = {
   notes: '@kaori_notes',
@@ -24,12 +25,16 @@ type StoreContextValue = {
   profile: Profile;
   addNote: (text: string, projectId: string | null) => Promise<void>;
   addProject: (name: string, color: string, note: string) => Promise<void>;
-  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned'>>) => Promise<void>;
+  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned' | 'links'>>) => Promise<void>;
+  updateNoteLink: (noteId: string, url: string, label: string) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   updateProfile: (patch: Partial<Profile>) => Promise<void>;
   pinProject: (id: string, pinned: boolean) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   updateProjectColor: (id: string, color: string) => Promise<void>;
+  renameProject: (id: string, name: string) => Promise<void>;
+  archiveNote: (id: string, archived: boolean) => Promise<void>;
+  archiveProject: (id: string, archived: boolean) => Promise<void>;
 };
 
 const StoreContext = createContext<StoreContextValue>({
@@ -39,11 +44,15 @@ const StoreContext = createContext<StoreContextValue>({
   addNote: async () => {},
   addProject: async () => {},
   updateNote: async () => {},
+  updateNoteLink: async () => {},
   deleteNote: async () => {},
   updateProfile: async () => {},
   pinProject: async () => {},
   deleteProject: async () => {},
   updateProjectColor: async () => {},
+  renameProject: async () => {},
+  archiveNote: async () => {},
+  archiveProject: async () => {},
 });
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -74,7 +83,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        if (rawNotes) setNotes(JSON.parse(rawNotes));
+        if (rawNotes) setNotes(JSON.parse(rawNotes).map((n: Note) => ({ links: {}, ...n })));
         if (rawProjects) setProjects(JSON.parse(rawProjects));
         if (rawProfile) setProfile({ ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) });
       } catch (e) {
@@ -87,8 +96,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   async function addNote(text: string, projectId: string | null) {
     const createdAt = new Date().toISOString();
     const { time, date } = computeDisplayStrings(createdAt);
+    const noteId = Date.now().toString();
     const newNote: Note = {
-      id: Date.now().toString(),
+      id: noteId,
       project: projectId,
       text,
       time,
@@ -96,6 +106,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       createdAt,
       tags: [],
       pinned: false,
+      links: {},
     };
 
     const nextNotes = [newNote, ...notes];
@@ -103,7 +114,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const nextProjects = projectId
       ? projects.map((p) => {
           if (p.id !== projectId) return p;
-          return { ...p, count: p.count + 1, updated: 'just now' };
+          return { ...p, count: p.count + 1, updated: new Date().toISOString() };
         })
       : projects;
 
@@ -114,6 +125,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       [KEYS.notes, JSON.stringify(nextNotes)],
       [KEYS.projects, JSON.stringify(nextProjects)],
     ]);
+
+    // Resolve link titles in the background
+    if (extractUrls(text).length > 0) {
+      resolveNoteLinks(text).then(async (links) => {
+        setNotes((prev) => {
+          const updated = prev.map((n) => (n.id === noteId ? { ...n, links } : n));
+          AsyncStorage.setItem(KEYS.notes, JSON.stringify(updated));
+          return updated;
+        });
+      });
+    }
   }
 
   async function addProject(name: string, color: string, note: string) {
@@ -123,7 +145,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       name,
       count: 0,
       color,
-      updated: 'just now',
+      updated: createdAt,
       note,
       createdAt,
       pinned: false,
@@ -156,8 +178,35 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(KEYS.projects, JSON.stringify(nextProjects));
   }
 
-  async function updateNote(id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned'>>) {
+  async function renameProject(id: string, name: string) {
+    const nextProjects = projects.map(p => p.id === id ? { ...p, name } : p);
+    setProjects(nextProjects);
+    await AsyncStorage.setItem(KEYS.projects, JSON.stringify(nextProjects));
+  }
+
+  async function updateNote(id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned' | 'links'>>) {
     const nextNotes = notes.map(n => n.id === id ? { ...n, ...patch } : n);
+    setNotes(nextNotes);
+    await AsyncStorage.setItem(KEYS.notes, JSON.stringify(nextNotes));
+
+    // Resolve titles for any new URLs in the text
+    if (patch.text && extractUrls(patch.text).length > 0) {
+      const mergedExisting = { ...notes.find(n => n.id === id)?.links, ...patch.links };
+      resolveNoteLinks(patch.text, mergedExisting).then(async (links) => {
+        setNotes((prev) => {
+          const updated = prev.map((n) => (n.id === id ? { ...n, links } : n));
+          AsyncStorage.setItem(KEYS.notes, JSON.stringify(updated));
+          return updated;
+        });
+      });
+    }
+  }
+
+  async function updateNoteLink(noteId: string, url: string, label: string) {
+    const nextNotes = notes.map(n => {
+      if (n.id !== noteId) return n;
+      return { ...n, links: { ...n.links, [url]: label } };
+    });
     setNotes(nextNotes);
     await AsyncStorage.setItem(KEYS.notes, JSON.stringify(nextNotes));
   }
@@ -176,6 +225,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     ]);
   }
 
+  async function archiveNote(id: string, archived: boolean) {
+    const nextNotes = notes.map(n => n.id === id ? { ...n, archived } : n);
+    setNotes(nextNotes);
+    await AsyncStorage.setItem(KEYS.notes, JSON.stringify(nextNotes));
+  }
+
+  async function archiveProject(id: string, archived: boolean) {
+    const nextProjects = projects.map(p => p.id === id ? { ...p, archived } : p);
+    const nextNotes = notes.map(n => n.project === id ? { ...n, archived } : n);
+    setProjects(nextProjects);
+    setNotes(nextNotes);
+    await AsyncStorage.multiSet([
+      [KEYS.projects, JSON.stringify(nextProjects)],
+      [KEYS.notes, JSON.stringify(nextNotes)],
+    ]);
+  }
+
   async function updateProfile(patch: Partial<Profile>) {
     const nextProfile = { ...profile, ...patch };
     setProfile(nextProfile);
@@ -183,7 +249,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <StoreContext.Provider value={{ notes, projects, profile, addNote, addProject, updateNote, deleteNote, updateProfile, pinProject, deleteProject, updateProjectColor }}>
+    <StoreContext.Provider value={{ notes, projects, profile, addNote, addProject, updateNote, updateNoteLink, deleteNote, updateProfile, pinProject, deleteProject, updateProjectColor, renameProject, archiveNote, archiveProject }}>
       {children}
     </StoreContext.Provider>
   );

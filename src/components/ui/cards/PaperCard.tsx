@@ -4,6 +4,7 @@ import { useTheme } from '@/theme';
 import type { Note, Project } from '@/types';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
+import { LinkedText } from '../primitives/LinkedText';
 import { ColorDot } from '../primitives/ColorDot';
 import { BookmarkIcon } from '@/assets/icons';
 import { SHADOW_CARD } from '@/constants';
@@ -15,6 +16,7 @@ type Props = { note: Note; project?: Project; index?: number };
 export function PaperCard({ note, project: proj, index = 0 }: Props) {
   const { colors } = useTheme();
   const tilt = TILTS[index % TILTS.length];
+  const isArchived = !!note.archived;
 
   return (
     <View
@@ -28,6 +30,7 @@ export function PaperCard({ note, project: proj, index = 0 }: Props) {
         transform: [{ rotate: `${tilt}deg` }],
         ...SHADOW_CARD,
         overflow: 'hidden',
+        opacity: isArchived ? 0.5 : 1,
       }}
     >
       <GrainOverlay />
@@ -43,11 +46,12 @@ export function PaperCard({ note, project: proj, index = 0 }: Props) {
           <View />
         )}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          {isArchived && <ThemeText variant="meta" size={10} color="ink4">archived</ThemeText>}
           {note.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
           <ThemeText variant="meta" size={11} color="ink4">{note.time}</ThemeText>
         </View>
       </View>
-      <ThemeText variant="body">{note.text}</ThemeText>
+      <LinkedText text={note.text} links={note.links} />
     </View>
   );
 }

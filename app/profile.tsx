@@ -6,12 +6,14 @@ import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { GrainOverlay, ThemeText, HeaderText, Underline, ScreenHeader, CustomSwitch, CountedInput } from '@/components/ui';
 import { FONT } from '@/theme';
-import { CloudIcon, ArrowIcon, ChevronIcon } from '@/assets/icons';
+import { CloudIcon, ArrowIcon, ChevronIcon, FolderIcon } from '@/assets/icons';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { profile, notes, projects, updateProfile } = useStore();
+  const { profile, notes: allNotes, projects: allProjects, updateProfile } = useStore();
+  const notes = allNotes.filter(n => !n.archived);
+  const projects = allProjects.filter(p => !p.archived);
 
   async function handleExport() {
     const exportText = notes.map(i => {
@@ -112,6 +114,33 @@ export default function ProfileScreen() {
             </View>
           ))}
         </View>
+
+        {/* Archived section */}
+        <ThemeText variant="subheading" style={{ marginBottom: 6 }}>archived</ThemeText>
+        <Underline width={52} />
+        <TouchableOpacity
+          onPress={() => router.push('/archived')}
+          activeOpacity={0.7}
+          style={{
+            marginTop: 12,
+            marginBottom: 28,
+            backgroundColor: colors.paper,
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: colors.line,
+            paddingHorizontal: 16,
+            paddingVertical: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            overflow: 'hidden',
+          }}
+        >
+          <GrainOverlay />
+          <FolderIcon size={18} color={colors.ink3} strokeWidth={1.4} />
+          <ThemeText variant="label" style={{ flex: 1 }}>Archive</ThemeText>
+          <ChevronIcon size={12} color={colors.ink4} />
+        </TouchableOpacity>
 
         {/* Sync section */}
         <ThemeText variant="subheading" style={{ marginBottom: 6 }}>sync</ThemeText>

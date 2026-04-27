@@ -1,1 +1,1 @@
-export { getTimeOfDay, getDayName, computeDisplayStrings } from './time';
+export { getTimeOfDay, getDayName, computeDisplayStrings, timeAgo } from './time';

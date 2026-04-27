@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Share, Animated } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Share, Animated, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useAnimatedPopup } from '@/hooks';
-import { GrainOverlay, ThemeText, ColorDot, Chip, ScreenHeader, HeaderEditButton, ShowMoreButton } from '@/components/ui';
+import { GrainOverlay, ThemeText, ColorDot, Chip, ScreenHeader, HeaderEditButton, ShowMoreButton, LinkedText, ConfirmationDialog } from '@/components/ui';
+import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
 import { FONT } from '@/theme';
 import { POPUP_WIDTH, SHADOW_POPUP, BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 
@@ -14,7 +15,8 @@ export default function NoteDetailScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { notes, projects, updateNote, deleteNote } = useStore();
+  const { notes, projects: allProjects, updateNote, deleteNote, archiveNote } = useStore();
+  const projects = allProjects.filter(p => !p.archived);
   const note = notes.find(n => n.id === id);
   const proj = note?.project ? projects.find(p => p.id === note.project) : undefined;
 
@@ -24,6 +26,7 @@ export default function NoteDetailScreen() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [movingProject, setMovingProject] = useState(false);
   const [popupHeight, setPopupHeight] = useState(0);
+  const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
@@ -48,7 +51,8 @@ export default function NoteDetailScreen() {
 
   async function handleSave() {
     if (!draft.trim()) return;
-    await updateNote(note!.id, { text: draft.trim() });
+    const { text, links } = fromEditableText(draft.trim());
+    await updateNote(note!.id, { text, links });
     impactOnSave();
     setEditing(false);
   }
@@ -84,11 +88,14 @@ export default function NoteDetailScreen() {
 
   function handleBack() {
     if (editing) {
-      setDraft(note!.text);
       setEditing(false);
     } else {
       router.back();
     }
+  }
+
+  function handleLinkPress(url: string, label: string) {
+    setLinkAction({ url, label });
   }
 
   const popupScale = menuAnim;
@@ -102,7 +109,7 @@ export default function NoteDetailScreen() {
       <ScreenHeader
         onBack={handleBack}
         rightActions={[
-          { icon: <HeaderEditButton color={editing ? colors.amber : colors.ink2} onPress={() => { setDraft(note.text); setEditing(true); }} /> },
+          { icon: <HeaderEditButton color={editing ? colors.amber : colors.ink2} onPress={() => { setDraft(toEditableText(note.text, note.links)); setEditing(true); }} /> },
           { icon: <ShowMoreButton color={colors.ink2} onPress={openMenu} /> },
         ]}
       />
@@ -137,9 +144,15 @@ export default function NoteDetailScreen() {
               cursorColor={colors.amber}
             />
           ) : (
-            <ThemeText variant="heading" size={26} lineHeight={36} letterSpacing={0.1} color="ink">
-              {note.text}
-            </ThemeText>
+            <LinkedText
+              text={note.text}
+              links={note.links}
+              variant="heading"
+              size={26}
+              lineHeight={36}
+              letterSpacing={0.1}
+              onLinkPress={handleLinkPress}
+            />
           )}
 
           {/* Meta */}
@@ -197,11 +210,7 @@ export default function NoteDetailScreen() {
         >
           <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
         </TouchableOpacity>
-      ) : (
-        <View style={{ height: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
-          <View style={{ width: 108, height: 4, borderRadius: 2, backgroundColor: colors.ink4 }} />
-        </View>
-      )}
+      ) : null}
 
       {/* Popup menu */}
       {menuOpen && (
@@ -313,6 +322,27 @@ export default function NoteDetailScreen() {
               <ThemeText variant="body">share</ThemeText>
             </TouchableOpacity>
 
+            {/* Archive */}
+            <TouchableOpacity
+              onPress={async () => {
+                await archiveNote(note!.id, true);
+                impact();
+                setMenuOpen(false);
+                router.back();
+              }}
+              activeOpacity={0.7}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.line,
+              }}
+            >
+              <ThemeText variant="body">archive</ThemeText>
+            </TouchableOpacity>
+
             {/* Delete */}
             <TouchableOpacity
               onPress={handleDelete}
@@ -331,6 +361,24 @@ export default function NoteDetailScreen() {
           </Animated.View>
         </>
       )}
+
+      {/* Link action dialog */}
+      <ConfirmationDialog
+        visible={!!linkAction}
+        title={linkAction?.label ?? ''}
+        subtitle={linkAction ? getDomain(linkAction.url) : undefined}
+        actions={[
+          {
+            label: 'open link',
+            color: 'amber',
+            onPress: () => {
+              if (linkAction) Linking.openURL(linkAction.url);
+              setLinkAction(null);
+            },
+          },
+        ]}
+        onClose={() => setLinkAction(null)}
+      />
 
     </View>
     </KeyboardAvoidingView>

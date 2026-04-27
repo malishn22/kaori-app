@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -6,8 +6,7 @@ import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
-import { PaperCard, Underline, FAB, ThemeText, HeaderText, SectionLabel } from '@/components/ui';
-import { SettingsIcon } from '@/assets/icons';
+import { PaperCard, Underline, FAB, ThemeText, HeaderText, SectionLabel, SettingsButton } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { SHADOW_EMPTY } from '@/constants';
 
@@ -15,8 +14,9 @@ export default function HomeScreen() {
   const router = useRouter();
   const { openNewNote } = useNewNoteSheet();
   const { colors } = useTheme();
-  const { notes, projects, profile } = useStore();
+  const { notes: allNotes, projects, profile } = useStore();
   const insets = useSafeAreaInsets();
+  const notes = useMemo(() => allNotes.filter(n => !n.archived), [allNotes]);
 
   const timeOfDay = getTimeOfDay();
   const dayName = getDayName();
@@ -34,6 +34,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
+      <SettingsButton />
       <ScrollView
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }}
         showsVerticalScrollIndicator={false}
@@ -43,14 +44,9 @@ export default function HomeScreen() {
           <ThemeText variant="caption" letterSpacing={0.5}>
             {dayName}
           </ThemeText>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 8 }}>
-            <HeaderText size={38} lineHeight={42}>
-              {timeOfDay}, <HeaderText size={38} lineHeight={42} color="amber">{profile.initial}.</HeaderText>
-            </HeaderText>
-            <TouchableOpacity onPress={() => router.push('/settings')} hitSlop={12} activeOpacity={0.7} style={{ paddingTop: 6, paddingLeft: 12 }}>
-              <SettingsIcon size={22} color={colors.ink2} strokeWidth={1.4} />
-            </TouchableOpacity>
-          </View>
+          <HeaderText size={38} lineHeight={42} style={{ marginTop: 8 }}>
+            {timeOfDay}, <HeaderText size={38} lineHeight={42} color="amber">{profile.initial}.</HeaderText>
+          </HeaderText>
           <ThemeText variant="meta" size={13} color="ink2" style={{ marginTop: 6, lineHeight: 20 }}>
             {subtitle}
           </ThemeText>
@@ -88,6 +84,7 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
   const { colors } = useTheme();
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
+      <SettingsButton />
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, marginTop: -80 }}>
         {/* Blank tilted paper */}
         <View style={{

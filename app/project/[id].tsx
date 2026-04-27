@@ -84,7 +84,7 @@ export default function ProjectDetailScreen() {
 
         {/* Notes list */}
         <View style={{ paddingHorizontal: 18, paddingTop: 24, gap: 12 }}>
-          {notes.map((note, ix) => (
+          {[...notes].sort((a, b) => (a.archived ? 1 : 0) - (b.archived ? 1 : 0)).map((note, ix) => (
             <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
               <PaperCard note={note} project={proj} index={ix + 1} />
             </TouchableOpacity>

@@ -36,3 +36,13 @@ export function computeDisplayStrings(createdAt: string): { time: string; date: 
 
   return { time, date };
 }
+
+export function timeAgo(isoString: string): string {
+  const ms = Date.now() - new Date(isoString).getTime();
+  if (isNaN(ms)) return isoString; // legacy fallback
+  if (ms < 60_000) return 'just now';
+  if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
+  if (ms < 86_400_000) return `${Math.floor(ms / 3_600_000)}h ago`;
+  if (ms < 604_800_000) return `${Math.floor(ms / 86_400_000)}d ago`;
+  return `${Math.floor(ms / 604_800_000)}w ago`;
+}

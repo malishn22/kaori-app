@@ -8,6 +8,8 @@ export { ColorDot } from './primitives/ColorDot';
 export { Chip } from './primitives/Chip';
 export { Underline } from './primitives/Underline';
 export { GrainOverlay } from './primitives/GrainOverlay';
+export { LinkedText } from './primitives/LinkedText';
+export { ConfirmationDialog } from './primitives/ConfirmationDialog';
 
 // layout
 export { ScreenHeader } from './layout/ScreenHeader';
@@ -15,6 +17,7 @@ export { HeaderEditButton } from './layout/HeaderEditButton';
 export { ShowMoreButton } from './layout/ShowMoreButton';
 export { FAB } from './layout/FAB';
 export { TabBar } from './layout/TabBar';
+export { SettingsButton } from './layout/SettingsButton';
 export { SettingRow, CustomSwitch } from './layout/SettingRow';
 
 // cards
