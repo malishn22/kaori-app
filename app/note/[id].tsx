@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useAnimatedPopup, useInlineEdit, useConfirmAction } from '@/hooks';
-import { GrainOverlay, ThemeText, ColorDot, Chip, PageHeader, HeaderEditButton, ShowMoreButton, LinkedText, ConfirmationDialog, MenuRow } from '@/components/ui';
+import { GrainOverlay, ThemeText, ColorDot, Chip, PageHeader, LinkedText, ConfirmationDialog, MenuRow } from '@/components/ui';
 import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
 import { FONT } from '@/theme';
 import { POPUP_WIDTH, SHADOW_POPUP, BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
@@ -111,10 +111,8 @@ export default function NoteDetailScreen() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <PageHeader
         onBack={handleBack}
-        rightActions={[
-          { icon: <HeaderEditButton color={editing ? colors.amber : colors.ink2} onPress={() => startEditing(toEditableText(note.text, note.links))} /> },
-          { icon: <ShowMoreButton color={colors.ink2} onPress={openMenu} /> },
-        ]}
+        editButton={{ onPress: () => startEditing(toEditableText(note.text, note.links)), active: editing }}
+        moreButton={{ onPress: openMenu }}
       />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>

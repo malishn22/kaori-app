@@ -3,33 +3,34 @@ import { View, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
-import { BackIcon, SettingsIcon } from '@/assets/icons';
+import { BackIcon, SettingsIcon, EditIcon, MoreIcon } from '@/assets/icons';
 import { ThemeText } from '../primitives/ThemeText';
 import { HeaderText } from '../primitives/HeaderText';
 import { Underline } from '../primitives/Underline';
 
-type HeaderAction = { icon: React.ReactNode; onPress?: () => void };
-
 type PageHeaderProps = {
   onBack?: () => void;
   settingsButton?: boolean;
-  rightActions?: HeaderAction[];
+  editButton?: { onPress: () => void; active?: boolean };
+  moreButton?: { onPress: () => void };
   caption?: string;
   title?: string;
   subtitle?: string;
   underlineWidth?: number;
+  titleElement?: React.ReactNode;
 };
 
-export function PageHeader({ onBack, settingsButton, rightActions = [], caption, title, subtitle, underlineWidth = 92 }: PageHeaderProps) {
+export function PageHeader({ onBack, settingsButton, editButton, moreButton, caption, title, subtitle, underlineWidth = 92, titleElement }: PageHeaderProps) {
   const router = useRouter();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
-  const hasNavBar = onBack || rightActions.length > 0;
+  const hasNavBar = onBack || editButton || moreButton;
+  const hasTitleSection = titleElement || title;
 
   return (
     <View style={{ backgroundColor: colors.bg, paddingTop: insets.top + 16 }}>
-      {/* Navigation bar (back button / right actions) */}
+      {/* Navigation bar (back, edit, more) */}
       {hasNavBar && (
         <View style={{
           height: 52,
@@ -44,40 +45,53 @@ export function PageHeader({ onBack, settingsButton, rightActions = [], caption,
             </TouchableOpacity>
           )}
           <View style={{ flex: 1 }} />
-          {rightActions.map((action, i) => (
-            <TouchableOpacity key={i} onPress={action.onPress} hitSlop={12} activeOpacity={0.7} style={{ marginLeft: i > 0 ? 16 : 0 }}>
-              {action.icon}
+          {editButton && (
+            <TouchableOpacity onPress={editButton.onPress} hitSlop={12} activeOpacity={0.7}>
+              <EditIcon size={24} color={editButton.active ? colors.amber : colors.ink2} />
             </TouchableOpacity>
-          ))}
+          )}
+          {moreButton && (
+            <TouchableOpacity onPress={moreButton.onPress} hitSlop={12} activeOpacity={0.7} style={{ marginLeft: editButton ? 16 : 0 }}>
+              <MoreIcon size={26} color={colors.ink2} />
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
-      {/* Settings button (absolutely positioned, doesn't take layout space) */}
-      {settingsButton && (
-        <TouchableOpacity
-          onPress={() => router.push('/settings')}
-          hitSlop={12}
-          activeOpacity={0.7}
-          style={{ position: 'absolute', top: insets.top + 40, right: 24, zIndex: 1 }}
-        >
-          <SettingsIcon size={22} color={colors.ink2} strokeWidth={1.4} />
-        </TouchableOpacity>
+      {/* Settings button fallback (when no title section, e.g. empty state) */}
+      {settingsButton && !hasTitleSection && (
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 24, paddingTop: 8 }}>
+          <TouchableOpacity
+            onPress={() => router.push('/settings')}
+            hitSlop={12}
+            activeOpacity={0.7}
+          >
+            <SettingsIcon size={22} color={colors.ink2} strokeWidth={1.4} />
+          </TouchableOpacity>
+        </View>
       )}
 
       {/* Title section */}
-      {title && (
-        <View style={{ paddingHorizontal: 24, paddingTop: hasNavBar ? 0 : 8 }}>
+      {hasTitleSection && (
+        <View style={{ paddingHorizontal: 24, paddingTop: hasNavBar ? 0 : 8, gap: 6 }}>
           {caption && (
-            <ThemeText variant="caption" letterSpacing={0.6}>
-              {caption}
-            </ThemeText>
+            <ThemeText variant="caption" letterSpacing={0.6}>{caption}</ThemeText>
           )}
-          <HeaderText style={{ marginTop: caption ? 6 : 0 }}>{title}</HeaderText>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            {titleElement ?? <HeaderText>{title}</HeaderText>}
+            {settingsButton && (
+              <TouchableOpacity
+                onPress={() => router.push('/settings')}
+                hitSlop={12}
+                activeOpacity={0.7}
+              >
+                <SettingsIcon size={22} color={colors.ink2} strokeWidth={1.4} />
+              </TouchableOpacity>
+            )}
+          </View>
           <Underline width={underlineWidth} />
           {subtitle && (
-            <ThemeText variant="meta" color="ink2" style={{ marginTop: 6 }}>
-              {subtitle}
-            </ThemeText>
+            <ThemeText variant="meta" color="ink2">{subtitle}</ThemeText>
           )}
         </View>
       )}

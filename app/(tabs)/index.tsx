@@ -6,7 +6,7 @@ import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
-import { PaperCard, Underline, FAB, ThemeText, HeaderText, SectionTitle, PageHeader } from '@/components/ui';
+import { PaperCard, FAB, ThemeText, HeaderText, SectionTitle, PageHeader, GreetingTitle } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { SHADOW_EMPTY } from '@/constants';
 
@@ -35,25 +35,17 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <PageHeader settingsButton />
+      <PageHeader
+        settingsButton
+        caption={dayName}
+        titleElement={<GreetingTitle timeOfDay={timeOfDay} initial={profile.initial} />}
+        subtitle={subtitle}
+        underlineWidth={92}
+      />
       <ScrollView
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Greeting */}
-        <View style={{ paddingHorizontal: 24, paddingTop: 8 }}>
-          <ThemeText variant="caption" letterSpacing={0.5}>
-            {dayName}
-          </ThemeText>
-          <HeaderText size={38} lineHeight={42} style={{ marginTop: 8 }}>
-            {timeOfDay}, <HeaderText size={38} lineHeight={42} color="amber">{profile.initial}.</HeaderText>
-          </HeaderText>
-          <Underline width={92} />
-          <ThemeText variant="meta" size={13} color="ink2" style={{ marginTop: 6, lineHeight: 20 }}>
-            {subtitle}
-          </ThemeText>
-        </View>
-
         {/* Pinned Notes */}
         {pinnedNotes.length > 0 && (
           <View style={{ paddingTop: 28 }}>
