@@ -16,9 +16,9 @@ import { TONE_OPTIONS, ACCENT_OPTIONS } from '@/constants/options';
 
 function RootSettingSheets() {
   const { settings, setSetting } = useTheme();
-  const { projects, profile, updateProfile } = useStore();
+  const { folders, profile, updateProfile } = useStore();
   const { openSheet, setOpenSheet } = useSettingSheet();
-  const folderOptions = projects.map(p => ({ value: p.id, label: p.name }));
+  const folderOptions = folders.map(f => ({ value: f.id, label: f.name }));
 
   return (
     <>
@@ -42,8 +42,8 @@ function RootSettingSheets() {
         visible={openSheet === 'folder'}
         title="default folder"
         options={folderOptions}
-        value={profile.defaultProject}
-        onSelect={(v) => { updateProfile({ defaultProject: v }); setOpenSheet(null); }}
+        value={profile.defaultFolder}
+        onSelect={(v) => { updateProfile({ defaultFolder: v }); setOpenSheet(null); }}
         onClose={() => setOpenSheet(null)}
       />
     </>
@@ -78,8 +78,8 @@ export default function RootLayout() {
               <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
-                <Stack.Screen name="project/[id]" options={{ animation: 'slide_from_right' }} />
-                <Stack.Screen name="project/new" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="folder/[id]" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="folder/new" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="note/[id]" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="note/new" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="task/new" options={{ animation: 'slide_from_right' }} />

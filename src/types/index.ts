@@ -1,2 +1,2 @@
-export type { Project, Note, Task, Profile, TimeOfDay } from './data';
-export { SEED_PROJECTS, SEED_NOTES, SEED_TASKS } from './data';
+export type { Folder, Note, Task, Profile, TimeOfDay } from './data';
+export { SEED_FOLDERS, SEED_NOTES, SEED_TASKS } from './data';

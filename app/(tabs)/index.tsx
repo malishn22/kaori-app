@@ -5,14 +5,14 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
-import { PaperCard, FAB, ThemeText, HeaderText, SectionTitle, PageHeader, GreetingTitle } from '@/components/ui';
+import { NoteCard, FAB, ThemeText, HeaderText, SectionTitle, PageHeader, GreetingTitle } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { SHADOW_EMPTY } from '@/constants';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { notes: allNotes, projects, profile } = useStore();
+  const { notes: allNotes, folders, profile } = useStore();
   const insets = useSafeAreaInsets();
   const notes = useMemo(() => allNotes.filter(n => !n.archived), [allNotes]);
   const pinnedNotes = useMemo(() => notes.filter(n => n.pinned), [notes]);
@@ -53,10 +53,10 @@ export default function HomeScreen() {
 
             <View style={{ paddingHorizontal: 18, gap: 12 }}>
               {pinnedNotes.map((note, i) => {
-                const proj = projects.find(p => p.id === note.project);
+                const folder = folders.find(f => f.id === note.folder);
                 return (
                   <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                    <PaperCard note={note} project={proj} index={i} />
+                    <NoteCard note={note} folder={folder} index={i} />
                   </TouchableOpacity>
                 );
               })}
@@ -77,10 +77,10 @@ export default function HomeScreen() {
 
           <View style={{ paddingHorizontal: 18, gap: 12 }}>
             {notes.slice(0, 4).map((note, i) => {
-              const proj = projects.find(p => p.id === note.project);
+              const folder = folders.find(f => f.id === note.folder);
               return (
                 <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                  <PaperCard note={note} project={proj} index={i} />
+                  <NoteCard note={note} folder={folder} index={i} />
                 </TouchableOpacity>
               );
             })}
@@ -132,7 +132,7 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
           your notebook{'\n'}is <HeaderText size={32} lineHeight={38} color="amber">empty</HeaderText>.
         </HeaderText>
         <ThemeText variant="meta" size={13.5} color="ink2" style={{ lineHeight: 21, textAlign: 'center', marginTop: 14, maxWidth: 290 }}>
-          tap the button below to write your first note. 
+          tap the button below to write your first note.
         </ThemeText>
       </View>
       <FAB onPress={onFAB} wide label="first note"  />

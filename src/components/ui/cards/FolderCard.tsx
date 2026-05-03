@@ -3,26 +3,26 @@ import { View } from 'react-native';
 import { useTheme } from '@/theme';
 import { ThemeText } from '../primitives/ThemeText';
 import { GrainOverlay } from '../primitives/GrainOverlay';
-import { ProjectAvatar } from './ProjectAvatar';
+import { FolderAvatar } from './FolderAvatar';
 import { Chip } from '../primitives/Chip';
 import { ChevronIcon, BookmarkIcon } from '@/assets/icons';
 import { SHADOW_CARD } from '@/constants';
-import type { Project } from '@/types';
+import type { Folder } from '@/types';
 
 const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
 
-type ProjectCardProps = {
-  project: Project;
+type FolderCardProps = {
+  folder: Folder;
   index: number;
   noteCount: number;
   taskCount: number;
   onRestore?: () => void;
 };
 
-export function ProjectCard({ project, index, noteCount, taskCount, onRestore }: ProjectCardProps) {
+export function FolderCard({ folder, index, noteCount, taskCount, onRestore }: FolderCardProps) {
   const { colors } = useTheme();
   const tilt = TILTS[index % TILTS.length];
-  const isArchived = !!project.archived;
+  const isArchived = !!folder.archived;
 
   return (
     <View style={{
@@ -40,14 +40,14 @@ export function ProjectCard({ project, index, noteCount, taskCount, onRestore }:
       opacity: isArchived ? 0.5 : 1,
     }}>
       <GrainOverlay />
-      <ProjectAvatar name={project.name} color={project.color} />
+      <FolderAvatar name={folder.name} color={folder.color} />
       <View style={{ flex: 1, minWidth: 0 }}>
-        <ThemeText variant="title">{project.name}</ThemeText>
+        <ThemeText variant="title">{folder.name}</ThemeText>
         <ThemeText variant="chip" color="ink3" style={{ marginTop: 4 }}>
           {noteCount} notes · {taskCount} tasks
         </ThemeText>
       </View>
-      {project.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}
+      {folder.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}
       {onRestore && (
         <Chip color={colors.amber} active onPress={onRestore} paddingVertical={4}>
           <ThemeText variant="chip" size={12} color="amber">restore</ThemeText>

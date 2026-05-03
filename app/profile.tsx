@@ -11,9 +11,9 @@ import { CloudIcon, ArrowIcon, FolderIcon } from '@/assets/icons';
 export default function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { profile, notes: allNotes, projects: allProjects, tasks: allTasks, updateProfile } = useStore();
+  const { profile, notes: allNotes, folders: allFolders, tasks: allTasks, updateProfile } = useStore();
   const notes = allNotes.filter(n => !n.archived);
-  const projects = allProjects.filter(p => !p.archived);
+  const folders = allFolders.filter(f => !f.archived);
 
   const { editing, draft, setDraft, startEditing, commitEdit } = useInlineEdit({
     initialValue: profile.name,
@@ -22,8 +22,8 @@ export default function ProfileScreen() {
 
   async function handleExport() {
     const exportText = notes.map(i => {
-      const proj = projects.find(p => p.id === i.project)?.name ?? i.project;
-      return `[${proj}] ${i.text}`;
+      const folder = folders.find(f => f.id === i.folder)?.name ?? i.folder;
+      return `[${folder}] ${i.text}`;
     }).join('\n\n');
     await Share.share({ message: exportText });
   }
@@ -55,7 +55,7 @@ export default function ProfileScreen() {
           {[
             { val: allNotes.length, label: 'notes' },
             { val: allTasks.length, label: 'tasks' },
-            { val: projects.length, label: 'folders' },
+            { val: folders.length, label: 'folders' },
             { val: daysActive, label: 'days' },
           ].map(({ val, label }) => (
             <View key={label} style={{

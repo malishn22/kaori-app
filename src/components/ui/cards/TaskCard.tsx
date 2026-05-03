@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
-import type { Task, Project } from '@/types';
+import type { Task, Folder } from '@/types';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { ColorDot } from '../primitives/ColorDot';
@@ -14,14 +14,14 @@ const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
 
 type Props = {
   task: Task;
-  project?: Project;
+  folder?: Folder;
   index?: number;
   onToggle: () => void;
   onPress: () => void;
   onRestore?: () => void;
 };
 
-export function TaskCard({ task, project: proj, index = 0, onToggle, onPress, onRestore }: Props) {
+export function TaskCard({ task, folder, index = 0, onToggle, onPress, onRestore }: Props) {
   const { colors } = useTheme();
   const tilt = TILTS[index % TILTS.length];
   const isArchived = !!task.archived;
@@ -102,12 +102,12 @@ export function TaskCard({ task, project: proj, index = 0, onToggle, onPress, on
           </View>
         </View>
 
-        {/* Bottom row — project */}
-        {proj && (
+        {/* Bottom row — folder */}
+        {folder && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 }}>
-            <ColorDot color={proj.color} size={7} />
+            <ColorDot color={folder.color} size={7} />
             <ThemeText variant="chip" size={11.5} color="ink3" letterSpacing={0.3}>
-              {proj.name}
+              {folder.name}
             </ThemeText>
           </View>
         )}

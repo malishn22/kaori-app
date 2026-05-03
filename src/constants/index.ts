@@ -1,5 +1,5 @@
 export { TAB_BAR_BASE_HEIGHT } from './layout';
-export { PROJECT_COLORS } from './projectColors';
+export { FOLDER_COLORS } from './folderColors';
 export {
   BUTTON_TEXT_ON_ACCENT,
   DELETE_COLOR,

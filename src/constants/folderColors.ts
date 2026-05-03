@@ -1,4 +1,4 @@
-export const PROJECT_COLORS = [
+export const FOLDER_COLORS = [
   '#C9A86C', // amber/tan
   '#A8C4A0', // sage
   '#C9948C', // coral

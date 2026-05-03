@@ -1,7 +1,7 @@
 export { useHapticFeedback } from './useHapticFeedback';
 export { useBottomSheetControl } from './useBottomSheetControl';
-export { useProjectNotes } from './useProjectNotes';
+export { useFolderNotes } from './useFolderNotes';
 export { useAnimatedPopup } from './useAnimatedPopup';
 export { useInlineEdit } from './useInlineEdit';
 export { useConfirmAction } from './useConfirmAction';
-export { useProjectTasks } from './useProjectTasks';
+export { useFolderTasks } from './useFolderTasks';

@@ -6,21 +6,21 @@ import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback } from '@/hooks';
 import { PageHeader, ThemeText, ColorSwatchPicker, CountedInput } from '@/components/ui';
-import { PROJECT_COLORS, BUTTON_TEXT_ON_ACCENT } from '@/constants';
+import { FOLDER_COLORS, BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
-export default function NewProjectScreen() {
+export default function NewFolderScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
-  const { addProject } = useStore();
+  const { addFolder } = useStore();
   const { impactOnSave } = useHapticFeedback();
 
   const [name, setName] = useState('');
-  const [selectedColor, setSelectedColor] = useState(PROJECT_COLORS[0]);
+  const [selectedColor, setSelectedColor] = useState(FOLDER_COLORS[0]);
 
   async function handleSave() {
     if (!name.trim()) return;
-    await addProject(name.trim(), selectedColor, '');
+    await addFolder(name.trim(), selectedColor, '');
     impactOnSave();
     router.back();
   }
@@ -42,7 +42,7 @@ export default function NewProjectScreen() {
             <CountedInput
               value={name}
               onChangeText={(t) => setName(t.slice(0, 30))}
-              placeholder="project name..."
+              placeholder="folder name..."
               maxLength={30}
               autoFocus
               style={{ fontSize: 28, lineHeight: 38, letterSpacing: 0.1 }}
@@ -72,7 +72,7 @@ export default function NewProjectScreen() {
               }}
               activeOpacity={0.85}
             >
-              <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>create project</ThemeText>
+              <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>create folder</ThemeText>
             </TouchableOpacity>
           </View>
         </ScrollView>

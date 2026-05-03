@@ -4,20 +4,20 @@ import { Stack, useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback } from '@/hooks';
-import { ThemeText, PaperCard, TaskCard, ProjectCard, SectionTitle, PageHeader, PagedSections } from '@/components/ui';
+import { ThemeText, NoteCard, TaskCard, FolderCard, SectionTitle, PageHeader, PagedSections } from '@/components/ui';
 
 export default function ArchivedScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { notes, projects, tasks, archiveNote, archiveProject, archiveTask, toggleTask } = useStore();
+  const { notes, folders, tasks, archiveNote, archiveFolder, archiveTask, toggleTask } = useStore();
   const { impact } = useHapticFeedback();
 
-  const archivedProjects = projects.filter(p => p.archived);
+  const archivedFolders = folders.filter(f => f.archived);
   const archivedNotes = notes.filter(n => n.archived);
   const archivedTasks = tasks.filter(t => t.archived);
 
-  async function handleUnarchiveProject(id: string) {
-    await archiveProject(id, false);
+  async function handleUnarchiveFolder(id: string) {
+    await archiveFolder(id, false);
     impact();
   }
 
@@ -56,10 +56,10 @@ export default function ArchivedScreen() {
 
               <View style={{ gap: 12 }}>
                 {archivedNotes.map((note, i) => {
-                  const proj = note.project ? projects.find(p => p.id === note.project) : undefined;
+                  const folder = note.folder ? folders.find(f => f.id === note.folder) : undefined;
                   return (
                     <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                      <PaperCard note={note} project={proj} index={i} onRestore={() => handleUnarchiveNote(note.id)} />
+                      <NoteCard note={note} folder={folder} index={i} onRestore={() => handleUnarchiveNote(note.id)} />
                     </TouchableOpacity>
                   );
                 })}
@@ -87,12 +87,12 @@ export default function ArchivedScreen() {
 
               <View style={{ gap: 12 }}>
                 {archivedTasks.map((task, i) => {
-                  const proj = task.project ? projects.find(p => p.id === task.project) : undefined;
+                  const folder = task.folder ? folders.find(f => f.id === task.folder) : undefined;
                   return (
                     <TaskCard
                       key={task.id}
                       task={task}
-                      project={proj}
+                      folder={folder}
                       index={i}
                       onToggle={() => toggleTask(task.id)}
                       onPress={() => router.push(`/task/${task.id}`)}
@@ -105,29 +105,29 @@ export default function ArchivedScreen() {
           )}
         </ScrollView>
 
-        {/* Page 3: Projects */}
+        {/* Page 3: Folders */}
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 8, paddingBottom: 60 }}
           showsVerticalScrollIndicator={false}
         >
-          {archivedProjects.length === 0 && (
+          {archivedFolders.length === 0 && (
             <View style={{ alignItems: 'center', paddingTop: 60 }}>
-              <ThemeText variant="meta" color="ink4">no archived projects</ThemeText>
+              <ThemeText variant="meta" color="ink4">no archived folders</ThemeText>
             </View>
           )}
 
-          {archivedProjects.length > 0 && (
+          {archivedFolders.length > 0 && (
             <View>
               <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
-                <SectionTitle underlineWidth={52}>projects</SectionTitle>
+                <SectionTitle underlineWidth={52}>folders</SectionTitle>
               </View>
 
               <View style={{ gap: 12 }}>
-                {archivedProjects.map((p, i) => {
-                  const noteCount = notes.filter(n => n.project === p.id).length;
-                  const taskCount = tasks.filter(t => t.project === p.id && !t.done).length;
+                {archivedFolders.map((f, i) => {
+                  const noteCount = notes.filter(n => n.folder === f.id).length;
+                  const taskCount = tasks.filter(t => t.folder === f.id && !t.done).length;
                   return (
-                    <ProjectCard key={p.id} project={p} index={i} noteCount={noteCount} taskCount={taskCount} onRestore={() => handleUnarchiveProject(p.id)} />
+                    <FolderCard key={f.id} folder={f} index={i} noteCount={noteCount} taskCount={taskCount} onRestore={() => handleUnarchiveFolder(f.id)} />
                   );
                 })}
               </View>

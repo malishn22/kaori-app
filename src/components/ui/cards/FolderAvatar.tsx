@@ -8,7 +8,7 @@ type Props = {
   color: string;
 };
 
-export function ProjectAvatar({ name, color }: Props) {
+export function FolderAvatar({ name, color }: Props) {
   const { colors } = useTheme();
 
   return (

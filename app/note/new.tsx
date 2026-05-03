@@ -12,17 +12,17 @@ export default function NewNoteScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
-  const { projectId } = useLocalSearchParams<{ projectId?: string }>();
-  const { projects: allProjects, addNote } = useStore();
-  const projects = allProjects.filter(p => !p.archived);
+  const { folderId } = useLocalSearchParams<{ folderId?: string }>();
+  const { folders: allFolders, addNote } = useStore();
+  const folders = allFolders.filter(f => !f.archived);
   const { impactOnSave } = useHapticFeedback();
 
   const [text, setText] = useState('');
-  const [selectedProject, setSelectedProject] = useState<string | null>(projectId ?? null);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(folderId ?? null);
 
   async function handleSave() {
     if (!text.trim()) return;
-    await addNote(text.trim(), selectedProject);
+    await addNote(text.trim(), selectedFolder);
     impactOnSave();
     router.back();
   }
@@ -58,19 +58,19 @@ export default function NewNoteScreen() {
             cursorColor={colors.amber}
           />
 
-          {/* Project selector */}
+          {/* Folder selector */}
           <View style={{ marginTop: 24 }}>
             <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
-              project
+              folder
             </ThemeText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', gap: 6 }}>
-                <Chip active={selectedProject === null} onPress={() => setSelectedProject(null)}>
-                  <ThemeText variant="chip" size={13} color={selectedProject === null ? 'ink' : 'ink2'}>none</ThemeText>
+                <Chip active={selectedFolder === null} onPress={() => setSelectedFolder(null)}>
+                  <ThemeText variant="chip" size={13} color={selectedFolder === null ? 'ink' : 'ink2'}>none</ThemeText>
                 </Chip>
-                {projects.map(p => (
-                  <Chip key={p.id} color={p.color} active={selectedProject === p.id} dot dotSize={5} onPress={() => setSelectedProject(p.id)}>
-                    <ThemeText variant="chip" size={13} color={selectedProject === p.id ? p.color : 'ink2'}>{p.name}</ThemeText>
+                {folders.map(f => (
+                  <Chip key={f.id} color={f.color} active={selectedFolder === f.id} dot dotSize={5} onPress={() => setSelectedFolder(f.id)}>
+                    <ThemeText variant="chip" size={13} color={selectedFolder === f.id ? f.color : 'ink2'}>{f.name}</ThemeText>
                   </Chip>
                 ))}
               </View>

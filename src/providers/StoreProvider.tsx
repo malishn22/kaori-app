@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Note, Project, Profile, Task } from '@/types';
-import { SEED_NOTES, SEED_PROJECTS, SEED_TASKS } from '@/types';
+import type { Note, Folder, Profile, Task } from '@/types';
+import { SEED_NOTES, SEED_FOLDERS, SEED_TASKS } from '@/types';
 import { computeDisplayStrings } from '@/utils/time';
 import { resolveNoteLinks, extractUrls } from '@/utils/links';
 
 const KEYS = {
   notes: '@kaori_notes',
-  projects: '@kaori_projects',
+  folders: '@kaori_folders',
   profile: '@kaori_profile',
   tasks: '@kaori_tasks',
 } as const;
@@ -17,28 +17,28 @@ const RESET_KEY = '@kaori_reset_v2';
 const DEFAULT_PROFILE: Profile = {
   name: 'Mali',
   initial: 'm',
-  defaultProject: 'inbox',
+  defaultFolder: 'inbox',
 };
 
 type StoreContextValue = {
   notes: Note[];
-  projects: Project[];
+  folders: Folder[];
   profile: Profile;
   tasks: Task[];
-  addNote: (text: string, projectId: string | null) => Promise<void>;
-  addProject: (name: string, color: string, note: string) => Promise<void>;
-  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned' | 'links'>>) => Promise<void>;
+  addNote: (text: string, folderId: string | null) => Promise<void>;
+  addFolder: (name: string, color: string, note: string) => Promise<void>;
+  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>) => Promise<void>;
   updateNoteLink: (noteId: string, url: string, label: string) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   updateProfile: (patch: Partial<Profile>) => Promise<void>;
-  pinProject: (id: string, pinned: boolean) => Promise<void>;
-  deleteProject: (id: string) => Promise<void>;
-  updateProjectColor: (id: string, color: string) => Promise<void>;
-  renameProject: (id: string, name: string) => Promise<void>;
+  pinFolder: (id: string, pinned: boolean) => Promise<void>;
+  deleteFolder: (id: string) => Promise<void>;
+  updateFolderColor: (id: string, color: string) => Promise<void>;
+  renameFolder: (id: string, name: string) => Promise<void>;
   archiveNote: (id: string, archived: boolean) => Promise<void>;
-  archiveProject: (id: string, archived: boolean) => Promise<void>;
-  addTask: (title: string, body: string, dueDate: string | null, projectId: string | null) => Promise<void>;
-  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'body' | 'dueDate' | 'project' | 'pinned' | 'done'>>) => Promise<void>;
+  archiveFolder: (id: string, archived: boolean) => Promise<void>;
+  addTask: (title: string, body: string, dueDate: string | null, folderId: string | null) => Promise<void>;
+  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'body' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) => Promise<void>;
   toggleTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   archiveTask: (id: string, archived: boolean) => Promise<void>;
@@ -47,21 +47,21 @@ type StoreContextValue = {
 
 const StoreContext = createContext<StoreContextValue>({
   notes: SEED_NOTES,
-  projects: SEED_PROJECTS,
+  folders: SEED_FOLDERS,
   profile: DEFAULT_PROFILE,
   tasks: SEED_TASKS,
   addNote: async () => {},
-  addProject: async () => {},
+  addFolder: async () => {},
   updateNote: async () => {},
   updateNoteLink: async () => {},
   deleteNote: async () => {},
   updateProfile: async () => {},
-  pinProject: async () => {},
-  deleteProject: async () => {},
-  updateProjectColor: async () => {},
-  renameProject: async () => {},
+  pinFolder: async () => {},
+  deleteFolder: async () => {},
+  updateFolderColor: async () => {},
+  renameFolder: async () => {},
   archiveNote: async () => {},
-  archiveProject: async () => {},
+  archiveFolder: async () => {},
   addTask: async () => {},
   updateTask: async () => {},
   toggleTask: async () => {},
@@ -72,20 +72,20 @@ const StoreContext = createContext<StoreContextValue>({
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [notes, setNotes] = useState<Note[]>(SEED_NOTES);
-  const [projects, setProjects] = useState<Project[]>(SEED_PROJECTS);
+  const [folders, setFolders] = useState<Folder[]>(SEED_FOLDERS);
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [tasks, setTasks] = useState<Task[]>(SEED_TASKS);
 
   useEffect(() => {
     AsyncStorage.getItem(RESET_KEY).then(async (resetDone) => {
       if (!resetDone) {
-        await AsyncStorage.multiRemove([KEYS.notes, KEYS.projects, KEYS.profile]);
+        await AsyncStorage.multiRemove([KEYS.notes, KEYS.folders, KEYS.profile]);
         await AsyncStorage.setItem(RESET_KEY, '1');
       }
 
-      AsyncStorage.multiGet([KEYS.notes, KEYS.projects, KEYS.profile, KEYS.tasks]).then((results) => {
+      AsyncStorage.multiGet([KEYS.notes, KEYS.folders, KEYS.profile, KEYS.tasks]).then((results) => {
       const rawNotes = results[0][1];
-      const rawProjects = results[1][1];
+      const rawFolders = results[1][1];
       const rawProfile = results[2][1];
       const rawTasks = results[3][1];
 
@@ -93,7 +93,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         // First launch: seed and persist
         AsyncStorage.multiSet([
           [KEYS.notes, JSON.stringify(SEED_NOTES)],
-          [KEYS.projects, JSON.stringify(SEED_PROJECTS)],
+          [KEYS.folders, JSON.stringify(SEED_FOLDERS)],
           [KEYS.profile, JSON.stringify(DEFAULT_PROFILE)],
           [KEYS.tasks, JSON.stringify(SEED_TASKS)],
         ]);
@@ -102,7 +102,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
       try {
         if (rawNotes) setNotes(JSON.parse(rawNotes).map((n: Note) => ({ ...n, links: n.links ?? {} })));
-        if (rawProjects) setProjects(JSON.parse(rawProjects));
+        if (rawFolders) setFolders(JSON.parse(rawFolders));
         if (rawProfile) setProfile({ ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) });
         if (rawTasks) setTasks(JSON.parse(rawTasks));
       } catch (e) {
@@ -112,13 +112,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  async function addNote(text: string, projectId: string | null) {
+  async function addNote(text: string, folderId: string | null) {
     const createdAt = new Date().toISOString();
     const { time, date } = computeDisplayStrings(createdAt);
     const noteId = Date.now().toString();
     const newNote: Note = {
       id: noteId,
-      project: projectId,
+      folder: folderId,
       text,
       time,
       date,
@@ -130,19 +130,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     const nextNotes = [newNote, ...notes];
 
-    const nextProjects = projectId
-      ? projects.map((p) => {
-          if (p.id !== projectId) return p;
-          return { ...p, count: p.count + 1, updated: new Date().toISOString() };
+    const nextFolders = folderId
+      ? folders.map((f) => {
+          if (f.id !== folderId) return f;
+          return { ...f, count: f.count + 1, updated: new Date().toISOString() };
         })
-      : projects;
+      : folders;
 
     setNotes(nextNotes);
-    setProjects(nextProjects);
+    setFolders(nextFolders);
 
     await AsyncStorage.multiSet([
       [KEYS.notes, JSON.stringify(nextNotes)],
-      [KEYS.projects, JSON.stringify(nextProjects)],
+      [KEYS.folders, JSON.stringify(nextFolders)],
     ]);
 
     // Resolve link titles in the background
@@ -157,9 +157,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function addProject(name: string, color: string, note: string) {
+  async function addFolder(name: string, color: string, note: string) {
     const createdAt = new Date().toISOString();
-    const newProject: Project = {
+    const newFolder: Folder = {
       id: Date.now().toString(),
       name,
       count: 0,
@@ -169,44 +169,44 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       createdAt,
       pinned: false,
     };
-    const nextProjects = [...projects, newProject];
-    setProjects(nextProjects);
-    await AsyncStorage.setItem(KEYS.projects, JSON.stringify(nextProjects));
+    const nextFolders = [...folders, newFolder];
+    setFolders(nextFolders);
+    await AsyncStorage.setItem(KEYS.folders, JSON.stringify(nextFolders));
   }
 
-  async function pinProject(id: string, pinned: boolean) {
-    const nextProjects = projects.map(p => p.id === id ? { ...p, pinned } : p);
-    setProjects(nextProjects);
-    await AsyncStorage.setItem(KEYS.projects, JSON.stringify(nextProjects));
+  async function pinFolder(id: string, pinned: boolean) {
+    const nextFolders = folders.map(f => f.id === id ? { ...f, pinned } : f);
+    setFolders(nextFolders);
+    await AsyncStorage.setItem(KEYS.folders, JSON.stringify(nextFolders));
   }
 
-  async function deleteProject(id: string) {
-    const nextProjects = projects.filter(p => p.id !== id);
-    const nextNotes = notes.map(n => n.project === id ? { ...n, project: null } : n);
-    const nextTasks = tasks.map(t => t.project === id ? { ...t, project: null } : t);
-    setProjects(nextProjects);
+  async function deleteFolder(id: string) {
+    const nextFolders = folders.filter(f => f.id !== id);
+    const nextNotes = notes.map(n => n.folder === id ? { ...n, folder: null } : n);
+    const nextTasks = tasks.map(t => t.folder === id ? { ...t, folder: null } : t);
+    setFolders(nextFolders);
     setNotes(nextNotes);
     setTasks(nextTasks);
     await AsyncStorage.multiSet([
-      [KEYS.projects, JSON.stringify(nextProjects)],
+      [KEYS.folders, JSON.stringify(nextFolders)],
       [KEYS.notes, JSON.stringify(nextNotes)],
       [KEYS.tasks, JSON.stringify(nextTasks)],
     ]);
   }
 
-  async function updateProjectColor(id: string, color: string) {
-    const nextProjects = projects.map(p => p.id === id ? { ...p, color } : p);
-    setProjects(nextProjects);
-    await AsyncStorage.setItem(KEYS.projects, JSON.stringify(nextProjects));
+  async function updateFolderColor(id: string, color: string) {
+    const nextFolders = folders.map(f => f.id === id ? { ...f, color } : f);
+    setFolders(nextFolders);
+    await AsyncStorage.setItem(KEYS.folders, JSON.stringify(nextFolders));
   }
 
-  async function renameProject(id: string, name: string) {
-    const nextProjects = projects.map(p => p.id === id ? { ...p, name } : p);
-    setProjects(nextProjects);
-    await AsyncStorage.setItem(KEYS.projects, JSON.stringify(nextProjects));
+  async function renameFolder(id: string, name: string) {
+    const nextFolders = folders.map(f => f.id === id ? { ...f, name } : f);
+    setFolders(nextFolders);
+    await AsyncStorage.setItem(KEYS.folders, JSON.stringify(nextFolders));
   }
 
-  async function updateNote(id: string, patch: Partial<Pick<Note, 'text' | 'project' | 'pinned' | 'links'>>) {
+  async function updateNote(id: string, patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>) {
     const nextNotes = notes.map(n => n.id === id ? { ...n, ...patch } : n);
     setNotes(nextNotes);
     await AsyncStorage.setItem(KEYS.notes, JSON.stringify(nextNotes));
@@ -236,14 +236,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   async function deleteNote(id: string) {
     const note = notes.find(n => n.id === id);
     const nextNotes = notes.filter(n => n.id !== id);
-    const nextProjects = note?.project
-      ? projects.map(p => p.id !== note.project ? p : { ...p, count: Math.max(0, p.count - 1) })
-      : projects;
+    const nextFolders = note?.folder
+      ? folders.map(f => f.id !== note.folder ? f : { ...f, count: Math.max(0, f.count - 1) })
+      : folders;
     setNotes(nextNotes);
-    setProjects(nextProjects);
+    setFolders(nextFolders);
     await AsyncStorage.multiSet([
       [KEYS.notes, JSON.stringify(nextNotes)],
-      [KEYS.projects, JSON.stringify(nextProjects)],
+      [KEYS.folders, JSON.stringify(nextFolders)],
     ]);
   }
 
@@ -253,25 +253,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(KEYS.notes, JSON.stringify(nextNotes));
   }
 
-  async function archiveProject(id: string, archived: boolean) {
-    const nextProjects = projects.map(p => p.id === id ? { ...p, archived } : p);
-    const nextNotes = notes.map(n => n.project === id ? { ...n, archived } : n);
-    const nextTasks = tasks.map(t => t.project === id ? { ...t, archived } : t);
-    setProjects(nextProjects);
+  async function archiveFolder(id: string, archived: boolean) {
+    const nextFolders = folders.map(f => f.id === id ? { ...f, archived } : f);
+    const nextNotes = notes.map(n => n.folder === id ? { ...n, archived } : n);
+    const nextTasks = tasks.map(t => t.folder === id ? { ...t, archived } : t);
+    setFolders(nextFolders);
     setNotes(nextNotes);
     setTasks(nextTasks);
     await AsyncStorage.multiSet([
-      [KEYS.projects, JSON.stringify(nextProjects)],
+      [KEYS.folders, JSON.stringify(nextFolders)],
       [KEYS.notes, JSON.stringify(nextNotes)],
       [KEYS.tasks, JSON.stringify(nextTasks)],
     ]);
   }
 
-  async function addTask(title: string, body: string, dueDate: string | null, projectId: string | null) {
+  async function addTask(title: string, body: string, dueDate: string | null, folderId: string | null) {
     const createdAt = new Date().toISOString();
     const newTask: Task = {
       id: Date.now().toString(),
-      project: projectId,
+      folder: folderId,
       title,
       body,
       dueDate,
@@ -280,18 +280,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       pinned: false,
     };
     const nextTasks = [newTask, ...tasks];
-    const nextProjects = projectId
-      ? projects.map(p => p.id !== projectId ? p : { ...p, updated: new Date().toISOString() })
-      : projects;
+    const nextFolders = folderId
+      ? folders.map(f => f.id !== folderId ? f : { ...f, updated: new Date().toISOString() })
+      : folders;
     setTasks(nextTasks);
-    setProjects(nextProjects);
+    setFolders(nextFolders);
     await AsyncStorage.multiSet([
       [KEYS.tasks, JSON.stringify(nextTasks)],
-      [KEYS.projects, JSON.stringify(nextProjects)],
+      [KEYS.folders, JSON.stringify(nextFolders)],
     ]);
   }
 
-  async function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'body' | 'dueDate' | 'project' | 'pinned' | 'done'>>) {
+  async function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'body' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) {
     const nextTasks = tasks.map(t => t.id === id ? { ...t, ...patch } : t);
     setTasks(nextTasks);
     await AsyncStorage.setItem(KEYS.tasks, JSON.stringify(nextTasks));
@@ -328,7 +328,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <StoreContext.Provider value={{ notes, projects, profile, tasks, addNote, addProject, updateNote, updateNoteLink, deleteNote, updateProfile, pinProject, deleteProject, updateProjectColor, renameProject, archiveNote, archiveProject, addTask, updateTask, toggleTask, deleteTask, archiveTask, pinTask }}>
+    <StoreContext.Provider value={{ notes, folders, profile, tasks, addNote, addFolder, updateNote, updateNoteLink, deleteNote, updateProfile, pinFolder, deleteFolder, updateFolderColor, renameFolder, archiveNote, archiveFolder, addTask, updateTask, toggleTask, deleteTask, archiveTask, pinTask }}>
       {children}
     </StoreContext.Provider>
   );

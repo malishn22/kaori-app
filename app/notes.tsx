@@ -3,12 +3,12 @@ import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { PaperCard, PageHeader, ThemeText } from '@/components/ui';
+import { NoteCard, PageHeader, ThemeText } from '@/components/ui';
 
 export default function NotesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { notes: allNotes, projects } = useStore();
+  const { notes: allNotes, folders } = useStore();
   const notes = useMemo(() => allNotes.filter(n => !n.archived), [allNotes]);
 
   return (
@@ -26,10 +26,10 @@ export default function NotesScreen() {
 
         <View style={{ gap: 12 }}>
           {notes.map((note, i) => {
-            const proj = note.project ? projects.find(p => p.id === note.project) : undefined;
+            const folder = note.folder ? folders.find(f => f.id === note.folder) : undefined;
             return (
               <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                <PaperCard note={note} project={proj} index={i} />
+                <NoteCard note={note} folder={folder} index={i} />
               </TouchableOpacity>
             );
           })}

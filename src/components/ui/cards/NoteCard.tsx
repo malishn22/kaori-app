@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useTheme } from '@/theme';
-import type { Note, Project } from '@/types';
+import type { Note, Folder } from '@/types';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { LinkedText } from '../primitives/LinkedText';
@@ -12,9 +12,9 @@ import { SHADOW_CARD } from '@/constants';
 
 const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
 
-type Props = { note: Note; project?: Project; index?: number; onRestore?: () => void };
+type Props = { note: Note; folder?: Folder; index?: number; onRestore?: () => void };
 
-export function PaperCard({ note, project: proj, index = 0, onRestore }: Props) {
+export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
   const { colors } = useTheme();
   const tilt = TILTS[index % TILTS.length];
   const isArchived = !!note.archived;
@@ -43,14 +43,14 @@ export function PaperCard({ note, project: proj, index = 0, onRestore }: Props) 
         {note.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
       </View>
 
-      {/* Bottom row — project + restore */}
-      {(proj || onRestore) && (
+      {/* Bottom row — folder + restore */}
+      {(folder || onRestore) && (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 }}>
-          {proj && (
+          {folder && (
             <>
-              <ColorDot color={proj.color} size={7} />
+              <ColorDot color={folder.color} size={7} />
               <ThemeText variant="chip" size={11.5} color="ink3" letterSpacing={0.3}>
-                {proj.name}
+                {folder.name}
               </ThemeText>
             </>
           )}

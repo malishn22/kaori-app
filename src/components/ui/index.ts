@@ -22,11 +22,11 @@ export { MenuRow } from './layout/MenuRow';
 export { PagedSections } from './layout/PagedSections';
 
 // cards
-export { PaperCard } from './cards/PaperCard';
-export { ProjectAvatar } from './cards/ProjectAvatar';
+export { NoteCard } from './cards/NoteCard';
+export { FolderAvatar } from './cards/FolderAvatar';
 export { ProfileCard } from './cards/ProfileCard';
 export { TaskCard } from './cards/TaskCard';
-export { ProjectCard } from './cards/ProjectCard';
+export { FolderCard } from './cards/FolderCard';
 
 // pickers
 export { CalendarPicker } from './pickers/CalendarPicker';

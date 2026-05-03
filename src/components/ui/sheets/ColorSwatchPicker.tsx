@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { CheckIcon } from '@/assets/icons';
-import { PROJECT_COLORS, BUTTON_TEXT_ON_ACCENT, colorSwatchStyle } from '@/constants';
+import { FOLDER_COLORS, BUTTON_TEXT_ON_ACCENT, colorSwatchStyle } from '@/constants';
 
 type Props = {
   selectedColor: string;
@@ -11,7 +11,7 @@ type Props = {
 export function ColorSwatchPicker({ selectedColor, onSelect }: Props) {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-      {PROJECT_COLORS.map((color) => {
+      {FOLDER_COLORS.map((color) => {
         const isSelected = selectedColor === color;
         return (
           <TouchableOpacity

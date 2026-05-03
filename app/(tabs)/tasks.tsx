@@ -9,7 +9,7 @@ import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 export default function TasksScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { tasks: allTasks, projects, toggleTask } = useStore();
+  const { tasks: allTasks, folders, toggleTask } = useStore();
   const insets = useSafeAreaInsets();
   const activeTasks = useMemo(() => allTasks.filter(t => !t.archived && !t.done), [allTasks]);
   const pinnedTasks = useMemo(() => activeTasks.filter(t => t.pinned), [activeTasks]);
@@ -39,12 +39,12 @@ export default function TasksScreen() {
             </View>
             <View style={{ paddingHorizontal: 18, gap: 12 }}>
               {pinnedTasks.map((task, i) => {
-                const proj = projects.find(p => p.id === task.project);
+                const folder = folders.find(f => f.id === task.folder);
                 return (
                   <TaskCard
                     key={task.id}
                     task={task}
-                    project={proj}
+                    folder={folder}
                     index={i}
                     onToggle={() => toggleTask(task.id)}
                     onPress={() => router.push(`/task/${task.id}`)}
@@ -63,12 +63,12 @@ export default function TasksScreen() {
             </View>
             <View style={{ paddingHorizontal: 18, gap: 12 }}>
               {unpinnedTasks.map((task, i) => {
-                const proj = projects.find(p => p.id === task.project);
+                const folder = folders.find(f => f.id === task.folder);
                 return (
                   <TaskCard
                     key={task.id}
                     task={task}
-                    project={proj}
+                    folder={folder}
                     index={i + 1}
                     onToggle={() => toggleTask(task.id)}
                     onPress={() => router.push(`/task/${task.id}`)}

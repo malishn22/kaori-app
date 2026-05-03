@@ -3,19 +3,19 @@ import { View, ScrollView, TouchableOpacity, TextInput, Animated } from 'react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
-import { useProjectNotes, useProjectTasks, useHapticFeedback, useAnimatedPopup, useConfirmAction } from '@/hooks';
+import { useFolderNotes, useFolderTasks, useHapticFeedback, useAnimatedPopup, useConfirmAction } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
-import { PaperCard, TaskCard, FAB, GrainOverlay, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections } from '@/components/ui';
+import { NoteCard, TaskCard, FAB, GrainOverlay, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections } from '@/components/ui';
 import { POPUP_WIDTH, SHADOW_POPUP, DELETE_COLOR, BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
-export default function ProjectDetailScreen() {
+export default function FolderDetailScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const { proj, notes, notesThisWeek, pinnedCount } = useProjectNotes(id);
-  const { tasks, openCount } = useProjectTasks(id);
-  const { toggleTask, pinProject, deleteProject, updateProjectColor, renameProject, archiveProject } = useStore();
+  const { folder, notes, notesThisWeek, pinnedCount } = useFolderNotes(id);
+  const { tasks, openCount } = useFolderTasks(id);
+  const { toggleTask, pinFolder, deleteFolder, updateFolderColor, renameFolder, archiveFolder } = useStore();
   const { impact, notificationWarning } = useHapticFeedback();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -32,14 +32,14 @@ export default function ProjectDetailScreen() {
 
   const confirmDelete = useConfirmAction({
     onConfirm: async () => {
-      await deleteProject(proj!.id);
+      await deleteFolder(folder!.id);
       setMenuOpen(false);
       router.back();
     },
     onHaptic: notificationWarning,
   });
 
-  if (!proj) return null;
+  if (!folder) return null;
 
   function openMenu() {
     confirmDelete.reset();
@@ -63,31 +63,31 @@ export default function ProjectDetailScreen() {
   }
 
   function handleStartRename() {
-    setDraftName(proj!.name);
+    setDraftName(folder!.name);
     setRenaming(true);
     setTimeout(() => inputRef.current?.focus(), 100);
   }
 
   async function handleSaveRename() {
     if (!draftName.trim()) return;
-    await renameProject(proj!.id, draftName.trim());
+    await renameFolder(folder!.id, draftName.trim());
     impact();
     setRenaming(false);
   }
 
   async function handleColorSelect(color: string) {
-    await updateProjectColor(proj!.id, color);
+    await updateFolderColor(folder!.id, color);
     impact();
   }
 
   async function handlePin() {
-    await pinProject(proj!.id, !proj!.pinned);
+    await pinFolder(folder!.id, !folder!.pinned);
     impact();
     closeMenu();
   }
 
   async function handleArchive() {
-    await archiveProject(proj!.id, true);
+    await archiveFolder(folder!.id, true);
     impact();
     setMenuOpen(false);
     router.back();
@@ -133,7 +133,7 @@ export default function ProjectDetailScreen() {
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <ColorDot color={proj.color} size={10} />
+            <ColorDot color={folder.color} size={10} />
             {renaming ? (
               <View style={{ flex: 1 }}>
                 <CountedInput
@@ -146,12 +146,12 @@ export default function ProjectDetailScreen() {
                 />
               </View>
             ) : (
-              <HeaderText size={26} lineHeight={30}>{proj.name}</HeaderText>
+              <HeaderText size={26} lineHeight={30}>{folder.name}</HeaderText>
             )}
           </View>
-          {proj.note ? (
+          {folder.note ? (
             <ThemeText variant="meta" size={13} color="ink2" style={{ marginTop: 4, lineHeight: 20 }}>
-              {proj.note}
+              {folder.note}
             </ThemeText>
           ) : null}
           <View style={{ flexDirection: 'row', gap: 18, marginTop: 12 }}>
@@ -204,7 +204,7 @@ export default function ProjectDetailScreen() {
           <View style={{ paddingHorizontal: 18, gap: 12 }}>
             {notes.map((note, ix) => (
               <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                <PaperCard note={note} project={proj} index={ix + 1} />
+                <NoteCard note={note} folder={folder} index={ix + 1} />
               </TouchableOpacity>
             ))}
           </View>
@@ -223,7 +223,7 @@ export default function ProjectDetailScreen() {
               <TaskCard
                 key={task.id}
                 task={task}
-                project={proj}
+                folder={folder}
                 index={i}
                 onToggle={() => toggleTask(task.id)}
                 onPress={() => router.push(`/task/${task.id}`)}
@@ -276,11 +276,11 @@ export default function ProjectDetailScreen() {
             <GrainOverlay />
             <MenuRow
               label="note"
-              onPress={() => closeFabMenu(() => router.push(`/note/new?projectId=${proj.id}`))}
+              onPress={() => closeFabMenu(() => router.push(`/note/new?folderId=${folder.id}`))}
             />
             <MenuRow
               label="task"
-              onPress={() => closeFabMenu(() => router.push(`/task/new?projectId=${proj.id}`))}
+              onPress={() => closeFabMenu(() => router.push(`/task/new?folderId=${folder.id}`))}
               borderBottom={false}
             />
           </Animated.View>
@@ -324,26 +324,26 @@ export default function ProjectDetailScreen() {
             {/* Color picker */}
             <MenuRow
               label="change color"
-              right={<ColorDot color={proj.color} size={8} />}
+              right={<ColorDot color={folder.color} size={8} />}
               onPress={() => setShowColorPicker(v => !v)}
             />
 
             {showColorPicker && (
               <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-                <ColorSwatchPicker selectedColor={proj.color} onSelect={handleColorSelect} />
+                <ColorSwatchPicker selectedColor={folder.color} onSelect={handleColorSelect} />
               </View>
             )}
 
             <MenuRow
-              label={proj.pinned ? 'unpin' : 'pin to top'}
-              right={proj.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
+              label={folder.pinned ? 'unpin' : 'pin to top'}
+              right={folder.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
               onPress={handlePin}
             />
 
             <MenuRow label="archive" onPress={handleArchive} />
 
             <MenuRow
-              label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete project'}
+              label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete folder'}
               labelColor={DELETE_COLOR}
               onPress={confirmDelete.handlePress}
               borderBottom={false}

@@ -15,10 +15,10 @@ export default function NoteDetailScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { notes, projects: allProjects, updateNote, deleteNote, archiveNote } = useStore();
-  const projects = allProjects.filter(p => !p.archived);
+  const { notes, folders: allFolders, updateNote, deleteNote, archiveNote } = useStore();
+  const folders = allFolders.filter(f => !f.archived);
   const note = notes.find(n => n.id === id);
-  const proj = note?.project ? projects.find(p => p.id === note.project) : undefined;
+  const folder = note?.folder ? folders.find(f => f.id === note.folder) : undefined;
 
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
 
@@ -41,7 +41,7 @@ export default function NoteDetailScreen() {
   });
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [movingProject, setMovingProject] = useState(false);
+  const [movingFolder, setMovingFolder] = useState(false);
   const [popupHeight, setPopupHeight] = useState(0);
   const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
 
@@ -53,7 +53,7 @@ export default function NoteDetailScreen() {
 
   function openMenu() {
     confirmDelete.reset();
-    setMovingProject(false);
+    setMovingFolder(false);
     setMenuOpen(true);
     openPopup();
   }
@@ -85,8 +85,8 @@ export default function NoteDetailScreen() {
     closeMenu();
   }
 
-  async function handleMoveProject(projectId: string | null) {
-    await updateNote(note!.id, { project: projectId });
+  async function handleMoveFolder(folderId: string | null) {
+    await updateNote(note!.id, { folder: folderId });
     impact();
     closeMenu();
   }
@@ -116,11 +116,11 @@ export default function NoteDetailScreen() {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
         <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
-          {/* Project pill */}
-          {proj && (
+          {/* Folder pill */}
+          {folder && (
             <View style={{ alignSelf: 'flex-start', marginBottom: 16 }}>
-              <Chip color={proj.color} dot dotSize={7}>
-                <ThemeText variant="chip" size={12} color="cream">{proj.name}</ThemeText>
+              <Chip color={folder.color} dot dotSize={7}>
+                <ThemeText variant="chip" size={12} color="cream">{folder.name}</ThemeText>
               </Chip>
             </View>
           )}
@@ -247,30 +247,30 @@ export default function NoteDetailScreen() {
           >
             <GrainOverlay />
 
-            {/* Move to project */}
+            {/* Move to folder */}
             <MenuRow
-              label="move to project"
-              right={proj
+              label="move to folder"
+              right={folder
                 ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                    <ColorDot color={proj.color} size={6} />
-                    <ThemeText variant="meta">{proj.name}</ThemeText>
+                    <ColorDot color={folder.color} size={6} />
+                    <ThemeText variant="meta">{folder.name}</ThemeText>
                   </View>
                 : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
               }
-              onPress={() => setMovingProject(v => !v)}
+              onPress={() => setMovingFolder(v => !v)}
             />
 
-            {/* Project chips (expanded) */}
-            {movingProject && (
+            {/* Folder chips (expanded) */}
+            {movingFolder && (
               <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View style={{ flexDirection: 'row', gap: 6 }}>
-                    <Chip active={note.project === null} onPress={() => handleMoveProject(null)}>
-                      <ThemeText variant="chip" size={13} color={note.project === null ? 'ink' : 'ink2'}>none</ThemeText>
+                    <Chip active={note.folder === null} onPress={() => handleMoveFolder(null)}>
+                      <ThemeText variant="chip" size={13} color={note.folder === null ? 'ink' : 'ink2'}>none</ThemeText>
                     </Chip>
-                    {projects.map(p => (
-                      <Chip key={p.id} color={p.color} active={note.project === p.id} dot dotSize={5} onPress={() => handleMoveProject(p.id)}>
-                        <ThemeText variant="chip" size={13} color={note.project === p.id ? p.color : 'ink2'}>{p.name}</ThemeText>
+                    {folders.map(f => (
+                      <Chip key={f.id} color={f.color} active={note.folder === f.id} dot dotSize={5} onPress={() => handleMoveFolder(f.id)}>
+                        <ThemeText variant="chip" size={13} color={note.folder === f.id ? f.color : 'ink2'}>{f.name}</ThemeText>
                       </Chip>
                     ))}
                   </View>

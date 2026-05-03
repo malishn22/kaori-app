@@ -15,10 +15,10 @@ export default function TaskDetailScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { tasks, projects: allProjects, updateTask, deleteTask, toggleTask } = useStore();
-  const projects = allProjects.filter(p => !p.archived);
+  const { tasks, folders: allFolders, updateTask, deleteTask, toggleTask } = useStore();
+  const folders = allFolders.filter(f => !f.archived);
   const task = tasks.find(t => t.id === id);
-  const proj = task?.project ? projects.find(p => p.id === task.project) : undefined;
+  const folder = task?.folder ? folders.find(f => f.id === task.folder) : undefined;
 
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
 
@@ -39,7 +39,7 @@ export default function TaskDetailScreen() {
   });
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [movingProject, setMovingProject] = useState(false);
+  const [movingFolder, setMovingFolder] = useState(false);
   const [popupHeight, setPopupHeight] = useState(0);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
@@ -82,7 +82,7 @@ export default function TaskDetailScreen() {
 
   function openMenu() {
     confirmDelete.reset();
-    setMovingProject(false);
+    setMovingFolder(false);
     setMenuOpen(true);
     openPopup();
   }
@@ -112,8 +112,8 @@ export default function TaskDetailScreen() {
     closeMenu();
   }
 
-  async function handleMoveProject(projectId: string | null) {
-    await updateTask(task!.id, { project: projectId });
+  async function handleMoveFolder(folderId: string | null) {
+    await updateTask(task!.id, { folder: folderId });
     impact();
     closeMenu();
   }
@@ -150,11 +150,11 @@ export default function TaskDetailScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
-            {/* Project pill */}
-            {proj && (
+            {/* Folder pill */}
+            {folder && (
               <View style={{ alignSelf: 'flex-start', marginBottom: 16 }}>
-                <Chip color={proj.color} dot dotSize={7}>
-                  <ThemeText variant="chip" size={12} color="cream">{proj.name}</ThemeText>
+                <Chip color={folder.color} dot dotSize={7}>
+                  <ThemeText variant="chip" size={12} color="cream">{folder.name}</ThemeText>
                 </Chip>
               </View>
             )}
@@ -336,30 +336,30 @@ export default function TaskDetailScreen() {
                 onPress={handleToggleDone}
               />
 
-              {/* Move to project */}
+              {/* Move to folder */}
               <MenuRow
-                label="move to project"
-                right={proj
+                label="move to folder"
+                right={folder
                   ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                      <ColorDot color={proj.color} size={6} />
-                      <ThemeText variant="meta">{proj.name}</ThemeText>
+                      <ColorDot color={folder.color} size={6} />
+                      <ThemeText variant="meta">{folder.name}</ThemeText>
                     </View>
                   : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
                 }
-                onPress={() => setMovingProject(v => !v)}
+                onPress={() => setMovingFolder(v => !v)}
               />
 
-              {/* Project chips (expanded) */}
-              {movingProject && (
+              {/* Folder chips (expanded) */}
+              {movingFolder && (
                 <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View style={{ flexDirection: 'row', gap: 6 }}>
-                      <Chip active={task.project === null} onPress={() => handleMoveProject(null)}>
-                        <ThemeText variant="chip" size={13} color={task.project === null ? 'ink' : 'ink2'}>none</ThemeText>
+                      <Chip active={task.folder === null} onPress={() => handleMoveFolder(null)}>
+                        <ThemeText variant="chip" size={13} color={task.folder === null ? 'ink' : 'ink2'}>none</ThemeText>
                       </Chip>
-                      {projects.map(p => (
-                        <Chip key={p.id} color={p.color} active={task.project === p.id} dot dotSize={5} onPress={() => handleMoveProject(p.id)}>
-                          <ThemeText variant="chip" size={13} color={task.project === p.id ? p.color : 'ink2'}>{p.name}</ThemeText>
+                      {folders.map(f => (
+                        <Chip key={f.id} color={f.color} active={task.folder === f.id} dot dotSize={5} onPress={() => handleMoveFolder(f.id)}>
+                          <ThemeText variant="chip" size={13} color={task.folder === f.id ? f.color : 'ink2'}>{f.name}</ThemeText>
                         </Chip>
                       ))}
                     </View>
