@@ -6,23 +6,21 @@ import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { LinkedText } from '../primitives/LinkedText';
 import { ColorDot } from '../primitives/ColorDot';
-import { Chip } from '../primitives/Chip';
+import { RestoreChip } from '../primitives/RestoreChip';
 import { BookmarkIcon } from '@/assets/icons';
-import { SHADOW_CARD } from '@/constants';
-
-const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
+import { SHADOW_CARD, CARD_TILTS, CARD_BORDER_RADIUS, ARCHIVED_OPACITY } from '@/constants';
 
 type Props = { note: Note; folder?: Folder; index?: number; onRestore?: () => void };
 
 export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
   const { colors } = useTheme();
-  const tilt = TILTS[index % TILTS.length];
+  const tilt = CARD_TILTS[index % CARD_TILTS.length];
   const isArchived = !!note.archived;
   return (
     <View
       style={{
         backgroundColor: colors.paper,
-        borderRadius: 16,
+        borderRadius: CARD_BORDER_RADIUS,
         padding: 16,
         paddingBottom: 14,
         borderWidth: 1,
@@ -30,7 +28,7 @@ export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
         transform: [{ rotate: `${tilt}deg` }],
         ...SHADOW_CARD,
         overflow: 'hidden',
-        opacity: isArchived ? 0.5 : 1,
+        opacity: isArchived ? ARCHIVED_OPACITY : 1,
       }}
     >
       <GrainOverlay />
@@ -56,9 +54,7 @@ export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
           )}
           {onRestore && (
             <View style={{ marginLeft: 'auto' }}>
-              <Chip color={colors.amber} active onPress={onRestore} paddingVertical={4}>
-                <ThemeText variant="chip" size={12} color="amber">restore</ThemeText>
-              </Chip>
+              <RestoreChip onRestore={onRestore} />
             </View>
           )}
         </View>

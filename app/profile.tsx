@@ -3,7 +3,7 @@ import { View, ScrollView, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { useInlineEdit } from '@/hooks';
+import { useInlineEdit, useActiveFolders } from '@/hooks';
 import { GrainOverlay, ThemeText, HeaderText, PageHeader, CustomSwitch, ProfileCard, SectionTitle, MenuRow } from '@/components/ui';
 import { FONT } from '@/theme';
 import { CloudIcon, ArrowIcon, FolderIcon } from '@/assets/icons';
@@ -11,9 +11,9 @@ import { CloudIcon, ArrowIcon, FolderIcon } from '@/assets/icons';
 export default function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { profile, notes: allNotes, folders: allFolders, tasks: allTasks, updateProfile } = useStore();
+  const { profile, notes: allNotes, tasks: allTasks, updateProfile } = useStore();
   const notes = allNotes.filter(n => !n.archived);
-  const folders = allFolders.filter(f => !f.archived);
+  const folders = useActiveFolders();
 
   const { editing, draft, setDraft, startEditing, commitEdit } = useInlineEdit({
     initialValue: profile.name,

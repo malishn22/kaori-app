@@ -16,5 +16,8 @@ export {
   SCREEN_PADDING_H,
   SHEET_PADDING_H,
   CARD_LIST_PADDING_H,
+  CARD_TILTS,
+  CARD_BORDER_RADIUS,
+  ARCHIVED_OPACITY,
 } from './styles';
 export { TONE_OPTIONS, ACCENT_OPTIONS } from './options';

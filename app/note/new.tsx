@@ -4,8 +4,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { useHapticFeedback } from '@/hooks';
-import { PageHeader, ThemeText, Chip } from '@/components/ui';
+import { useHapticFeedback, useActiveFolders } from '@/hooks';
+import { PageHeader, ThemeText, FolderChipSelector } from '@/components/ui';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function NewNoteScreen() {
@@ -13,8 +13,8 @@ export default function NewNoteScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { folderId } = useLocalSearchParams<{ folderId?: string }>();
-  const { folders: allFolders, addNote } = useStore();
-  const folders = allFolders.filter(f => !f.archived);
+  const { addNote } = useStore();
+  const folders = useActiveFolders();
   const { impactOnSave } = useHapticFeedback();
 
   const [text, setText] = useState('');
@@ -59,23 +59,7 @@ export default function NewNoteScreen() {
           />
 
           {/* Folder selector */}
-          <View style={{ marginTop: 24 }}>
-            <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
-              folder
-            </ThemeText>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={{ flexDirection: 'row', gap: 6 }}>
-                <Chip active={selectedFolder === null} onPress={() => setSelectedFolder(null)}>
-                  <ThemeText variant="chip" size={13} color={selectedFolder === null ? 'ink' : 'ink2'}>none</ThemeText>
-                </Chip>
-                {folders.map(f => (
-                  <Chip key={f.id} color={f.color} active={selectedFolder === f.id} dot dotSize={5} onPress={() => setSelectedFolder(f.id)}>
-                    <ThemeText variant="chip" size={13} color={selectedFolder === f.id ? f.color : 'ink2'}>{f.name}</ThemeText>
-                  </Chip>
-                ))}
-              </View>
-            </ScrollView>
-          </View>
+          <FolderChipSelector folders={folders} selected={selectedFolder} onSelect={setSelectedFolder} label="folder" />
         </View>
 
         {/* Save button */}

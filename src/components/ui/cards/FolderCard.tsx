@@ -4,12 +4,10 @@ import { useTheme } from '@/theme';
 import { ThemeText } from '../primitives/ThemeText';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { FolderAvatar } from './FolderAvatar';
-import { Chip } from '../primitives/Chip';
+import { RestoreChip } from '../primitives/RestoreChip';
 import { ChevronIcon, BookmarkIcon } from '@/assets/icons';
-import { SHADOW_CARD } from '@/constants';
+import { SHADOW_CARD, CARD_TILTS, CARD_BORDER_RADIUS, ARCHIVED_OPACITY } from '@/constants';
 import type { Folder } from '@/types';
-
-const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
 
 type FolderCardProps = {
   folder: Folder;
@@ -21,13 +19,13 @@ type FolderCardProps = {
 
 export function FolderCard({ folder, index, noteCount, taskCount, onRestore }: FolderCardProps) {
   const { colors } = useTheme();
-  const tilt = TILTS[index % TILTS.length];
+  const tilt = CARD_TILTS[index % CARD_TILTS.length];
   const isArchived = !!folder.archived;
 
   return (
     <View style={{
       backgroundColor: colors.paper,
-      borderRadius: 16,
+      borderRadius: CARD_BORDER_RADIUS,
       padding: 16,
       borderWidth: 1,
       borderColor: colors.line,
@@ -37,7 +35,7 @@ export function FolderCard({ folder, index, noteCount, taskCount, onRestore }: F
       alignItems: 'center',
       gap: 14,
       overflow: 'hidden',
-      opacity: isArchived ? 0.5 : 1,
+      opacity: isArchived ? ARCHIVED_OPACITY : 1,
     }}>
       <GrainOverlay />
       <FolderAvatar name={folder.name} color={folder.color} />
@@ -48,11 +46,7 @@ export function FolderCard({ folder, index, noteCount, taskCount, onRestore }: F
         </ThemeText>
       </View>
       {folder.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}
-      {onRestore && (
-        <Chip color={colors.amber} active onPress={onRestore} paddingVertical={4}>
-          <ThemeText variant="chip" size={12} color="amber">restore</ThemeText>
-        </Chip>
-      )}
+      {onRestore && <RestoreChip onRestore={onRestore} />}
       {!isArchived && <ChevronIcon size={14} color={colors.ink4} />}
     </View>
   );

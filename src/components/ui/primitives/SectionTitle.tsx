@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, type TextStyle } from 'react-native';
+import { View, Text, type TextStyle } from 'react-native';
 import { useTheme, FONT } from '@/theme';
 import { resolveColor } from '@/theme/colors';
-import { Text } from 'react-native';
 import { Underline } from './Underline';
 
 type SectionTitleProps = {

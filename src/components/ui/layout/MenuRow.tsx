@@ -13,6 +13,7 @@ type MenuRowProps = {
   borderBottom?: boolean;
   labelColor?: string;
   subtitleColor?: string;
+  textVariant?: 'body' | 'label';
   showChevron?: boolean;
   paddingHorizontal?: number;
   paddingVertical?: number;
@@ -28,6 +29,7 @@ export function MenuRow({
   borderBottom = true,
   labelColor = 'ink2',
   subtitleColor = 'ink4',
+  textVariant = 'body',
   showChevron = false,
   paddingHorizontal = 16,
   paddingVertical = 14,
@@ -48,7 +50,7 @@ export function MenuRow({
     <>
       {icon}
       <View style={{ flex: 1 }}>
-        <ThemeText variant="body" color={labelColor}>{label}</ThemeText>
+        <ThemeText variant={textVariant} color={labelColor}>{label}</ThemeText>
         {subtitle && <ThemeText variant="meta" color={subtitleColor} style={{ marginTop: 2 }}>{subtitle}</ThemeText>}
       </View>
       {right}

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, Animated } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { useHapticFeedback, useAnimatedPopup, useConfirmAction } from '@/hooks';
-import { GrainOverlay, ThemeText, ColorDot, Chip, PageHeader, MenuRow, HeaderText, CalendarPicker } from '@/components/ui';
-import { POPUP_WIDTH, SHADOW_POPUP, BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
+import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders } from '@/hooks';
+import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, HeaderText, CalendarPicker, PopupMenu, FolderChipSelector } from '@/components/ui';
+import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
 import { computeDisplayStrings } from '@/utils/time';
 
@@ -15,8 +15,8 @@ export default function TaskDetailScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { tasks, folders: allFolders, updateTask, deleteTask, toggleTask } = useStore();
-  const folders = allFolders.filter(f => !f.archived);
+  const { tasks, updateTask, deleteTask, toggleTask } = useStore();
+  const folders = useActiveFolders();
   const task = tasks.find(t => t.id === id);
   const folder = task?.folder ? folders.find(f => f.id === task.folder) : undefined;
 
@@ -40,7 +40,6 @@ export default function TaskDetailScreen() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [movingFolder, setMovingFolder] = useState(false);
-  const [popupHeight, setPopupHeight] = useState(0);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
 
@@ -133,7 +132,6 @@ export default function TaskDetailScreen() {
     }
   }
 
-  const popupScale = menuAnim;
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
@@ -297,93 +295,46 @@ export default function TaskDetailScreen() {
         </ScrollView>
 
         {/* Popup menu */}
-        {menuOpen && (
-          <>
-            <TouchableOpacity
-              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-              activeOpacity={1}
-              onPress={() => closeMenu()}
-            />
+        <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
+          <MenuRow
+            label={task.done ? 'mark open' : 'mark done'}
+            right={task.done ? <ThemeText variant="meta" color="amber">done</ThemeText> : undefined}
+            onPress={handleToggleDone}
+          />
 
-            <Animated.View
-              onLayout={e => setPopupHeight(e.nativeEvent.layout.height)}
-              style={{
-                position: 'absolute',
-                top: popupTop,
-                right: 16,
-                width: POPUP_WIDTH,
-                backgroundColor: colors.paper,
-                borderRadius: 16,
-                borderWidth: 1,
-                borderColor: colors.line2,
-                overflow: 'hidden',
-                ...SHADOW_POPUP,
-                opacity: popupOpacity,
-                transform: [
-                  { translateX: POPUP_WIDTH / 2 },
-                  { translateY: -popupHeight / 2 },
-                  { scale: popupScale },
-                  { translateY: popupHeight / 2 },
-                  { translateX: -POPUP_WIDTH / 2 },
-                ],
-              }}
-            >
-              <GrainOverlay />
-
-              <MenuRow
-                label={task.done ? 'mark open' : 'mark done'}
-                right={task.done ? <ThemeText variant="meta" color="amber">done</ThemeText> : undefined}
-                onPress={handleToggleDone}
-              />
-
-              {/* Move to folder */}
-              <MenuRow
-                label="move to folder"
-                right={folder
-                  ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                      <ColorDot color={folder.color} size={6} />
-                      <ThemeText variant="meta">{folder.name}</ThemeText>
-                    </View>
-                  : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
-                }
-                onPress={() => setMovingFolder(v => !v)}
-              />
-
-              {/* Folder chips (expanded) */}
-              {movingFolder && (
-                <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={{ flexDirection: 'row', gap: 6 }}>
-                      <Chip active={task.folder === null} onPress={() => handleMoveFolder(null)}>
-                        <ThemeText variant="chip" size={13} color={task.folder === null ? 'ink' : 'ink2'}>none</ThemeText>
-                      </Chip>
-                      {folders.map(f => (
-                        <Chip key={f.id} color={f.color} active={task.folder === f.id} dot dotSize={5} onPress={() => handleMoveFolder(f.id)}>
-                          <ThemeText variant="chip" size={13} color={task.folder === f.id ? f.color : 'ink2'}>{f.name}</ThemeText>
-                        </Chip>
-                      ))}
-                    </View>
-                  </ScrollView>
+          <MenuRow
+            label="move to folder"
+            right={folder
+              ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                  <ColorDot color={folder.color} size={6} />
+                  <ThemeText variant="meta">{folder.name}</ThemeText>
                 </View>
-              )}
+              : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
+            }
+            onPress={() => setMovingFolder(v => !v)}
+          />
 
-              <MenuRow
-                label={task.pinned ? 'unpin' : 'pin'}
-                right={task.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
-                onPress={handlePin}
-              />
+          {movingFolder && (
+            <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
+              <FolderChipSelector folders={folders} selected={task.folder} onSelect={handleMoveFolder} />
+            </View>
+          )}
 
-              <MenuRow label="share" onPress={handleShare} />
+          <MenuRow
+            label={task.pinned ? 'unpin' : 'pin'}
+            right={task.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
+            onPress={handlePin}
+          />
 
-              <MenuRow
-                label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}
-                labelColor={DELETE_COLOR}
-                onPress={confirmDelete.handlePress}
-                borderBottom={false}
-              />
-            </Animated.View>
-          </>
-        )}
+          <MenuRow label="share" onPress={handleShare} />
+
+          <MenuRow
+            label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}
+            labelColor={DELETE_COLOR}
+            onPress={confirmDelete.handlePress}
+            borderBottom={false}
+          />
+        </PopupMenu>
 
         <CalendarPicker
           visible={showDatePicker}

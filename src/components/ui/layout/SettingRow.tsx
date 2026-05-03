@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Switch, TouchableOpacity } from 'react-native';
+import { Switch } from 'react-native';
 import { useTheme } from '@/theme';
-import { ThemeText } from '../primitives/ThemeText';
+import { MenuRow } from './MenuRow';
 
 type SettingRowProps = {
   icon: React.ReactNode;
@@ -12,33 +12,19 @@ type SettingRowProps = {
 };
 
 export function SettingRow({ icon, label, right, onPress, borderBottom = false }: SettingRowProps) {
-  const { colors } = useTheme();
-
-  const style = {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 14,
-    paddingVertical: 13,
-    ...(borderBottom ? { borderBottomWidth: 1, borderBottomColor: colors.line } : {}),
-  };
-
-  const content = (
-    <>
-      {icon}
-      <ThemeText variant="label" style={{ flex: 1 }}>{label}</ThemeText>
-      {right}
-    </>
+  return (
+    <MenuRow
+      icon={icon}
+      label={label}
+      right={right}
+      onPress={onPress}
+      borderBottom={borderBottom}
+      textVariant="label"
+      paddingHorizontal={0}
+      paddingVertical={13}
+      gap={14}
+    />
   );
-
-  if (onPress) {
-    return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={style}>
-        {content}
-      </TouchableOpacity>
-    );
-  }
-
-  return <View style={style}>{content}</View>;
 }
 
 type CustomSwitchProps = {

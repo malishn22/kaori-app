@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, Animated, Linking } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
-import { useHapticFeedback, useAnimatedPopup, useInlineEdit, useConfirmAction } from '@/hooks';
-import { GrainOverlay, ThemeText, ColorDot, Chip, PageHeader, LinkedText, ConfirmationDialog, MenuRow } from '@/components/ui';
+import { useHapticFeedback, useAnimatedPopup, useInlineEdit, useConfirmAction, useActiveFolders } from '@/hooks';
+import { ThemeText, ColorDot, Chip, PageHeader, LinkedText, ConfirmationDialog, MenuRow, PopupMenu, FolderChipSelector } from '@/components/ui';
 import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
 import { FONT } from '@/theme';
-import { POPUP_WIDTH, SHADOW_POPUP, BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
+import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 
 export default function NoteDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { notes, folders: allFolders, updateNote, deleteNote, archiveNote } = useStore();
-  const folders = allFolders.filter(f => !f.archived);
+  const { notes, updateNote, deleteNote, archiveNote } = useStore();
+  const folders = useActiveFolders();
   const note = notes.find(n => n.id === id);
   const folder = note?.folder ? folders.find(f => f.id === note.folder) : undefined;
 
@@ -42,7 +42,6 @@ export default function NoteDetailScreen() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [movingFolder, setMovingFolder] = useState(false);
-  const [popupHeight, setPopupHeight] = useState(0);
   const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
@@ -103,7 +102,6 @@ export default function NoteDetailScreen() {
     setLinkAction({ url, label });
   }
 
-  const popupScale = menuAnim;
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
@@ -214,97 +212,50 @@ export default function NoteDetailScreen() {
       </ScrollView>
 
       {/* Popup menu */}
-      {menuOpen && (
-        <>
-          <TouchableOpacity
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-            activeOpacity={1}
-            onPress={() => closeMenu()}
-          />
-
-          <Animated.View
-            onLayout={e => setPopupHeight(e.nativeEvent.layout.height)}
-            style={{
-              position: 'absolute',
-              top: popupTop,
-              right: 16,
-              width: POPUP_WIDTH,
-              backgroundColor: colors.paper,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: colors.line2,
-              overflow: 'hidden',
-              ...SHADOW_POPUP,
-              opacity: popupOpacity,
-              transform: [
-                { translateX: POPUP_WIDTH / 2 },
-                { translateY: -popupHeight / 2 },
-                { scale: popupScale },
-                { translateY: popupHeight / 2 },
-                { translateX: -POPUP_WIDTH / 2 },
-              ],
-            }}
-          >
-            <GrainOverlay />
-
-            {/* Move to folder */}
-            <MenuRow
-              label="move to folder"
-              right={folder
-                ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                    <ColorDot color={folder.color} size={6} />
-                    <ThemeText variant="meta">{folder.name}</ThemeText>
-                  </View>
-                : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
-              }
-              onPress={() => setMovingFolder(v => !v)}
-            />
-
-            {/* Folder chips (expanded) */}
-            {movingFolder && (
-              <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={{ flexDirection: 'row', gap: 6 }}>
-                    <Chip active={note.folder === null} onPress={() => handleMoveFolder(null)}>
-                      <ThemeText variant="chip" size={13} color={note.folder === null ? 'ink' : 'ink2'}>none</ThemeText>
-                    </Chip>
-                    {folders.map(f => (
-                      <Chip key={f.id} color={f.color} active={note.folder === f.id} dot dotSize={5} onPress={() => handleMoveFolder(f.id)}>
-                        <ThemeText variant="chip" size={13} color={note.folder === f.id ? f.color : 'ink2'}>{f.name}</ThemeText>
-                      </Chip>
-                    ))}
-                  </View>
-                </ScrollView>
+      <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
+        <MenuRow
+          label="move to folder"
+          right={folder
+            ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <ColorDot color={folder.color} size={6} />
+                <ThemeText variant="meta">{folder.name}</ThemeText>
               </View>
-            )}
+            : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
+          }
+          onPress={() => setMovingFolder(v => !v)}
+        />
 
-            <MenuRow
-              label={note.pinned ? 'unpin' : 'pin'}
-              right={note.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
-              onPress={handlePin}
-            />
+        {movingFolder && (
+          <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
+            <FolderChipSelector folders={folders} selected={note.folder} onSelect={handleMoveFolder} />
+          </View>
+        )}
 
-            <MenuRow label="share" onPress={handleShare} />
+        <MenuRow
+          label={note.pinned ? 'unpin' : 'pin'}
+          right={note.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
+          onPress={handlePin}
+        />
 
-            <MenuRow
-              label="archive"
-              onPress={async () => {
-                await archiveNote(note!.id, true);
-                impact();
-                setMenuOpen(false);
-                router.back();
-              }}
-            />
+        <MenuRow label="share" onPress={handleShare} />
 
-            <MenuRow
-              label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}
-              labelColor={DELETE_COLOR}
-              onPress={confirmDelete.handlePress}
-              borderBottom={false}
-            />
-          </Animated.View>
-        </>
-      )}
+        <MenuRow
+          label="archive"
+          onPress={async () => {
+            await archiveNote(note!.id, true);
+            impact();
+            setMenuOpen(false);
+            router.back();
+          }}
+        />
+
+        <MenuRow
+          label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}
+          labelColor={DELETE_COLOR}
+          onPress={confirmDelete.handlePress}
+          borderBottom={false}
+        />
+      </PopupMenu>
 
       {/* Link action dialog */}
       <ConfirmationDialog

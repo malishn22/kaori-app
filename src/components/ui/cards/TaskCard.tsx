@@ -5,12 +5,10 @@ import type { Task, Folder } from '@/types';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { ColorDot } from '../primitives/ColorDot';
-import { Chip } from '../primitives/Chip';
+import { RestoreChip } from '../primitives/RestoreChip';
 import { BookmarkIcon, CheckIcon } from '@/assets/icons';
-import { SHADOW_CARD, DELETE_COLOR } from '@/constants';
+import { SHADOW_CARD, DELETE_COLOR, CARD_TILTS, CARD_BORDER_RADIUS, ARCHIVED_OPACITY } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon } from '@/utils';
-
-const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
 
 type Props = {
   task: Task;
@@ -23,7 +21,7 @@ type Props = {
 
 export function TaskCard({ task, folder, index = 0, onToggle, onPress, onRestore }: Props) {
   const { colors } = useTheme();
-  const tilt = TILTS[index % TILTS.length];
+  const tilt = CARD_TILTS[index % CARD_TILTS.length];
   const isArchived = !!task.archived;
 
   const dueDateColor = task.dueDate
@@ -41,7 +39,7 @@ export function TaskCard({ task, folder, index = 0, onToggle, onPress, onRestore
       <View
         style={{
           backgroundColor: colors.paper,
-          borderRadius: 16,
+          borderRadius: CARD_BORDER_RADIUS,
           padding: 16,
           paddingBottom: 14,
           borderWidth: 1,
@@ -49,7 +47,7 @@ export function TaskCard({ task, folder, index = 0, onToggle, onPress, onRestore
           transform: [{ rotate: `${tilt}deg` }],
           ...SHADOW_CARD,
           overflow: 'hidden',
-          opacity: isArchived ? 0.5 : 1,
+          opacity: isArchived ? ARCHIVED_OPACITY : 1,
         }}
       >
         <GrainOverlay />
@@ -76,11 +74,7 @@ export function TaskCard({ task, folder, index = 0, onToggle, onPress, onRestore
               </ThemeText>
             )}
             {task.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
-            {onRestore && (
-              <Chip color={colors.amber} active onPress={onRestore} paddingVertical={4}>
-                <ThemeText variant="chip" size={12} color="amber">restore</ThemeText>
-              </Chip>
-            )}
+            {onRestore && <RestoreChip onRestore={onRestore} />}
             {!isArchived && (
               <TouchableOpacity
                 onPress={onToggle}

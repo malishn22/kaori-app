@@ -57,6 +57,11 @@ export const POPUP_WIDTH = 220;
 // Time constants
 export const MS_PER_DAY = 86_400_000;
 
+// Card constants
+export const CARD_TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
+export const CARD_BORDER_RADIUS = 16;
+export const ARCHIVED_OPACITY = 0.5;
+
 // Layout spacing
 export const SCREEN_PADDING_H = 24;
 export const SHEET_PADDING_H = 22;

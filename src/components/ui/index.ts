@@ -12,6 +12,7 @@ export { LinkedText } from './primitives/LinkedText';
 export { ConfirmationDialog } from './primitives/ConfirmationDialog';
 export { Divider } from './primitives/Divider';
 export { GreetingTitle } from './primitives/GreetingTitle';
+export { RestoreChip } from './primitives/RestoreChip';
 
 // layout
 export { PageHeader } from './layout/PageHeader';
@@ -20,6 +21,8 @@ export { TabBar } from './layout/TabBar';
 export { SettingRow, CustomSwitch } from './layout/SettingRow';
 export { MenuRow } from './layout/MenuRow';
 export { PagedSections } from './layout/PagedSections';
+export { EmptyState } from './layout/EmptyState';
+export { PopupMenu } from './layout/PopupMenu';
 
 // cards
 export { NoteCard } from './cards/NoteCard';
@@ -30,6 +33,7 @@ export { FolderCard } from './cards/FolderCard';
 
 // pickers
 export { CalendarPicker } from './pickers/CalendarPicker';
+export { FolderChipSelector } from './pickers/FolderChipSelector';
 
 // sheets
 export { BottomSheet } from './sheets/BottomSheet';

@@ -4,14 +4,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
+import { useActiveFolders } from '@/hooks';
 import { FAB, FolderCard, PageHeader } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function FoldersScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { folders: allFolders, notes: allNotes, tasks: allTasks } = useStore();
-  const folders = useMemo(() => allFolders.filter(f => !f.archived), [allFolders]);
+  const { notes: allNotes, tasks: allTasks } = useStore();
+  const folders = useActiveFolders();
   const noteCounts = useMemo(
     () => allNotes.filter(n => !n.archived).reduce<Record<string, number>>((acc, note) => {
       if (note.folder) acc[note.folder] = (acc[note.folder] ?? 0) + 1;

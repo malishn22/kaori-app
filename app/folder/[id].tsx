@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TouchableOpacity, TextInput, Animated } from 'react-native';
+import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import { useFolderNotes, useFolderTasks, useHapticFeedback, useAnimatedPopup, useConfirmAction } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
-import { NoteCard, TaskCard, FAB, GrainOverlay, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections } from '@/components/ui';
-import { POPUP_WIDTH, SHADOW_POPUP, DELETE_COLOR, BUTTON_TEXT_ON_ACCENT } from '@/constants';
+import { NoteCard, TaskCard, FAB, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections, PopupMenu, GrainOverlay } from '@/components/ui';
+import { DELETE_COLOR, BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function FolderDetailScreen() {
   const router = useRouter();
@@ -20,7 +20,6 @@ export default function FolderDetailScreen() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [fabMenuOpen, setFabMenuOpen] = useState(false);
-  const [popupHeight, setPopupHeight] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [draftName, setDraftName] = useState('');
@@ -28,7 +27,6 @@ export default function FolderDetailScreen() {
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
   const { anim: fabAnim, opacity: fabOpacity, open: openFab, close: closeFab } = useAnimatedPopup();
-  const [fabPopupHeight, setFabPopupHeight] = useState(0);
 
   const confirmDelete = useConfirmAction({
     onConfirm: async () => {
@@ -93,7 +91,6 @@ export default function FolderDetailScreen() {
     router.back();
   }
 
-  const popupScale = menuAnim;
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
@@ -243,114 +240,47 @@ export default function FolderDetailScreen() {
       }} />
 
       {/* FAB popup — note or task */}
-      {fabMenuOpen && (
-        <>
-          <TouchableOpacity
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-            activeOpacity={1}
-            onPress={() => closeFabMenu()}
-          />
-          <Animated.View
-            onLayout={e => setFabPopupHeight(e.nativeEvent.layout.height)}
-            style={{
-              position: 'absolute',
-              right: 20,
-              bottom: insets.bottom + 140,
-              width: POPUP_WIDTH,
-              backgroundColor: colors.paper,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: colors.line2,
-              overflow: 'hidden',
-              ...SHADOW_POPUP,
-              opacity: fabOpacity,
-              transform: [
-                { translateX: POPUP_WIDTH / 2 },
-                { translateY: fabPopupHeight / 2 },
-                { scale: fabAnim },
-                { translateY: -fabPopupHeight / 2 },
-                { translateX: -POPUP_WIDTH / 2 },
-              ],
-            }}
-          >
-            <GrainOverlay />
-            <MenuRow
-              label="note"
-              onPress={() => closeFabMenu(() => router.push(`/note/new?folderId=${folder.id}`))}
-            />
-            <MenuRow
-              label="task"
-              onPress={() => closeFabMenu(() => router.push(`/task/new?folderId=${folder.id}`))}
-              borderBottom={false}
-            />
-          </Animated.View>
-        </>
-      )}
+      <PopupMenu visible={fabMenuOpen} onClose={() => closeFabMenu()} anim={fabAnim} opacity={fabOpacity} anchor="bottom-right" bottom={insets.bottom + 140} right={20}>
+        <MenuRow
+          label="note"
+          onPress={() => closeFabMenu(() => router.push(`/note/new?folderId=${folder.id}`))}
+        />
+        <MenuRow
+          label="task"
+          onPress={() => closeFabMenu(() => router.push(`/task/new?folderId=${folder.id}`))}
+          borderBottom={false}
+        />
+      </PopupMenu>
 
       {/* Popup menu */}
-      {menuOpen && (
-        <>
-          <TouchableOpacity
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-            activeOpacity={1}
-            onPress={() => closeMenu()}
-          />
+      <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
+        <MenuRow
+          label="change color"
+          right={<ColorDot color={folder.color} size={8} />}
+          onPress={() => setShowColorPicker(v => !v)}
+        />
 
-          <Animated.View
-            onLayout={e => setPopupHeight(e.nativeEvent.layout.height)}
-            style={{
-              position: 'absolute',
-              top: popupTop,
-              right: 16,
-              width: POPUP_WIDTH,
-              backgroundColor: colors.paper,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: colors.line2,
-              overflow: 'hidden',
-              ...SHADOW_POPUP,
-              opacity: popupOpacity,
-              transform: [
-                { translateX: POPUP_WIDTH / 2 },
-                { translateY: -popupHeight / 2 },
-                { scale: popupScale },
-                { translateY: popupHeight / 2 },
-                { translateX: -POPUP_WIDTH / 2 },
-              ],
-            }}
-          >
-            <GrainOverlay />
+        {showColorPicker && (
+          <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
+            <ColorSwatchPicker selectedColor={folder.color} onSelect={handleColorSelect} />
+          </View>
+        )}
 
-            {/* Color picker */}
-            <MenuRow
-              label="change color"
-              right={<ColorDot color={folder.color} size={8} />}
-              onPress={() => setShowColorPicker(v => !v)}
-            />
+        <MenuRow
+          label={folder.pinned ? 'unpin' : 'pin to top'}
+          right={folder.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
+          onPress={handlePin}
+        />
 
-            {showColorPicker && (
-              <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
-                <ColorSwatchPicker selectedColor={folder.color} onSelect={handleColorSelect} />
-              </View>
-            )}
+        <MenuRow label="archive" onPress={handleArchive} />
 
-            <MenuRow
-              label={folder.pinned ? 'unpin' : 'pin to top'}
-              right={folder.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
-              onPress={handlePin}
-            />
-
-            <MenuRow label="archive" onPress={handleArchive} />
-
-            <MenuRow
-              label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete folder'}
-              labelColor={DELETE_COLOR}
-              onPress={confirmDelete.handlePress}
-              borderBottom={false}
-            />
-          </Animated.View>
-        </>
-      )}
+        <MenuRow
+          label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete folder'}
+          labelColor={DELETE_COLOR}
+          onPress={confirmDelete.handlePress}
+          borderBottom={false}
+        />
+      </PopupMenu>
     </View>
   );
 }

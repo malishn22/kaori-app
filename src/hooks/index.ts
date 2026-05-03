@@ -5,3 +5,6 @@ export { useAnimatedPopup } from './useAnimatedPopup';
 export { useInlineEdit } from './useInlineEdit';
 export { useConfirmAction } from './useConfirmAction';
 export { useFolderTasks } from './useFolderTasks';
+export { useActiveFolders } from './useActiveFolders';
+export { useActiveNotes } from './useActiveNotes';
+export { useActiveTasks } from './useActiveTasks';
