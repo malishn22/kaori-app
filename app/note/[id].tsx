@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Share, Animated, Linking } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, Animated, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
@@ -107,7 +107,6 @@ export default function NoteDetailScreen() {
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <PageHeader
         onBack={handleBack}
@@ -191,27 +190,28 @@ export default function NoteDetailScreen() {
             </View>
           </View>
         )}
-      </ScrollView>
 
-      {/* Save bar */}
-      {editing ? (
-        <TouchableOpacity
-          onPress={handleSave}
-          disabled={!draft.trim()}
-          style={{
-            margin: 16,
-            height: 52,
-            borderRadius: 16,
-            backgroundColor: colors.amber,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: draft.trim() ? 1 : 0.4,
-          }}
-          activeOpacity={0.85}
-        >
-          <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
-        </TouchableOpacity>
-      ) : null}
+        {/* Save bar */}
+        {editing ? (
+          <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={!draft.trim()}
+              style={{
+                height: 52,
+                borderRadius: 16,
+                backgroundColor: colors.amber,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: draft.trim() ? 1 : 0.4,
+              }}
+              activeOpacity={0.85}
+            >
+              <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </ScrollView>
 
       {/* Popup menu */}
       {menuOpen && (
@@ -325,6 +325,5 @@ export default function NoteDetailScreen() {
       />
 
     </View>
-    </KeyboardAvoidingView>
   );
 }

@@ -6,18 +6,18 @@ import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { LinkedText } from '../primitives/LinkedText';
 import { ColorDot } from '../primitives/ColorDot';
+import { Chip } from '../primitives/Chip';
 import { BookmarkIcon } from '@/assets/icons';
 import { SHADOW_CARD } from '@/constants';
 
 const TILTS = [-0.4, 0.3, -0.2, 0.5, -0.3];
 
-type Props = { note: Note; project?: Project; index?: number };
+type Props = { note: Note; project?: Project; index?: number; onRestore?: () => void };
 
-export function PaperCard({ note, project: proj, index = 0 }: Props) {
+export function PaperCard({ note, project: proj, index = 0, onRestore }: Props) {
   const { colors } = useTheme();
   const tilt = TILTS[index % TILTS.length];
   const isArchived = !!note.archived;
-
   return (
     <View
       style={{
@@ -34,24 +34,35 @@ export function PaperCard({ note, project: proj, index = 0 }: Props) {
       }}
     >
       <GrainOverlay />
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        {proj ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <ColorDot color={proj.color} size={7} />
-            <ThemeText variant="meta" size={11.5} letterSpacing={0.3}>
-              {proj.name}
-            </ThemeText>
-          </View>
-        ) : (
-          <View />
-        )}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          {isArchived && <ThemeText variant="meta" size={10} color="ink4">archived</ThemeText>}
-          {note.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
-          <ThemeText variant="meta" size={11} color="ink4">{note.time}</ThemeText>
+
+      {/* Content row — text + pin */}
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flex: 1 }}>
+          <LinkedText text={note.text} links={note.links} />
         </View>
+        {note.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
       </View>
-      <LinkedText text={note.text} links={note.links} />
+
+      {/* Bottom row — project + restore */}
+      {(proj || onRestore) && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 }}>
+          {proj && (
+            <>
+              <ColorDot color={proj.color} size={7} />
+              <ThemeText variant="chip" size={11.5} color="ink3" letterSpacing={0.3}>
+                {proj.name}
+              </ThemeText>
+            </>
+          )}
+          {onRestore && (
+            <View style={{ marginLeft: 'auto' }}>
+              <Chip color={colors.amber} active onPress={onRestore} paddingVertical={4}>
+                <ThemeText variant="chip" size={12} color="amber">restore</ThemeText>
+              </Chip>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 }

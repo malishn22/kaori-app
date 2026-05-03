@@ -9,11 +9,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme, getColors } from '@/theme';
 import { SettingsProvider } from '@/providers/SettingsProvider';
 import { StoreProvider, useStore } from '@/providers/StoreProvider';
-import { NewNoteSheetProvider } from '@/providers/NewNoteSheetProvider';
-import { NewProjectSheetProvider } from '@/providers/NewProjectSheetProvider';
-import { ProjectMenuSheetProvider } from '@/providers/ProjectMenuSheetProvider';
 import { SettingSheetProvider, useSettingSheet } from '@/providers/SettingSheetProvider';
-import { NewNoteSheet, NewProjectSheet, ProjectMenuSheet, SettingSheet } from '@/components/ui';
+import { SettingSheet } from '@/components/ui';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TONE_OPTIONS, ACCENT_OPTIONS } from '@/constants/options';
 
@@ -77,22 +74,17 @@ export default function RootLayout() {
         <SettingsProvider>
           <StoreProvider>
             <SettingSheetProvider>
-              <ProjectMenuSheetProvider>
-                <NewProjectSheetProvider>
-                  <NewNoteSheetProvider>
-                    <StatusBar style="light" />
-                    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>
-                      <Stack.Screen name="(tabs)" />
-                      <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="project/[id]" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="note/[id]" options={{ animation: 'slide_from_right' }} />
-                    </Stack>
-                    <NewNoteSheet />
-                  </NewNoteSheetProvider>
-                  <NewProjectSheet />
-                </NewProjectSheetProvider>
-                <ProjectMenuSheet />
-              </ProjectMenuSheetProvider>
+              <StatusBar style="light" />
+              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="project/[id]" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="project/new" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="note/[id]" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="note/new" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="task/new" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="task/[id]" options={{ animation: 'slide_from_right' }} />
+              </Stack>
               <RootSettingSheets />
             </SettingSheetProvider>
           </StoreProvider>

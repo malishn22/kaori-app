@@ -32,9 +32,9 @@ export const SHADOW_EMPTY: ViewStyle = {
 // Color swatch button
 export function colorSwatchStyle(color: string, isSelected: boolean): ViewStyle {
   return {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: color,
     alignItems: 'center',
     justifyContent: 'center',

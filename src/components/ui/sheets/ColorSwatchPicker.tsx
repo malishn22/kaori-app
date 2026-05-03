@@ -10,7 +10,7 @@ type Props = {
 
 export function ColorSwatchPicker({ selectedColor, onSelect }: Props) {
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
       {PROJECT_COLORS.map((color) => {
         const isSelected = selectedColor === color;
         return (
@@ -20,7 +20,7 @@ export function ColorSwatchPicker({ selectedColor, onSelect }: Props) {
             activeOpacity={0.8}
             style={colorSwatchStyle(color, isSelected)}
           >
-            {isSelected && <CheckIcon size={14} color={BUTTON_TEXT_ON_ACCENT} />}
+            {isSelected && <CheckIcon size={12} color={BUTTON_TEXT_ON_ACCENT} />}
           </TouchableOpacity>
         );
       })}

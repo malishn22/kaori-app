@@ -17,6 +17,7 @@ import MoonSvg from './moon.svg';
 import GearSvg from './gear.svg';
 import PenSvg from './pen.svg';
 import TrashSvg from './trash.svg';
+import TaskSvg from './task.svg';
 
 export type IconProps = { size?: number; color?: string; strokeWidth?: number };
 
@@ -42,6 +43,7 @@ export const MoonIcon = icon(MoonSvg, 18);
 export const SettingsIcon = icon(GearSvg, 18);
 export const EditIcon = icon(PenSvg, 18);
 export const TrashIcon = icon(TrashSvg, 18);
+export const TaskIcon = icon(TaskSvg, 20);
 
 export function BookmarkIcon({ size = 20, color = 'currentColor', fill = 'transparent' }: { size?: number; color?: string; fill?: string }) {
   return (

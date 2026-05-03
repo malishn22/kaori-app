@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform, View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
-import { CircleIcon, FolderIcon } from '@/assets/icons';
+import { CircleIcon, TaskIcon, FolderIcon } from '@/assets/icons';
 import { ThemeText } from '../primitives/ThemeText';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +20,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + tabBarPaddingBottom;
   const tabs = [
     { key: 'index', label: 'today', Icon: CircleIcon },
+    { key: 'tasks', label: 'tasks', Icon: TaskIcon },
     { key: 'projects', label: 'projects', Icon: FolderIcon },
   ];
 
@@ -46,7 +47,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           <TouchableOpacity
             key={tab.key}
             onPress={() => navigation.navigate(tab.key)}
-            style={{ alignItems: 'center', gap: 4 }}
+            style={{ flex: 1, alignItems: 'center', gap: 4 }}
             activeOpacity={0.7}
           >
             <tab.Icon size={20} color={isActive ? colors.amber : colors.ink4} strokeWidth={1.5} />

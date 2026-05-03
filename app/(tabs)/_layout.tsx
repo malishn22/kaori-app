@@ -9,6 +9,7 @@ export default function TabsLayout() {
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="index" />
+      <Tabs.Screen name="tasks" />
       <Tabs.Screen name="projects" />
       <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>

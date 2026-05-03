@@ -1,30 +1,22 @@
 import React from 'react';
 import { View, TextInput as RNTextInput } from 'react-native';
-import { useTheme, FONT } from '@/theme';
+import { FONT } from '@/theme';
 import { Input } from './Input';
 import { ThemeText } from './ThemeText';
 import type { TextInputProps as RNTextInputProps } from 'react-native';
 
 interface CountedInputProps extends RNTextInputProps {
-  asBottomSheet?: boolean;
   maxLength: number;
 }
 
 export const CountedInput = React.forwardRef<RNTextInput, CountedInputProps>(
-  ({ asBottomSheet, style, value = '', maxLength, ...props }, ref) => {
-    const { colors } = useTheme();
+  ({ style, value = '', maxLength, ...props }, ref) => {
     return (
       <View style={{
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: colors.line2,
-        borderRadius: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
       }}>
         <Input
-          asBottomSheet={asBottomSheet}
           ref={ref}
           style={[{ flex: 1 }, style]}
           value={value}

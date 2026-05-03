@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useNewNoteSheet } from '@/providers/NewNoteSheetProvider';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
@@ -12,7 +11,6 @@ import { SHADOW_EMPTY } from '@/constants';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { openNewNote } = useNewNoteSheet();
   const { colors } = useTheme();
   const { notes: allNotes, projects, profile } = useStore();
   const insets = useSafeAreaInsets();
@@ -25,7 +23,7 @@ export default function HomeScreen() {
   const yesterdayCount = notes.filter(i => i.date === 'yesterday').length;
 
   if (notes.length === 0) {
-    return <EmptyState onFAB={() => openNewNote()} />;
+    return <EmptyState onFAB={() => router.push('/note/new')} />;
   }
 
   const subtitleParts = [];
@@ -66,11 +64,11 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Recent Notes */}
+        {/* Notes */}
         <View style={{ paddingTop: 28 }}>
           <View style={{ paddingHorizontal: 24, paddingBottom: 12, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
             <View>
-              <SectionTitle underlineWidth={72}>recent notes</SectionTitle>
+              <SectionTitle underlineWidth={72}>notes</SectionTitle>
             </View>
             <TouchableOpacity onPress={() => router.push('/notes')} activeOpacity={0.7} hitSlop={8}>
               <ThemeText variant="meta">see all</ThemeText>
@@ -90,7 +88,7 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <FAB onPress={() => openNewNote()}  />
+      <FAB onPress={() => router.push('/note/new')}  />
     </View>
   );
 }

@@ -19,19 +19,21 @@ export { FAB } from './layout/FAB';
 export { TabBar } from './layout/TabBar';
 export { SettingRow, CustomSwitch } from './layout/SettingRow';
 export { MenuRow } from './layout/MenuRow';
+export { PagedSections } from './layout/PagedSections';
 
 // cards
 export { PaperCard } from './cards/PaperCard';
 export { ProjectAvatar } from './cards/ProjectAvatar';
 export { ProfileCard } from './cards/ProfileCard';
+export { TaskCard } from './cards/TaskCard';
+export { ProjectCard } from './cards/ProjectCard';
+
+// pickers
+export { CalendarPicker } from './pickers/CalendarPicker';
 
 // sheets
 export { BottomSheet } from './sheets/BottomSheet';
-export { SheetButtonRow } from './sheets/SheetButtonRow';
 export { ColorSwatchPicker } from './sheets/ColorSwatchPicker';
-export { NewNoteSheet } from './sheets/NewNoteSheet';
-export { NewProjectSheet } from './sheets/NewProjectSheet';
-export { ProjectMenuSheet } from './sheets/ProjectMenuSheet';
 
 // settings
 export { SettingSheet } from './settings/SettingSheet';

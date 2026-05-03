@@ -29,8 +29,22 @@ export type Profile = {
   defaultProject: string;
 };
 
+export type Task = {
+  id: string;
+  project: string | null;
+  title: string;
+  body: string;
+  dueDate: string | null;
+  done: boolean;
+  createdAt: string;
+  pinned: boolean;
+  archived?: boolean;
+};
+
 export type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night';
 
 export const SEED_PROJECTS: Project[] = [];
 
 export const SEED_NOTES: Note[] = [];
+
+export const SEED_TASKS: Task[] = [];
