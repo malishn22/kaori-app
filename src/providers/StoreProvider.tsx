@@ -10,24 +10,24 @@ type StoreContextValue = {
   folders: Folder[];
   profile: Profile;
   tasks: Task[];
-  addNote: (text: string, folderId: string | null) => Promise<void>;
-  addFolder: (name: string, color: string, note: string) => Promise<void>;
-  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>) => Promise<void>;
-  updateNoteLink: (noteId: string, url: string, label: string) => Promise<void>;
-  deleteNote: (id: string) => Promise<void>;
+  addNote: (text: string, folderId: string | null) => void;
+  addFolder: (name: string, color: string, note: string) => void;
+  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>) => void;
+  updateNoteLink: (noteId: string, url: string, label: string) => void;
+  deleteNote: (id: string) => void;
   updateProfile: (patch: Partial<Profile>) => Promise<void>;
-  pinFolder: (id: string, pinned: boolean) => Promise<void>;
-  deleteFolder: (id: string) => Promise<void>;
-  updateFolderColor: (id: string, color: string) => Promise<void>;
-  renameFolder: (id: string, name: string) => Promise<void>;
-  archiveNote: (id: string, archived: boolean) => Promise<void>;
-  archiveFolder: (id: string, archived: boolean) => Promise<void>;
-  addTask: (title: string, body: string, dueDate: string | null, folderId: string | null) => Promise<void>;
-  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'body' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) => Promise<void>;
-  toggleTask: (id: string) => Promise<void>;
-  deleteTask: (id: string) => Promise<void>;
-  archiveTask: (id: string, archived: boolean) => Promise<void>;
-  pinTask: (id: string, pinned: boolean) => Promise<void>;
+  pinFolder: (id: string, pinned: boolean) => void;
+  deleteFolder: (id: string) => void;
+  updateFolderColor: (id: string, color: string) => void;
+  renameFolder: (id: string, name: string) => void;
+  archiveNote: (id: string, archived: boolean) => void;
+  archiveFolder: (id: string, archived: boolean) => void;
+  addTask: (title: string, body: string, dueDate: string | null, folderId: string | null) => void;
+  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'body' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) => void;
+  toggleTask: (id: string) => void;
+  deleteTask: (id: string) => void;
+  archiveTask: (id: string, archived: boolean) => void;
+  pinTask: (id: string, pinned: boolean) => void;
 };
 
 const StoreContext = createContext<StoreContextValue>({
@@ -35,24 +35,24 @@ const StoreContext = createContext<StoreContextValue>({
   folders: SEED_FOLDERS,
   profile: DEFAULT_PROFILE,
   tasks: SEED_TASKS,
-  addNote: async () => {},
-  addFolder: async () => {},
-  updateNote: async () => {},
-  updateNoteLink: async () => {},
-  deleteNote: async () => {},
+  addNote: () => {},
+  addFolder: () => {},
+  updateNote: () => {},
+  updateNoteLink: () => {},
+  deleteNote: () => {},
   updateProfile: async () => {},
-  pinFolder: async () => {},
-  deleteFolder: async () => {},
-  updateFolderColor: async () => {},
-  renameFolder: async () => {},
-  archiveNote: async () => {},
-  archiveFolder: async () => {},
-  addTask: async () => {},
-  updateTask: async () => {},
-  toggleTask: async () => {},
-  deleteTask: async () => {},
-  archiveTask: async () => {},
-  pinTask: async () => {},
+  pinFolder: () => {},
+  deleteFolder: () => {},
+  updateFolderColor: () => {},
+  renameFolder: () => {},
+  archiveNote: () => {},
+  archiveFolder: () => {},
+  addTask: () => {},
+  updateTask: () => {},
+  toggleTask: () => {},
+  deleteTask: () => {},
+  archiveTask: () => {},
+  pinTask: () => {},
 });
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -70,9 +70,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const noteActions = createNoteActions(notes, setNotes, folders, setFolders);
-  const taskActions = createTaskActions(tasks, setTasks, folders, setFolders);
-  const folderActions = createFolderActions(folders, setFolders, notes, setNotes, tasks, setTasks);
+  const noteActions = createNoteActions(setNotes, setFolders);
+  const taskActions = createTaskActions(setTasks, setFolders);
+  const folderActions = createFolderActions(setFolders, setNotes, setTasks);
 
   async function updateProfile(patch: Partial<Profile>) {
     const nextProfile = { ...profile, ...patch };
