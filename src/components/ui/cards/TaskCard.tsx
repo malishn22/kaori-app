@@ -49,7 +49,8 @@ export function TaskCard({ task, folder, index = 0, onToggle, onPress, onRestore
         {/* Title row — title + indicators inline */}
         <View className="flex-row items-center gap-2">
           <ThemeText
-            variant="body"
+            variant="title"
+            size={15}
             numberOfLines={1}
             style={{
               flex: 1,

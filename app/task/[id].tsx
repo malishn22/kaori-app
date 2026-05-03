@@ -24,7 +24,6 @@ export default function TaskDetailScreen() {
 
   const [editing, setEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
-  const [draftBody, setDraftBody] = useState('');
   const [draftDueDate, setDraftDueDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const isCustomDraftDate = draftDueDate !== null && !getDateChipOptions().some(opt => isSameDay(draftDueDate, opt.date));
@@ -56,7 +55,6 @@ export default function TaskDetailScreen() {
 
   function startEditing() {
     setDraftTitle(task!.title);
-    setDraftBody(task!.body);
     setDraftDueDate(task!.dueDate ? new Date(task!.dueDate) : null);
     setShowDatePicker(false);
     setEditing(true);
@@ -71,7 +69,6 @@ export default function TaskDetailScreen() {
     if (!draftTitle.trim()) return;
     await updateTask(task!.id, {
       title: draftTitle.trim(),
-      body: draftBody.trim(),
       dueDate: draftDueDate ? draftDueDate.toISOString() : null,
     });
     impactOnSave();
@@ -119,8 +116,7 @@ export default function TaskDetailScreen() {
 
   async function handleShare() {
     closeMenu(async () => {
-      const message = task!.body ? `${task!.title}\n\n${task!.body}` : task!.title;
-      await Share.share({ message });
+      await Share.share({ message: task!.title });
     });
   }
 
@@ -193,31 +189,6 @@ export default function TaskDetailScreen() {
                 {task.title}
               </HeaderText>
             )}
-
-            {/* Body */}
-            {editing ? (
-              <TextInput
-                style={{
-                  fontFamily: FONT.kalam,
-                  fontSize: 15,
-                  color: colors.ink2,
-                  lineHeight: 22,
-                  marginTop: 12,
-                  minHeight: 44,
-                }}
-                value={draftBody}
-                onChangeText={setDraftBody}
-                placeholder="add details..."
-                placeholderTextColor={colors.ink4}
-                multiline
-                selectionColor={colors.amber}
-                cursorColor={colors.amber}
-              />
-            ) : task.body ? (
-              <ThemeText variant="body" size={15} color="ink2" style={{ marginTop: 12, lineHeight: 22 }}>
-                {task.body}
-              </ThemeText>
-            ) : null}
 
             {/* Due date (edit mode) */}
             {editing && (

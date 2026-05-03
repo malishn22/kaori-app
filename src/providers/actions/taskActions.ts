@@ -8,13 +8,12 @@ export function createTaskActions(
   setTasks: SetState<Task[]>,
   setFolders: SetState<Folder[]>,
 ) {
-  function addTask(title: string, body: string, dueDate: string | null, folderId: string | null) {
+  function addTask(title: string, dueDate: string | null, folderId: string | null) {
     const createdAt = new Date().toISOString();
     const newTask: Task = {
       id: Date.now().toString(),
       folder: folderId,
       title,
-      body,
       dueDate,
       done: false,
       createdAt,
@@ -36,7 +35,7 @@ export function createTaskActions(
     }
   }
 
-  function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'body' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) {
+  function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) {
     setTasks(prev => {
       const next = prev.map(t => t.id === id ? { ...t, ...patch } : t);
       safeSet(KEYS.tasks, JSON.stringify(next));

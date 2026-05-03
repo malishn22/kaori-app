@@ -35,11 +35,10 @@ export function FAB({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.85}
-      className="absolute z-30 h-16 rounded-[22px] bg-theme-amber flex-row items-center justify-center gap-2.5"
+      className={`absolute z-30 h-16 ${!wide ? 'w-16' : ''} rounded-[22px] bg-theme-amber flex-row items-center justify-center gap-2.5`}
       style={{
         right: rightOffset,
         bottom,
-        width: wide ? undefined : 64,
         paddingHorizontal: wide ? 22 : 0,
         shadowColor: colors.amber,
         shadowOffset: { width: 0, height: 14 },

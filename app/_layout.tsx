@@ -5,15 +5,26 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, type ReactNode } from 'react';
 import { useFonts } from 'expo-font';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme, getColors, themeVars } from '@/theme';
 import { SettingsProvider, useSettings } from '@/providers/SettingsProvider';
 import { StoreProvider, useStore } from '@/providers/StoreProvider';
 import { SettingSheetProvider, useSettingSheet } from '@/providers/SettingSheetProvider';
 import { SettingSheet } from '@/components/ui';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TONE_OPTIONS, ACCENT_OPTIONS } from '@/constants/options';
+
+function AndroidNavBarFill() {
+  const insets = useSafeAreaInsets();
+  if (Platform.OS !== 'android' || insets.bottom === 0) return null;
+  return (
+    <View
+      className="absolute bottom-0 left-0 right-0 bg-theme-bg"
+      style={{ height: insets.bottom, zIndex: 50 }}
+    />
+  );
+}
 
 function ThemeVarsRoot({ children }: { children: ReactNode }) {
   const { settings } = useSettings();
@@ -97,6 +108,7 @@ export default function RootLayout() {
                   <Stack.Screen name="task/[id]" options={{ animation: 'slide_from_right' }} />
                 </Stack>
                 <RootSettingSheets />
+                <AndroidNavBarFill />
               </SettingSheetProvider>
             </StoreProvider>
           </ThemeVarsRoot>

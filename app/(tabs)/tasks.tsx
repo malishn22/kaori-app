@@ -3,12 +3,12 @@ import { View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
-import { TaskCard, FAB, PageHeader, SectionTitle, EmptyState } from '@/components/ui';
+import { TaskCard, FAB, PageHeader, SectionTitle, EmptyState, SwipeablePinWrapper } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function TasksScreen() {
   const router = useRouter();
-  const { tasks: allTasks, folders, toggleTask } = useStore();
+  const { tasks: allTasks, folders, toggleTask, pinTask } = useStore();
   const insets = useSafeAreaInsets();
   const activeTasks = useMemo(() => allTasks.filter(t => !t.archived && !t.done), [allTasks]);
   const pinnedTasks = useMemo(() => activeTasks.filter(t => t.pinned), [activeTasks]);
@@ -18,15 +18,12 @@ export default function TasksScreen() {
     return <EmptyState variant="tasks" onFAB={() => router.push('/task/new')} />;
   }
 
-  const subtitle = `${activeTasks.length} open.`;
-
   return (
     <View className="flex-1 bg-theme-bg">
       <PageHeader
         settingsButton
         caption="all tasks"
         title="tasks"
-        subtitle={subtitle}
         underlineWidth={62}
       />
 
@@ -44,14 +41,15 @@ export default function TasksScreen() {
               {pinnedTasks.map((task, i) => {
                 const folder = folders.find(f => f.id === task.folder);
                 return (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    folder={folder}
-                    index={i}
-                    onToggle={() => toggleTask(task.id)}
-                    onPress={() => router.push(`/task/${task.id}`)}
-                  />
+                  <SwipeablePinWrapper key={task.id} isPinned={task.pinned} onTogglePin={() => pinTask(task.id, !task.pinned)}>
+                    <TaskCard
+                      task={task}
+                      folder={folder}
+                      index={i}
+                      onToggle={() => toggleTask(task.id)}
+                      onPress={() => router.push(`/task/${task.id}`)}
+                    />
+                  </SwipeablePinWrapper>
                 );
               })}
             </View>
@@ -68,14 +66,15 @@ export default function TasksScreen() {
               {unpinnedTasks.map((task, i) => {
                 const folder = folders.find(f => f.id === task.folder);
                 return (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    folder={folder}
-                    index={i + 1}
-                    onToggle={() => toggleTask(task.id)}
-                    onPress={() => router.push(`/task/${task.id}`)}
-                  />
+                  <SwipeablePinWrapper key={task.id} isPinned={task.pinned} onTogglePin={() => pinTask(task.id, !task.pinned)}>
+                    <TaskCard
+                      task={task}
+                      folder={folder}
+                      index={i + 1}
+                      onToggle={() => toggleTask(task.id)}
+                      onPress={() => router.push(`/task/${task.id}`)}
+                    />
+                  </SwipeablePinWrapper>
                 );
               })}
             </View>

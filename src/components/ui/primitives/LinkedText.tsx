@@ -41,7 +41,7 @@ function splitTextByUrls(text: string): Segment[] {
 }
 
 const VARIANT_STYLES: Record<string, { fontFamily: string; fontSize: number; color?: string; lineHeight?: number; letterSpacing?: number }> = {
-  body: { fontFamily: FONT.geist, fontSize: 15, color: 'ink', lineHeight: 22, letterSpacing: -0.05 },
+  body: { fontFamily: FONT.kalam, fontSize: 15, color: 'ink', lineHeight: 22, letterSpacing: -0.05 },
   heading: { fontFamily: FONT.kalam, fontSize: 22, color: 'ink' },
 };
 

@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFolderNotes, useFolderTasks, useHapticFeedback, useAnimatedPopup, useConfirmAction } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
-import { NoteCard, TaskCard, FAB, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections, PopupMenu, GrainOverlay } from '@/components/ui';
+import { NoteCard, TaskCard, FAB, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections, PopupMenu, GrainOverlay, SwipeablePinWrapper } from '@/components/ui';
 import { DELETE_COLOR, BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function FolderDetailScreen() {
@@ -13,7 +13,7 @@ export default function FolderDetailScreen() {
   const insets = useSafeAreaInsets();
   const { folder, notes, notesThisWeek, pinnedCount } = useFolderNotes(id);
   const { tasks, openCount } = useFolderTasks(id);
-  const { toggleTask, pinFolder, deleteFolder, updateFolderColor, renameFolder, archiveFolder } = useStore();
+  const { toggleTask, pinFolder, deleteFolder, updateFolderColor, renameFolder, archiveFolder, updateNote, pinTask } = useStore();
   const { impact, notificationWarning } = useHapticFeedback();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -173,9 +173,11 @@ export default function FolderDetailScreen() {
           </View>
           <View className="px-[18px] gap-3">
             {notes.map((note, ix) => (
-              <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                <NoteCard note={note} folder={folder} index={ix + 1} />
-              </TouchableOpacity>
+              <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
+                <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
+                  <NoteCard note={note} folder={folder} index={ix + 1} />
+                </TouchableOpacity>
+              </SwipeablePinWrapper>
             ))}
           </View>
         </ScrollView>
@@ -190,14 +192,15 @@ export default function FolderDetailScreen() {
           </View>
           <View className="px-[18px] gap-3">
             {tasks.map((task, i) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                folder={folder}
-                index={i}
-                onToggle={() => toggleTask(task.id)}
-                onPress={() => router.push(`/task/${task.id}`)}
-              />
+              <SwipeablePinWrapper key={task.id} isPinned={task.pinned} onTogglePin={() => pinTask(task.id, !task.pinned)}>
+                <TaskCard
+                  task={task}
+                  folder={folder}
+                  index={i}
+                  onToggle={() => toggleTask(task.id)}
+                  onPress={() => router.push(`/task/${task.id}`)}
+                />
+              </SwipeablePinWrapper>
             ))}
           </View>
         </ScrollView>

@@ -33,7 +33,6 @@ export type Task = {
   id: string;
   folder: string | null;
   title: string;
-  body: string;
   dueDate: string | null;
   done: boolean;
   createdAt: string;

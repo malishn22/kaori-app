@@ -4,29 +4,22 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
-import { NoteCard, FAB, ThemeText, SectionTitle, PageHeader, GreetingTitle, EmptyState } from '@/components/ui';
+import { NoteCard, FAB, ThemeText, SectionTitle, PageHeader, GreetingTitle, EmptyState, SwipeablePinWrapper } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { notes: allNotes, folders, profile } = useStore();
+  const { notes: allNotes, folders, profile, updateNote } = useStore();
   const insets = useSafeAreaInsets();
   const notes = useMemo(() => allNotes.filter(n => !n.archived), [allNotes]);
   const pinnedNotes = useMemo(() => notes.filter(n => n.pinned), [notes]);
+  const unpinnedNotes = useMemo(() => notes.filter(n => !n.pinned), [notes]);
 
   const timeOfDay = getTimeOfDay();
   const dayName = getDayName();
-  const todayCount = notes.filter(i => i.date === 'today').length;
-  const yesterdayCount = notes.filter(i => i.date === 'yesterday').length;
-
   if (notes.length === 0) {
     return <EmptyState variant="notes" onFAB={() => router.push('/note/new')} />;
   }
-
-  const subtitleParts = [];
-  if (todayCount > 0) subtitleParts.push(`${todayCount} ${todayCount === 1 ? 'note' : 'notes'} waiting`);
-  if (yesterdayCount > 0) subtitleParts.push(`${yesterdayCount} from yesterday`);
-  const subtitle = subtitleParts.length > 0 ? subtitleParts.join(', ') + '.' : 'nothing yet today.';
 
   return (
     <View className="flex-1 bg-theme-bg">
@@ -34,7 +27,6 @@ export default function HomeScreen() {
         settingsButton
         caption={dayName}
         titleElement={<GreetingTitle timeOfDay={timeOfDay} initial={profile.initial} />}
-        subtitle={subtitle}
         underlineWidth={92}
       />
       <ScrollView
@@ -52,9 +44,11 @@ export default function HomeScreen() {
               {pinnedNotes.map((note, i) => {
                 const folder = folders.find(f => f.id === note.folder);
                 return (
-                  <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                    <NoteCard note={note} folder={folder} index={i} />
-                  </TouchableOpacity>
+                  <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
+                    <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
+                      <NoteCard note={note} folder={folder} index={i} />
+                    </TouchableOpacity>
+                  </SwipeablePinWrapper>
                 );
               })}
             </View>
@@ -73,12 +67,14 @@ export default function HomeScreen() {
           </View>
 
           <View className="px-[18px] gap-3">
-            {notes.slice(0, 4).map((note, i) => {
+            {unpinnedNotes.slice(0, 4).map((note, i) => {
               const folder = folders.find(f => f.id === note.folder);
               return (
-                <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                  <NoteCard note={note} folder={folder} index={i} />
-                </TouchableOpacity>
+                <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
+                  <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
+                    <NoteCard note={note} folder={folder} index={i} />
+                  </TouchableOpacity>
+                </SwipeablePinWrapper>
               );
             })}
           </View>
