@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useActiveFolders } from '@/hooks';
 import { FAB, FolderCard, PageHeader } from '@/components/ui';
@@ -10,7 +9,6 @@ import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function FoldersScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
   const { notes: allNotes, tasks: allTasks } = useStore();
   const folders = useActiveFolders();
   const noteCounts = useMemo(
@@ -34,11 +32,11 @@ export default function FoldersScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader caption="your folders" title="folders" underlineWidth={92} settingsButton />
       <ScrollView contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }} showsVerticalScrollIndicator={false}>
 
-        <View style={{ paddingHorizontal: 18, paddingTop: 24, gap: 14 }}>
+        <View className="px-[18px] pt-6 gap-3.5">
           {sortedFolders.map((f, i) => (
             <TouchableOpacity key={f.id} onPress={() => router.push(`/folder/${f.id}`)} activeOpacity={0.85}>
               <FolderCard folder={f} index={i} noteCount={noteCounts[f.id] ?? 0} taskCount={taskCounts[f.id] ?? 0} />

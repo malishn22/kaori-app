@@ -127,36 +127,23 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
     <Modal visible transparent animationType="none" statusBarTranslucent>
       <Pressable
         onPress={handleDismiss}
-        style={{
-          flex: 1,
-          backgroundColor: `${colors.bg}cc`,
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 24,
-        }}
+        className="flex-1 items-center justify-center p-6"
+        style={{ backgroundColor: `${colors.bg}cc` }}
       >
-        <Pressable onPress={(e) => e.stopPropagation()} style={{ width: '100%' }}>
-          <Animated.View style={{
-            opacity,
-            transform: [{ scale: anim }],
-            width: '100%',
-            backgroundColor: colors.paper,
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: colors.line2,
-            padding: 16,
-            overflow: 'hidden',
-            ...SHADOW_POPUP,
-          }}>
+        <Pressable onPress={(e) => e.stopPropagation()} className="w-full">
+          <Animated.View
+            className="w-full bg-theme-paper rounded-2xl border border-theme-line2 p-4 overflow-hidden"
+            style={{ opacity, transform: [{ scale: anim }], ...SHADOW_POPUP }}
+          >
             <GrainOverlay />
 
             {/* Header: nav arrows + month/year */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <View className="flex-row items-center justify-between mb-4">
               <TouchableOpacity
                 onPress={goToPrevMonth}
                 activeOpacity={0.7}
                 hitSlop={12}
-                style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
+                className="size-9 items-center justify-center"
               >
                 <ChevronIcon dir="left" size={16} color={colors.ink3} />
               </TouchableOpacity>
@@ -169,16 +156,16 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
                 onPress={goToNextMonth}
                 activeOpacity={0.7}
                 hitSlop={12}
-                style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
+                className="size-9 items-center justify-center"
               >
                 <ChevronIcon dir="right" size={16} color={colors.ink3} />
               </TouchableOpacity>
             </View>
 
             {/* Weekday header */}
-            <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+            <View className="flex-row mb-2">
               {WEEKDAYS.map(day => (
-                <View key={day} style={{ flex: 1, alignItems: 'center' }}>
+                <View key={day} className="flex-1 items-center">
                   <ThemeText variant="meta" size={10} color="ink4" uppercase>{day}</ThemeText>
                 </View>
               ))}
@@ -186,10 +173,10 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
 
             {/* Day grid */}
             {rows.map((row, ri) => (
-              <View key={ri} style={{ flexDirection: 'row', marginBottom: 4 }}>
+              <View key={ri} className="flex-row mb-1">
                 {row.map(cell => {
                   if (cell.day === null) {
-                    return <View key={cell.key} style={{ flex: 1, aspectRatio: 1 }} />;
+                    return <View key={cell.key} className="flex-1" style={{ aspectRatio: 1 }} />;
                   }
 
                   const bg = cell.isSelected
@@ -211,23 +198,17 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
                       disabled={cell.isDisabled}
                       onPress={() => cell.date && handleSelect(cell.date)}
                       activeOpacity={0.7}
-                      style={{
-                        flex: 1,
-                        aspectRatio: 1,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
+                      className="flex-1 items-center justify-center"
+                      style={{ aspectRatio: 1 }}
                     >
-                      <View style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 999,
-                        backgroundColor: bg,
-                        borderWidth: cell.isSelected ? 1 : 0,
-                        borderColor: border,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
+                      <View
+                        className="size-9 rounded-full items-center justify-center"
+                        style={{
+                          backgroundColor: bg,
+                          borderWidth: cell.isSelected ? 1 : 0,
+                          borderColor: border,
+                        }}
+                      >
                         <ThemeText
                           variant="chip"
                           size={14}

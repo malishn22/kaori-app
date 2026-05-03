@@ -36,7 +36,7 @@ export function SettingSheet<T extends string>({ visible, title, options, value,
 
   return (
     <BottomSheet sheetRef={sheetRef} onChange={handleChange}>
-      <View style={{ paddingTop: 12, paddingHorizontal: 22 }}>
+      <View className="pt-3 px-[22px]">
         <GrainOverlay />
 
         <SectionTitle showUnderline={false} style={{ marginBottom: 16 }}>{title}</SectionTitle>
@@ -48,11 +48,8 @@ export function SettingSheet<T extends string>({ visible, title, options, value,
               key={opt.value}
               onPress={() => handleSelect(opt.value)}
               activeOpacity={0.7}
+              className="flex-row items-center justify-between py-3.5"
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingVertical: 14,
                 borderBottomWidth: ix < options.length - 1 ? 1 : 0,
                 borderBottomColor: colors.line,
               }}

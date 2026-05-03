@@ -21,35 +21,27 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader caption="your space" title="settings" underlineWidth={92} />
       <ScrollView contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }} showsVerticalScrollIndicator={false}>
 
         {/* Profile card */}
-        <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
+        <View className="px-[18px] pt-6">
           <TouchableOpacity onPress={() => router.push('/profile')} activeOpacity={0.85}>
-          <View style={{
-            backgroundColor: colors.paper,
-            borderRadius: 16,
-            padding: 18,
-            borderWidth: 1,
-            borderColor: colors.line,
-            transform: [{ rotate: '-0.4deg' }],
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 14,
-            overflow: 'hidden',
-          }}>
+          <View
+            className="bg-theme-paper rounded-2xl p-[18px] border border-theme-line flex-row items-center gap-3.5 overflow-hidden"
+            style={{ transform: [{ rotate: '-0.4deg' }] }}
+          >
             <GrainOverlay />
             <LinearGradient
               colors={[colors.amber, colors.ink3]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={{ width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' }}
+              className="size-12 rounded-[14px] items-center justify-center"
             >
               <ThemeText variant="heading" size={26} color="bg">{profile.initial}</ThemeText>
             </LinearGradient>
-            <View style={{ flex: 1 }}>
+            <View className="flex-1">
               <ThemeText variant="heading" lineHeight={26}>{profile.name}</ThemeText>
               <ThemeText variant="meta" style={{ marginTop: 4 }}>
                 {notes.length} notes · {tasks.length} tasks · {folders.length} folders
@@ -60,9 +52,9 @@ export default function SettingsScreen() {
         </View>
 
         {/* FEEL section */}
-        <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
+        <View className="px-6 pt-6">
           <SectionTitle underlineWidth={42}>feel</SectionTitle>
-          <View style={{ marginTop: 12 }}>
+          <View className="mt-3">
 
             <SettingRow
               icon={<MoonIcon size={17} color={colors.ink3} strokeWidth={1.4} />}
@@ -79,7 +71,7 @@ export default function SettingsScreen() {
               icon={<SparkleIcon size={17} color={colors.ink3} />}
               label="accent"
               right={<>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View className="flex-row items-center gap-2">
                   <ColorDot color={colors.amber} size={10} />
                   <ThemeText variant="meta" size={13}>{settings.accent}</ThemeText>
                 </View>
@@ -93,9 +85,9 @@ export default function SettingsScreen() {
         </View>
 
         {/* CAPTURE section */}
-        <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
+        <View className="px-6 pt-6">
           <SectionTitle underlineWidth={42}>capture</SectionTitle>
-          <View style={{ marginTop: 12 }}>
+          <View className="mt-3">
 
             <SettingRow
               icon={<BellIcon size={17} color={colors.ink3} strokeWidth={1.4} />}
@@ -105,7 +97,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View style={{ alignItems: 'center', paddingTop: 36, paddingBottom: 24 }}>
+        <View className="items-center pt-9 pb-6">
           <ThemeText variant="meta" color="ink4">
             <ThemeText variant="subheading" color="ink3">kaori</ThemeText>
             {' · v1.0.0'}

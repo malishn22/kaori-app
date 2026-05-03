@@ -135,7 +135,7 @@ export default function TaskDetailScreen() {
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
         <PageHeader
           onBack={handleBack}
           editButton={{ onPress: () => editing ? cancelEdit() : startEditing(), active: editing }}
@@ -147,10 +147,10 @@ export default function TaskDetailScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
+          <View className="px-6 pt-6">
             {/* Folder pill */}
             {folder && (
-              <View style={{ alignSelf: 'flex-start', marginBottom: 16 }}>
+              <View className="self-start mb-4">
                 <Chip color={folder.color} dot dotSize={7}>
                   <ThemeText variant="chip" size={12} color="cream">{folder.name}</ThemeText>
                 </Chip>
@@ -159,14 +159,7 @@ export default function TaskDetailScreen() {
 
             {/* Done badge */}
             {task.done && !editing && (
-              <View style={{
-                alignSelf: 'flex-start',
-                marginBottom: 12,
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderRadius: 8,
-                backgroundColor: `${colors.amber}22`,
-              }}>
+              <View className="self-start mb-3 px-2.5 py-1 rounded-lg" style={{ backgroundColor: `${colors.amber}22` }}>
                 <ThemeText variant="meta" size={11} color="amber">completed</ThemeText>
               </View>
             )}
@@ -228,12 +221,12 @@ export default function TaskDetailScreen() {
 
             {/* Due date (edit mode) */}
             {editing && (
-              <View style={{ marginTop: 20 }}>
+              <View className="mt-5">
                 <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
                   due date
                 </ThemeText>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                  <View className="flex-row gap-1.5">
                     <Chip active={draftDueDate === null} onPress={() => { setDraftDueDate(null); setShowDatePicker(false); }}>
                       <ThemeText variant="chip" size={13} color={draftDueDate === null ? 'ink' : 'ink2'}>none</ThemeText>
                     </Chip>
@@ -258,7 +251,7 @@ export default function TaskDetailScreen() {
 
             {/* Meta (display mode) */}
             {!editing && (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 18, alignItems: 'center' }}>
+              <View className="flex-row flex-wrap gap-3 mt-[18px] items-center">
                 {task.dueDate && (
                   <ThemeText variant="meta" color={dueDateColor}>
                     due {formatDueDate(task.dueDate)}
@@ -274,18 +267,12 @@ export default function TaskDetailScreen() {
 
           {/* Save bar */}
           {editing && (
-            <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
+            <View className="px-4 pt-6">
               <TouchableOpacity
                 onPress={handleSave}
                 disabled={!draftTitle.trim()}
-                style={{
-                  height: 52,
-                  borderRadius: 16,
-                  backgroundColor: colors.amber,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: draftTitle.trim() ? 1 : 0.4,
-                }}
+                className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+                style={{ opacity: draftTitle.trim() ? 1 : 0.4 }}
                 activeOpacity={0.85}
               >
                 <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
@@ -305,7 +292,7 @@ export default function TaskDetailScreen() {
           <MenuRow
             label="move to folder"
             right={folder
-              ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              ? <View className="flex-row items-center gap-[5px]">
                   <ColorDot color={folder.color} size={6} />
                   <ThemeText variant="meta">{folder.name}</ThemeText>
                 </View>
@@ -315,7 +302,7 @@ export default function TaskDetailScreen() {
           />
 
           {movingFolder && (
-            <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
+            <View className="px-3 py-2.5 border-b border-theme-line">
               <FolderChipSelector folders={folders} selected={task.folder} onSelect={handleMoveFolder} />
             </View>
           )}

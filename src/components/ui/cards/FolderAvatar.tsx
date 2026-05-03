@@ -16,7 +16,7 @@ export function FolderAvatar({ name, color }: Props) {
       colors={[color, colors.ink3]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+      className="size-[42px] rounded-xl items-center justify-center"
     >
       <ThemeText variant="heading" color="bg">
         {name.charAt(0).toLowerCase()}

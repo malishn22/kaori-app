@@ -49,7 +49,7 @@ export function MenuRow({
   const content = (
     <>
       {icon}
-      <View style={{ flex: 1 }}>
+      <View className="flex-1">
         <ThemeText variant={textVariant} color={labelColor}>{label}</ThemeText>
         {subtitle && <ThemeText variant="meta" color={subtitleColor} style={{ marginTop: 2 }}>{subtitle}</ThemeText>}
       </View>

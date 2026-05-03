@@ -15,7 +15,8 @@ export function SettingsButton() {
       onPress={() => router.push('/settings')}
       hitSlop={12}
       activeOpacity={0.7}
-      style={{ position: 'absolute', top: insets.top + 40, right: 24, zIndex: 1 }}
+      className="absolute right-6 z-[1]"
+      style={{ top: insets.top + 40 }}
     >
       <SettingsIcon size={22} color={colors.ink2} strokeWidth={1.4} />
     </TouchableOpacity>

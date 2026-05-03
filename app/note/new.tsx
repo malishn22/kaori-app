@@ -28,7 +28,7 @@ export default function NewNoteScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
 
       <ScrollView
@@ -36,7 +36,7 @@ export default function NewNoteScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ paddingHorizontal: 24, paddingTop: 12 }}>
+        <View className="px-6 pt-3">
           {/* Text input */}
           <TextInput
             style={{
@@ -63,18 +63,12 @@ export default function NewNoteScreen() {
         </View>
 
         {/* Save button */}
-        <View style={{ paddingHorizontal: 16, paddingTop: 32 }}>
+        <View className="px-4 pt-8">
           <TouchableOpacity
             onPress={handleSave}
             disabled={!text.trim()}
-            style={{
-              height: 52,
-              borderRadius: 16,
-              backgroundColor: colors.amber,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: text.trim() ? 1 : 0.4,
-            }}
+            className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+            style={{ opacity: text.trim() ? 1 : 0.4 }}
             activeOpacity={0.85}
           >
             <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save note</ThemeText>

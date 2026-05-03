@@ -15,14 +15,12 @@ export function PagedSections({ children }: PagedSectionsProps) {
 
   return (
     <>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, paddingVertical: 12 }}>
+      <View className="flex-row justify-center gap-1.5 py-3">
         {Array.from({ length: pageCount }, (_, i) => (
           <View
             key={i}
+            className="size-1.5 rounded-full"
             style={{
-              width: 6,
-              height: 6,
-              borderRadius: 3,
               backgroundColor: activePage === i ? colors.cream : colors.ink4,
               opacity: activePage === i ? 1 : 0.3,
             }}

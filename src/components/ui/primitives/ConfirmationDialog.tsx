@@ -28,25 +28,18 @@ export function ConfirmationDialog({ visible, title, subtitle, actions, onClose 
   return (
     <Modal transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity
-        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }}
+        className="flex-1 bg-black/40 justify-center items-center"
         activeOpacity={1}
         onPress={onClose}
       >
         <TouchableOpacity
           activeOpacity={1}
-          style={{
-            width: '78%',
-            backgroundColor: colors.paper,
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: colors.line2,
-            overflow: 'hidden',
-          }}
+          className="w-[78%] bg-theme-paper rounded-2xl border border-theme-line2 overflow-hidden"
         >
           <GrainOverlay />
 
           {/* Header */}
-          <View style={{ paddingHorizontal: 18, paddingTop: 18, paddingBottom: subtitle ? 4 : 14 }}>
+          <View className="px-[18px] pt-[18px]" style={{ paddingBottom: subtitle ? 4 : 14 }}>
             <ThemeText variant="title">{title}</ThemeText>
             {subtitle && (
               <ThemeText variant="meta" style={{ marginTop: 4 }}>{subtitle}</ThemeText>
@@ -61,9 +54,8 @@ export function ConfirmationDialog({ visible, title, subtitle, actions, onClose 
               key={i}
               onPress={action.onPress}
               activeOpacity={0.7}
+              className="px-[18px] py-3.5"
               style={{
-                paddingHorizontal: 18,
-                paddingVertical: 14,
                 borderBottomWidth: i < actions.length - 1 ? 1 : 0,
                 borderBottomColor: colors.line,
               }}

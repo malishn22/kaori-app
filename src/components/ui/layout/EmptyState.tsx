@@ -21,51 +21,29 @@ export function EmptyState({ variant, onFAB }: Props) {
   const isNotes = variant === 'notes';
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader settingsButton />
-      <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 32, paddingTop: 80 }}>
-        <View style={{
-          width: 220, height: 280,
-          backgroundColor: colors.paper,
-          borderRadius: 14,
-          borderWidth: 1,
-          borderColor: colors.line2,
-          transform: [{ rotate: '-3deg' }],
-          ...SHADOW_EMPTY,
-          overflow: 'hidden',
-          marginBottom: 32,
-        }}>
+      <View className="flex-1 items-center px-8 pt-20">
+        <View
+          className="bg-theme-paper rounded-[14px] border border-theme-line2 overflow-hidden mb-8"
+          style={{ width: 220, height: 280, transform: [{ rotate: '-3deg' }], ...SHADOW_EMPTY }}
+        >
           {isNotes
             ? NOTE_LINES.map((w, i) => (
-                <View key={i} style={{
-                  position: 'absolute',
+                <View key={i} className="absolute h-px bg-theme-line2" style={{
                   top: 24 + i * 34,
                   left: 22,
                   width: `${w * 100}%` as any,
-                  height: 1,
-                  backgroundColor: colors.line2,
                 }} />
               ))
             : TASK_LINES.map((w, i) => (
-                <View key={i} style={{
-                  position: 'absolute',
+                <View key={i} className="absolute flex-row items-center gap-2.5" style={{
                   top: 24 + i * 42,
                   left: 22,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 10,
                 }}>
-                  <View style={{
-                    width: 14,
-                    height: 14,
-                    borderRadius: 4,
-                    borderWidth: 1.2,
-                    borderColor: colors.line2,
-                  }} />
-                  <View style={{
+                  <View className="size-3.5 rounded border-[1.2px] border-theme-line2" />
+                  <View className="h-px bg-theme-line2" style={{
                     width: `${w * 100}%` as any,
-                    height: 1,
-                    backgroundColor: colors.line2,
                   }} />
                 </View>
               ))

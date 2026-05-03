@@ -29,22 +29,16 @@ export function PageHeader({ onBack, settingsButton, editButton, moreButton, cap
   const hasTitleSection = titleElement || title;
 
   return (
-    <View style={{ backgroundColor: colors.bg, paddingTop: insets.top + 16 }}>
+    <View className="bg-theme-bg" style={{ paddingTop: insets.top + 16 }}>
       {/* Navigation bar (back, edit, more) */}
       {hasNavBar && (
-        <View style={{
-          height: 52,
-          paddingHorizontal: 16,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 6,
-        }}>
+        <View className="h-[52px] px-4 flex-row items-center gap-1.5">
           {onBack && (
             <TouchableOpacity onPress={onBack} hitSlop={12} activeOpacity={0.7}>
               <BackIcon size={20} color={colors.ink2} />
             </TouchableOpacity>
           )}
-          <View style={{ flex: 1 }} />
+          <View className="flex-1" />
           {editButton && (
             <TouchableOpacity onPress={editButton.onPress} hitSlop={12} activeOpacity={0.7}>
               <EditIcon size={24} color={editButton.active ? colors.amber : colors.ink2} />
@@ -60,7 +54,7 @@ export function PageHeader({ onBack, settingsButton, editButton, moreButton, cap
 
       {/* Settings button fallback (when no title section, e.g. empty state) */}
       {settingsButton && !hasTitleSection && (
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 24, paddingTop: 8 }}>
+        <View className="flex-row justify-end px-6 pt-2">
           <TouchableOpacity
             onPress={() => router.push('/settings')}
             hitSlop={12}
@@ -73,11 +67,11 @@ export function PageHeader({ onBack, settingsButton, editButton, moreButton, cap
 
       {/* Title section */}
       {hasTitleSection && (
-        <View style={{ paddingHorizontal: 24, paddingTop: hasNavBar ? 0 : 8, gap: 6 }}>
+        <View className="px-6 gap-1.5" style={{ paddingTop: hasNavBar ? 0 : 8 }}>
           {caption && (
             <ThemeText variant="caption" letterSpacing={0.6}>{caption}</ThemeText>
           )}
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View className="flex-row items-center justify-between">
             {titleElement ?? <HeaderText>{title}</HeaderText>}
             {settingsButton && (
               <TouchableOpacity

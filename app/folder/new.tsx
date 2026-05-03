@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback } from '@/hooks';
 import { PageHeader, ThemeText, ColorSwatchPicker, CountedInput } from '@/components/ui';
@@ -11,7 +10,6 @@ import { FOLDER_COLORS, BUTTON_TEXT_ON_ACCENT } from '@/constants';
 export default function NewFolderScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
   const { addFolder } = useStore();
   const { impactOnSave } = useHapticFeedback();
 
@@ -26,7 +24,7 @@ export default function NewFolderScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
 
       <ScrollView
@@ -34,7 +32,7 @@ export default function NewFolderScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ paddingHorizontal: 24, paddingTop: 12 }}>
+        <View className="px-6 pt-3">
           {/* Name input */}
             <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 8 }}>
               name
@@ -49,7 +47,7 @@ export default function NewFolderScreen() {
             />
 
             {/* Color picker */}
-            <View style={{ marginTop: 24 }}>
+            <View className="mt-6">
               <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
                 color
               </ThemeText>
@@ -58,18 +56,12 @@ export default function NewFolderScreen() {
           </View>
 
           {/* Save button */}
-          <View style={{ paddingHorizontal: 16, paddingTop: 32 }}>
+          <View className="px-4 pt-8">
             <TouchableOpacity
               onPress={handleSave}
               disabled={!name.trim()}
-              style={{
-                height: 52,
-                borderRadius: 16,
-                backgroundColor: colors.amber,
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: name.trim() ? 1 : 0.4,
-              }}
+              className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+              style={{ opacity: name.trim() ? 1 : 0.4 }}
               activeOpacity={0.85}
             >
               <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>create folder</ThemeText>

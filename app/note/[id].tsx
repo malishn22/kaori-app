@@ -105,7 +105,7 @@ export default function NoteDetailScreen() {
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader
         onBack={handleBack}
         editButton={{ onPress: () => startEditing(toEditableText(note.text, note.links)), active: editing }}
@@ -113,10 +113,10 @@ export default function NoteDetailScreen() {
       />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
-        <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
+        <View className="px-6 pt-6">
           {/* Folder pill */}
           {folder && (
-            <View style={{ alignSelf: 'flex-start', marginBottom: 16 }}>
+            <View className="self-start mb-4">
               <Chip color={folder.color} dot dotSize={7}>
                 <ThemeText variant="chip" size={12} color="cream">{folder.name}</ThemeText>
               </Chip>
@@ -154,7 +154,7 @@ export default function NoteDetailScreen() {
           )}
 
           {/* Meta */}
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 18 }}>
+          <View className="flex-row gap-3 mt-[18px]">
             <ThemeText variant="meta">
               {note.date === 'today' ? 'today' : note.date}, {note.time}
             </ThemeText>
@@ -165,20 +165,13 @@ export default function NoteDetailScreen() {
 
         {/* Tags */}
         {note.tags.length > 0 && (
-          <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
-            <View style={{
-              backgroundColor: colors.paper,
-              borderRadius: 16,
-              padding: 16,
-              borderWidth: 1,
-              borderColor: colors.line,
-              overflow: 'hidden',
-            }}>
+          <View className="px-[18px] pt-6">
+            <View className="bg-theme-paper rounded-card p-4 border border-theme-line overflow-hidden">
               <GrainOverlay />
               <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 8 }}>
                 tags
               </ThemeText>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              <View className="flex-row flex-wrap gap-2">
                 {note.tags.map((tag) => (
                   <Chip key={tag} paddingVertical={4}>
                     <ThemeText variant="chip" size={13} color="ink2">#{tag}</ThemeText>
@@ -191,18 +184,12 @@ export default function NoteDetailScreen() {
 
         {/* Save bar */}
         {editing ? (
-          <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
+          <View className="px-4 pt-6">
             <TouchableOpacity
               onPress={handleSave}
               disabled={!draft.trim()}
-              style={{
-                height: 52,
-                borderRadius: 16,
-                backgroundColor: colors.amber,
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: draft.trim() ? 1 : 0.4,
-              }}
+              className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+              style={{ opacity: draft.trim() ? 1 : 0.4 }}
               activeOpacity={0.85}
             >
               <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
@@ -216,7 +203,7 @@ export default function NoteDetailScreen() {
         <MenuRow
           label="move to folder"
           right={folder
-            ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            ? <View className="flex-row items-center gap-[5px]">
                 <ColorDot color={folder.color} size={6} />
                 <ThemeText variant="meta">{folder.name}</ThemeText>
               </View>
@@ -226,7 +213,7 @@ export default function NoteDetailScreen() {
         />
 
         {movingFolder && (
-          <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
+          <View className="px-3 py-2.5 border-b border-theme-line">
             <FolderChipSelector folders={folders} selected={note.folder} onSelect={handleMoveFolder} />
           </View>
         )}

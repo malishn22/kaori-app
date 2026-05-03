@@ -23,23 +23,17 @@ export function FolderCard({ folder, index, noteCount, taskCount, onRestore }: F
   const isArchived = !!folder.archived;
 
   return (
-    <View style={{
-      backgroundColor: colors.paper,
-      borderRadius: CARD_BORDER_RADIUS,
-      padding: 16,
-      borderWidth: 1,
-      borderColor: colors.line,
-      transform: [{ rotate: `${tilt}deg` }],
-      ...SHADOW_CARD,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 14,
-      overflow: 'hidden',
-      opacity: isArchived ? ARCHIVED_OPACITY : 1,
-    }}>
+    <View
+      className="bg-theme-paper rounded-card p-4 border border-theme-line flex-row items-center gap-3.5 overflow-hidden"
+      style={{
+        transform: [{ rotate: `${tilt}deg` }],
+        ...SHADOW_CARD,
+        opacity: isArchived ? ARCHIVED_OPACITY : 1,
+      }}
+    >
       <GrainOverlay />
       <FolderAvatar name={folder.name} color={folder.color} />
-      <View style={{ flex: 1, minWidth: 0 }}>
+      <View className="flex-1 min-w-0">
         <ThemeText variant="title">{folder.name}</ThemeText>
         <ThemeText variant="chip" color="ink3" style={{ marginTop: 4 }}>
           {noteCount} notes · {taskCount} tasks

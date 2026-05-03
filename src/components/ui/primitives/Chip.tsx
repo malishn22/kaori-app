@@ -18,21 +18,12 @@ export function Chip({ color, active = false, dot = false, dotSize = 6, onPress,
   const bg     = color ? (active ? `${color}1f` : 'transparent') : (active ? `${colors.ink4}1f` : 'transparent');
   const border = color ? (active ? `${color}55` : colors.line2)  : (active ? colors.ink3 : colors.line2);
 
-  const style = {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical,
-    borderRadius: 999,
-    backgroundColor: bg,
-    borderWidth: 1,
-    borderColor: border,
-  };
+  const chipClass = "flex-row items-center gap-1.5 px-3 rounded-full border";
+  const dynamicStyle = { paddingVertical, backgroundColor: bg, borderColor: border };
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={style}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7} className={chipClass} style={dynamicStyle}>
         {dot && color && <ColorDot color={color} size={dotSize} />}
         {children}
       </TouchableOpacity>
@@ -40,7 +31,7 @@ export function Chip({ color, active = false, dot = false, dotSize = 6, onPress,
   }
 
   return (
-    <View style={style}>
+    <View className={chipClass} style={dynamicStyle}>
       {dot && color && <ColorDot color={color} size={dotSize} />}
       {children}
     </View>

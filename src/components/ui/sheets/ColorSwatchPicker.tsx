@@ -10,7 +10,7 @@ type Props = {
 
 export function ColorSwatchPicker({ selectedColor, onSelect }: Props) {
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+    <View className="flex-row flex-wrap gap-2">
       {FOLDER_COLORS.map((color) => {
         const isSelected = selectedColor === color;
         return (

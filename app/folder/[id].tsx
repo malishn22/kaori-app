@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useTheme } from '@/theme';
 import { useFolderNotes, useFolderTasks, useHapticFeedback, useAnimatedPopup, useConfirmAction } from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
 import { NoteCard, TaskCard, FAB, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections, PopupMenu, GrainOverlay } from '@/components/ui';
@@ -10,7 +9,6 @@ import { DELETE_COLOR, BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function FolderDetailScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { folder, notes, notesThisWeek, pinnedCount } = useFolderNotes(id);
@@ -94,7 +92,7 @@ export default function FolderDetailScreen() {
   const popupTop = insets.top + 16 + 52 + 8;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader
         onBack={() => router.back()}
         editButton={{ onPress: () => renaming ? handleSaveRename() : handleStartRename(), active: renaming }}
@@ -102,37 +100,18 @@ export default function FolderDetailScreen() {
       />
 
       {/* Hero card */}
-      <View style={{ paddingHorizontal: 18, paddingTop: 12 }}>
-        <View style={{
-          backgroundColor: colors.paper2,
-          borderRadius: 22,
-          padding: 20,
-          paddingBottom: 18,
-          borderWidth: 1,
-          borderColor: colors.line2,
-          overflow: 'hidden',
-          position: 'relative',
-        }}>
+      <View className="px-[18px] pt-3">
+        <View className="bg-theme-paper2 rounded-[22px] p-5 pb-[18px] border border-theme-line2 overflow-hidden relative">
           <GrainOverlay />
           {/* Folded corner */}
-          <View style={{
-            position: 'absolute', top: 0, right: 0, width: 28, height: 28,
-            backgroundColor: 'transparent',
-            borderTopRightRadius: 22,
-            overflow: 'hidden',
-          }}>
-            <View style={{
-              position: 'absolute', top: 0, right: 0,
-              width: 28, height: 28,
-              backgroundColor: 'rgba(232,200,154,0.12)',
-              transform: [{ rotate: '45deg' }, { translateX: 14 }],
-            }} />
+          <View className="absolute top-0 right-0 w-7 h-7 bg-transparent rounded-tr-[22px] overflow-hidden">
+            <View className="absolute top-0 right-0 w-7 h-7" style={{ backgroundColor: 'rgba(232,200,154,0.12)', transform: [{ rotate: '45deg' }, { translateX: 14 }] }} />
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+          <View className="flex-row items-center gap-2 mb-1.5">
             <ColorDot color={folder.color} size={10} />
             {renaming ? (
-              <View style={{ flex: 1 }}>
+              <View className="flex-1">
                 <CountedInput
                   ref={inputRef}
                   value={draftName}
@@ -151,7 +130,7 @@ export default function FolderDetailScreen() {
               {folder.note}
             </ThemeText>
           ) : null}
-          <View style={{ flexDirection: 'row', gap: 18, marginTop: 12 }}>
+          <View className="flex-row gap-[18px] mt-3">
             {[
               { val: notes.length, label: 'notes' },
               { val: openCount, label: 'tasks' },
@@ -169,18 +148,12 @@ export default function FolderDetailScreen() {
 
       {/* Save button */}
       {renaming && (
-        <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
+        <View className="px-4 pt-6">
           <TouchableOpacity
             onPress={handleSaveRename}
             disabled={!draftName.trim()}
-            style={{
-              height: 52,
-              borderRadius: 16,
-              backgroundColor: colors.amber,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: draftName.trim() ? 1 : 0.4,
-            }}
+            className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+            style={{ opacity: draftName.trim() ? 1 : 0.4 }}
             activeOpacity={0.85}
           >
             <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
@@ -195,10 +168,10 @@ export default function FolderDetailScreen() {
           contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 180 }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ paddingHorizontal: 24, paddingBottom: 12 }}>
+          <View className="px-6 pb-3">
             <SectionTitle underlineWidth={48}>notes</SectionTitle>
           </View>
-          <View style={{ paddingHorizontal: 18, gap: 12 }}>
+          <View className="px-[18px] gap-3">
             {notes.map((note, ix) => (
               <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
                 <NoteCard note={note} folder={folder} index={ix + 1} />
@@ -212,10 +185,10 @@ export default function FolderDetailScreen() {
           contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 180 }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ paddingHorizontal: 24, paddingBottom: 12 }}>
+          <View className="px-6 pb-3">
             <SectionTitle underlineWidth={42}>tasks</SectionTitle>
           </View>
-          <View style={{ paddingHorizontal: 18, gap: 12 }}>
+          <View className="px-[18px] gap-3">
             {tasks.map((task, i) => (
               <TaskCard
                 key={task.id}
@@ -261,7 +234,7 @@ export default function FolderDetailScreen() {
         />
 
         {showColorPicker && (
-          <View style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}>
+          <View className="px-3 py-2.5 border-b border-theme-line">
             <ColorSwatchPicker selectedColor={folder.color} onSelect={handleColorSelect} />
           </View>
         )}

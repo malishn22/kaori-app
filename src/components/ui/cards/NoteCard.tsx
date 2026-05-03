@@ -18,24 +18,18 @@ export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
   const isArchived = !!note.archived;
   return (
     <View
+      className="bg-theme-paper rounded-card p-4 pb-3.5 border border-theme-line overflow-hidden"
       style={{
-        backgroundColor: colors.paper,
-        borderRadius: CARD_BORDER_RADIUS,
-        padding: 16,
-        paddingBottom: 14,
-        borderWidth: 1,
-        borderColor: colors.line,
         transform: [{ rotate: `${tilt}deg` }],
         ...SHADOW_CARD,
-        overflow: 'hidden',
         opacity: isArchived ? ARCHIVED_OPACITY : 1,
       }}
     >
       <GrainOverlay />
 
       {/* Content row — text + pin */}
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <View style={{ flex: 1 }}>
+      <View className="flex-row gap-2">
+        <View className="flex-1">
           <LinkedText text={note.text} links={note.links} />
         </View>
         {note.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
@@ -43,7 +37,7 @@ export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
 
       {/* Bottom row — folder + restore */}
       {(folder || onRestore) && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 }}>
+        <View className="flex-row items-center gap-1.5 mt-2.5">
           {folder && (
             <>
               <ColorDot color={folder.color} size={7} />
@@ -53,7 +47,7 @@ export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
             </>
           )}
           {onRestore && (
-            <View style={{ marginLeft: 'auto' }}>
+            <View className="ml-auto">
               <RestoreChip onRestore={onRestore} />
             </View>
           )}

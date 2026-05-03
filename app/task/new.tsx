@@ -38,7 +38,7 @@ export default function NewTaskScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
 
       <ScrollView
@@ -46,7 +46,7 @@ export default function NewTaskScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ paddingHorizontal: 24, paddingTop: 12 }}>
+        <View className="px-6 pt-3">
           {/* Title */}
             <TextInput
               style={{
@@ -86,12 +86,12 @@ export default function NewTaskScreen() {
             />
 
             {/* Due date */}
-            <View style={{ marginTop: 24 }}>
+            <View className="mt-6">
               <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
                 due date
               </ThemeText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{ flexDirection: 'row', gap: 6 }}>
+                <View className="flex-row gap-1.5">
                   <Chip active={dueDate === null} onPress={() => { setDueDate(null); setShowDatePicker(false); }}>
                     <ThemeText variant="chip" size={13} color={dueDate === null ? 'ink' : 'ink2'}>none</ThemeText>
                   </Chip>
@@ -118,18 +118,12 @@ export default function NewTaskScreen() {
           </View>
 
           {/* Save button */}
-          <View style={{ paddingHorizontal: 16, paddingTop: 32 }}>
+          <View className="px-4 pt-8">
             <TouchableOpacity
               onPress={handleSave}
               disabled={!title.trim()}
-              style={{
-                height: 52,
-                borderRadius: 16,
-                backgroundColor: colors.amber,
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: title.trim() ? 1 : 0.4,
-              }}
+              className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+              style={{ opacity: title.trim() ? 1 : 0.4 }}
               activeOpacity={0.85}
             >
               <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save task</ThemeText>

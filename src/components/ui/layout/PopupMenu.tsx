@@ -28,24 +28,19 @@ export function PopupMenu({ visible, onClose, anim, opacity, anchor, top, bottom
   return (
     <>
       <TouchableOpacity
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        className="absolute inset-0"
         activeOpacity={1}
         onPress={onClose}
       />
 
       <Animated.View
         onLayout={e => setHeight(e.nativeEvent.layout.height)}
+        className="absolute overflow-hidden rounded-2xl border border-theme-line2 bg-theme-paper"
         style={{
-          position: 'absolute',
           ...(top != null ? { top } : {}),
           ...(bottom != null ? { bottom } : {}),
           right,
           width: POPUP_WIDTH,
-          backgroundColor: colors.paper,
-          borderRadius: 16,
-          borderWidth: 1,
-          borderColor: colors.line2,
-          overflow: 'hidden',
           ...SHADOW_POPUP,
           opacity,
           transform: [

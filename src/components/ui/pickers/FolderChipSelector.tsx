@@ -13,14 +13,14 @@ type Props = {
 
 export function FolderChipSelector({ folders, selected, onSelect, label }: Props) {
   return (
-    <View style={label ? { marginTop: 24 } : undefined}>
+    <View className={label ? 'mt-6' : ''}>
       {label && (
         <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
           {label}
         </ThemeText>
       )}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={{ flexDirection: 'row', gap: 6 }}>
+        <View className="flex-row gap-1.5">
           <Chip active={selected === null} onPress={() => onSelect(null)}>
             <ThemeText variant="chip" size={13} color={selected === null ? 'ink' : 'ink2'}>none</ThemeText>
           </Chip>

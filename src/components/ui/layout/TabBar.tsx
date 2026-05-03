@@ -26,18 +26,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View
+      className="absolute left-0 right-0 border-t border-theme-line bg-theme-bg flex-row items-center justify-around"
       style={{
-        position: 'absolute',
-        left: 0,
-        right: 0,
         bottom: TAB_BAR_BOTTOM_INSET,
         height: tabBarHeight,
-        borderTopWidth: 1,
-        borderTopColor: colors.line,
-        backgroundColor: colors.bg,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
         paddingBottom: tabBarPaddingBottom,
       }}
     >
@@ -47,7 +39,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           <TouchableOpacity
             key={tab.key}
             onPress={() => navigation.navigate(tab.key)}
-            style={{ flex: 1, alignItems: 'center', gap: 4 }}
+            className="flex-1 items-center gap-1"
             activeOpacity={0.7}
           >
             <tab.Icon size={20} color={isActive ? colors.amber : colors.ink4} strokeWidth={1.5} />

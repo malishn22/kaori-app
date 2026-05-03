@@ -2,14 +2,12 @@ import React, { useMemo } from 'react';
 import { View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { TaskCard, FAB, PageHeader, SectionTitle, EmptyState } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function TasksScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
   const { tasks: allTasks, folders, toggleTask } = useStore();
   const insets = useSafeAreaInsets();
   const activeTasks = useMemo(() => allTasks.filter(t => !t.archived && !t.done), [allTasks]);
@@ -23,7 +21,7 @@ export default function TasksScreen() {
   const subtitle = `${activeTasks.length} open.`;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader
         settingsButton
         caption="all tasks"
@@ -38,11 +36,11 @@ export default function TasksScreen() {
       >
         {/* Pinned */}
         {pinnedTasks.length > 0 && (
-          <View style={{ paddingTop: 28 }}>
-            <View style={{ paddingHorizontal: 24, paddingBottom: 12 }}>
+          <View className="pt-7">
+            <View className="px-6 pb-3">
               <SectionTitle underlineWidth={52}>pinned</SectionTitle>
             </View>
-            <View style={{ paddingHorizontal: 18, gap: 12 }}>
+            <View className="px-[18px] gap-3">
               {pinnedTasks.map((task, i) => {
                 const folder = folders.find(f => f.id === task.folder);
                 return (
@@ -62,11 +60,11 @@ export default function TasksScreen() {
 
         {/* Tasks */}
         {unpinnedTasks.length > 0 && (
-          <View style={{ paddingTop: 28 }}>
-            <View style={{ paddingHorizontal: 24, paddingBottom: 12 }}>
+          <View className="pt-7">
+            <View className="px-6 pb-3">
               <SectionTitle underlineWidth={48}>tasks</SectionTitle>
             </View>
-            <View style={{ paddingHorizontal: 18, gap: 12 }}>
+            <View className="px-[18px] gap-3">
               {unpinnedTasks.map((task, i) => {
                 const folder = folders.find(f => f.id === task.folder);
                 return (

@@ -35,7 +35,7 @@ export default function ProfileScreen() {
   })();
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
@@ -51,23 +51,14 @@ export default function ProfileScreen() {
         />
 
         {/* Stats row */}
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 28 }}>
+        <View className="flex-row gap-2.5 mb-7">
           {[
             { val: allNotes.length, label: 'notes' },
             { val: allTasks.length, label: 'tasks' },
             { val: folders.length, label: 'folders' },
             { val: daysActive, label: 'days' },
           ].map(({ val, label }) => (
-            <View key={label} style={{
-              flex: 1,
-              backgroundColor: colors.paper,
-              borderRadius: 14,
-              borderWidth: 1,
-              borderColor: colors.line,
-              paddingVertical: 16,
-              alignItems: 'center',
-              gap: 4,
-            }}>
+            <View key={label} className="flex-1 bg-theme-paper rounded-[14px] border border-theme-line py-4 items-center gap-1">
               <HeaderText size={28} lineHeight={32}>{val}</HeaderText>
               <ThemeText variant="meta" color="ink3">{label}</ThemeText>
             </View>
@@ -76,15 +67,7 @@ export default function ProfileScreen() {
 
         {/* Archived section */}
         <SectionTitle underlineWidth={52}>archived</SectionTitle>
-        <View style={{
-          marginTop: 12,
-          marginBottom: 28,
-          backgroundColor: colors.paper,
-          borderRadius: 14,
-          borderWidth: 1,
-          borderColor: colors.line,
-          overflow: 'hidden',
-        }}>
+        <View className="mt-3 mb-7 bg-theme-paper rounded-[14px] border border-theme-line overflow-hidden">
           <GrainOverlay />
           <MenuRow
             icon={<FolderIcon size={18} color={colors.ink3} strokeWidth={1.4} />}
@@ -98,15 +81,7 @@ export default function ProfileScreen() {
 
         {/* Sync section */}
         <SectionTitle underlineWidth={42}>sync</SectionTitle>
-        <View style={{
-          marginTop: 12,
-          backgroundColor: colors.paper,
-          borderRadius: 14,
-          borderWidth: 1,
-          borderColor: colors.line,
-          paddingHorizontal: 16,
-          overflow: 'hidden',
-        }}>
+        <View className="mt-3 bg-theme-paper rounded-[14px] border border-theme-line px-4 overflow-hidden">
           <GrainOverlay />
 
           <MenuRow
@@ -130,7 +105,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Tagline */}
-        <View style={{ alignItems: 'center', paddingTop: 36 }}>
+        <View className="items-center pt-9">
           <ThemeText variant="meta" color="ink4" style={{ fontStyle: 'normal', fontFamily: FONT.kalam, fontSize: 16 }}>
             rest well, {profile.initial}.
           </ThemeText>

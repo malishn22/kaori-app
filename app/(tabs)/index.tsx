@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
 import { NoteCard, FAB, ThemeText, SectionTitle, PageHeader, GreetingTitle, EmptyState } from '@/components/ui';
@@ -10,7 +9,6 @@ import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
   const { notes: allNotes, folders, profile } = useStore();
   const insets = useSafeAreaInsets();
   const notes = useMemo(() => allNotes.filter(n => !n.archived), [allNotes]);
@@ -31,7 +29,7 @@ export default function HomeScreen() {
   const subtitle = subtitleParts.length > 0 ? subtitleParts.join(', ') + '.' : 'nothing yet today.';
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader
         settingsButton
         caption={dayName}
@@ -45,12 +43,12 @@ export default function HomeScreen() {
       >
         {/* Pinned Notes */}
         {pinnedNotes.length > 0 && (
-          <View style={{ paddingTop: 28 }}>
-            <View style={{ paddingHorizontal: 24, paddingBottom: 12 }}>
+          <View className="pt-7">
+            <View className="px-6 pb-3">
               <SectionTitle underlineWidth={52}>pinned</SectionTitle>
             </View>
 
-            <View style={{ paddingHorizontal: 18, gap: 12 }}>
+            <View className="px-[18px] gap-3">
               {pinnedNotes.map((note, i) => {
                 const folder = folders.find(f => f.id === note.folder);
                 return (
@@ -64,8 +62,8 @@ export default function HomeScreen() {
         )}
 
         {/* Notes */}
-        <View style={{ paddingTop: 28 }}>
-          <View style={{ paddingHorizontal: 24, paddingBottom: 12, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <View className="pt-7">
+          <View className="px-6 pb-3 flex-row items-end justify-between">
             <View>
               <SectionTitle underlineWidth={72}>notes</SectionTitle>
             </View>
@@ -74,7 +72,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={{ paddingHorizontal: 18, gap: 12 }}>
+          <View className="px-[18px] gap-3">
             {notes.slice(0, 4).map((note, i) => {
               const folder = folders.find(f => f.id === note.folder);
               return (

@@ -1,14 +1,12 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback } from '@/hooks';
 import { ThemeText, NoteCard, TaskCard, FolderCard, SectionTitle, PageHeader, PagedSections } from '@/components/ui';
 
 export default function ArchivedScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
   const { notes, folders, tasks, archiveNote, archiveFolder, archiveTask, toggleTask } = useStore();
   const { impact } = useHapticFeedback();
 
@@ -32,7 +30,7 @@ export default function ArchivedScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View className="flex-1 bg-theme-bg">
       <Stack.Screen options={{ headerShown: false, animation: 'slide_from_right' }} />
       <PageHeader onBack={() => router.back()} caption="hidden items" title="archived" underlineWidth={62} />
 
@@ -43,18 +41,18 @@ export default function ArchivedScreen() {
           showsVerticalScrollIndicator={false}
         >
           {archivedNotes.length === 0 && (
-            <View style={{ alignItems: 'center', paddingTop: 60 }}>
+            <View className="items-center pt-[60px]">
               <ThemeText variant="meta" color="ink4">no archived notes</ThemeText>
             </View>
           )}
 
           {archivedNotes.length > 0 && (
             <View>
-              <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
+              <View className="px-1.5 mb-3">
                 <SectionTitle underlineWidth={38}>notes</SectionTitle>
               </View>
 
-              <View style={{ gap: 12 }}>
+              <View className="gap-3">
                 {archivedNotes.map((note, i) => {
                   const folder = note.folder ? folders.find(f => f.id === note.folder) : undefined;
                   return (
@@ -74,18 +72,18 @@ export default function ArchivedScreen() {
           showsVerticalScrollIndicator={false}
         >
           {archivedTasks.length === 0 && (
-            <View style={{ alignItems: 'center', paddingTop: 60 }}>
+            <View className="items-center pt-[60px]">
               <ThemeText variant="meta" color="ink4">no archived tasks</ThemeText>
             </View>
           )}
 
           {archivedTasks.length > 0 && (
             <View>
-              <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
+              <View className="px-1.5 mb-3">
                 <SectionTitle underlineWidth={38}>tasks</SectionTitle>
               </View>
 
-              <View style={{ gap: 12 }}>
+              <View className="gap-3">
                 {archivedTasks.map((task, i) => {
                   const folder = task.folder ? folders.find(f => f.id === task.folder) : undefined;
                   return (
@@ -111,18 +109,18 @@ export default function ArchivedScreen() {
           showsVerticalScrollIndicator={false}
         >
           {archivedFolders.length === 0 && (
-            <View style={{ alignItems: 'center', paddingTop: 60 }}>
+            <View className="items-center pt-[60px]">
               <ThemeText variant="meta" color="ink4">no archived folders</ThemeText>
             </View>
           )}
 
           {archivedFolders.length > 0 && (
             <View>
-              <View style={{ paddingHorizontal: 6, marginBottom: 12 }}>
+              <View className="px-1.5 mb-3">
                 <SectionTitle underlineWidth={52}>folders</SectionTitle>
               </View>
 
-              <View style={{ gap: 12 }}>
+              <View className="gap-3">
                 {archivedFolders.map((f, i) => {
                   const noteCount = notes.filter(n => n.folder === f.id).length;
                   const taskCount = tasks.filter(t => t.folder === f.id && !t.done).length;

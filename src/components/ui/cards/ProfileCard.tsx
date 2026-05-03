@@ -21,24 +21,17 @@ export function ProfileCard({ initial, name, editing, draft, onChangeDraft, onSt
   const { colors } = useTheme();
 
   return (
-    <View style={{
-      backgroundColor: colors.paper,
-      borderRadius: 20,
-      padding: 24,
-      borderWidth: 1,
-      borderColor: colors.line,
-      transform: [{ rotate: '-0.4deg' }],
-      alignItems: 'center',
-      overflow: 'hidden',
-      marginBottom: 16,
-    }}>
+    <View
+      className="bg-theme-paper rounded-[20px] p-6 border border-theme-line items-center overflow-hidden mb-4"
+      style={{ transform: [{ rotate: '-0.4deg' }] }}
+    >
       <GrainOverlay />
 
       <LinearGradient
         colors={[colors.amber, colors.ink3]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{ width: 80, height: 80, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}
+        className="size-20 rounded-[20px] items-center justify-center mb-4"
       >
         <ThemeText variant="heading" size={36} color="bg">{initial}</ThemeText>
       </LinearGradient>
