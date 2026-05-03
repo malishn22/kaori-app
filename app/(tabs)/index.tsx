@@ -98,7 +98,7 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <PageHeader settingsButton />
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, marginTop: -80 }}>
+      <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 32, paddingTop: 80 }}>
         {/* Blank tilted paper */}
         <View style={{
           width: 220, height: 280,
@@ -128,12 +128,8 @@ function EmptyState({ onFAB }: { onFAB: () => void }) {
           }}>—</ThemeText>
         </View>
 
-        <HeaderText size={32} lineHeight={38} style={{ textAlign: 'center' }}>
-          your notebook{'\n'}is <HeaderText size={32} lineHeight={38} color="amber">empty</HeaderText>.
-        </HeaderText>
-        <ThemeText variant="meta" size={13.5} color="ink2" style={{ lineHeight: 21, textAlign: 'center', marginTop: 14, maxWidth: 290 }}>
-          tap the button below to write your first note.
-        </ThemeText>
+        <HeaderText size={32} lineHeight={38} style={{ textAlign: 'center' }}>notebook</HeaderText>
+        <HeaderText size={32} lineHeight={38} color="amber" style={{ textAlign: 'center' }}>empty</HeaderText>
       </View>
       <FAB onPress={onFAB} wide label="first note"  />
     </View>
