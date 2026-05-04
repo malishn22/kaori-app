@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, KeyboardAvoidingView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
@@ -138,6 +138,7 @@ export default function TaskDetailScreen() {
           moreButton={{ onPress: openMenu }}
         />
 
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView
           contentContainerStyle={{ paddingBottom: 60 }}
           showsVerticalScrollIndicator={false}
@@ -251,6 +252,7 @@ export default function TaskDetailScreen() {
             </View>
           )}
         </ScrollView>
+        </KeyboardAvoidingView>
 
         {/* Popup menu */}
         <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>

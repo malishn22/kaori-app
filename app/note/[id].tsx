@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking, KeyboardAvoidingView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
@@ -112,7 +112,8 @@ export default function NoteDetailScreen() {
         moreButton={{ onPress: openMenu }}
       />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View className="px-6 pt-6">
           {/* Folder pill */}
           {folder && (
@@ -197,6 +198,7 @@ export default function NoteDetailScreen() {
           </View>
         ) : null}
       </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Popup menu */}
       <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>

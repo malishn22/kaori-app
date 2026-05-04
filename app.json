@@ -25,6 +25,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
+      "softInputMode": "adjustResize",
       "package": "com.kaori.app"
     },
     "web": {
