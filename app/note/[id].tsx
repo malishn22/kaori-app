@@ -129,9 +129,9 @@ export default function NoteDetailScreen() {
             <TextInput
               style={{
                 fontFamily: FONT.kalam,
-                fontSize: 26,
+                fontSize: 20,
                 color: colors.ink,
-                lineHeight: 36,
+                lineHeight: 28,
                 letterSpacing: 0.1,
                 textAlignVertical: 'top',
               }}
@@ -147,8 +147,8 @@ export default function NoteDetailScreen() {
               text={note.text}
               links={note.links}
               variant="heading"
-              size={26}
-              lineHeight={36}
+              size={20}
+              lineHeight={28}
               letterSpacing={0.1}
               onLinkPress={handleLinkPress}
             />

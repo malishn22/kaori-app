@@ -166,9 +166,9 @@ export default function TaskDetailScreen() {
               <TextInput
                 style={{
                   fontFamily: FONT.kalam,
-                  fontSize: 26,
+                  fontSize: 20,
                   color: colors.ink,
-                  lineHeight: 36,
+                  lineHeight: 28,
                   letterSpacing: 0.1,
                 }}
                 value={draftTitle}
@@ -180,8 +180,8 @@ export default function TaskDetailScreen() {
               />
             ) : (
               <HeaderText
-                size={26}
-                lineHeight={36}
+                size={20}
+                lineHeight={28}
                 style={{
                   textDecorationLine: task.done ? 'line-through' : 'none',
                   opacity: task.done ? 0.5 : 1,
