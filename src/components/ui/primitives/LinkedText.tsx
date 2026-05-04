@@ -10,6 +10,7 @@ type Props = {
   size?: number;
   lineHeight?: number;
   letterSpacing?: number;
+  numberOfLines?: number;
   onLinkPress?: (url: string, currentLabel: string) => void;
 };
 
@@ -45,7 +46,7 @@ const VARIANT_STYLES: Record<string, { fontFamily: string; fontSize: number; col
   heading: { fontFamily: FONT.kalam, fontSize: 22, color: 'ink' },
 };
 
-export function LinkedText({ text, links = {}, variant = 'body', size, lineHeight, letterSpacing, onLinkPress }: Props) {
+export function LinkedText({ text, links = {}, variant = 'body', size, lineHeight, letterSpacing, numberOfLines, onLinkPress }: Props) {
   const { colors } = useTheme();
   const segments = useMemo(() => splitTextByUrls(text), [text]);
 
@@ -66,7 +67,7 @@ export function LinkedText({ text, links = {}, variant = 'body', size, lineHeigh
   };
 
   return (
-    <Text style={baseStyle}>
+    <Text style={baseStyle} numberOfLines={numberOfLines}>
       {segments.map((seg, i) => {
         if (seg.type === 'text') return seg.value;
 

@@ -30,7 +30,7 @@ export function NoteCard({ note, folder, index = 0, onRestore }: Props) {
       {/* Content row — text + pin */}
       <View className="flex-row gap-2">
         <View className="flex-1">
-          <LinkedText text={note.text} links={note.links} />
+          <LinkedText text={note.text} links={note.links} numberOfLines={3} />
         </View>
         {note.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
       </View>

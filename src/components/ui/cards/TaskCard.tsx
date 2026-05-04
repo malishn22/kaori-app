@@ -51,7 +51,7 @@ export function TaskCard({ task, folder, index = 0, onToggle, onPress, onRestore
           <ThemeText
             variant="title"
             size={15}
-            numberOfLines={1}
+            numberOfLines={3}
             style={{
               flex: 1,
               flexShrink: 1,
