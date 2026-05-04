@@ -3,6 +3,8 @@ import type { Note, Folder, Profile, Task } from '@/types';
 import { SEED_NOTES, SEED_FOLDERS, SEED_TASKS } from '@/types';
 import { loadInitialData, DEFAULT_PROFILE, KEYS } from '@/utils/migration';
 import { safeSet } from '@/utils/storage';
+import { computeDisplayStrings } from '@/utils/time';
+import { resolveNoteLinks, extractUrls } from '@/utils/links';
 import { createNoteActions, createTaskActions, createFolderActions } from './actions';
 
 type StoreContextValue = {
@@ -28,6 +30,8 @@ type StoreContextValue = {
   deleteTask: (id: string) => void;
   archiveTask: (id: string, archived: boolean) => void;
   pinTask: (id: string, pinned: boolean) => void;
+  convertTaskToNote: (taskId: string) => string;
+  convertNoteToTask: (noteId: string) => string;
 };
 
 const StoreContext = createContext<StoreContextValue>({
@@ -53,6 +57,8 @@ const StoreContext = createContext<StoreContextValue>({
   deleteTask: () => {},
   archiveTask: () => {},
   pinTask: () => {},
+  convertTaskToNote: () => '',
+  convertNoteToTask: () => '',
 });
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -74,6 +80,88 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const taskActions = createTaskActions(setTasks, setFolders);
   const folderActions = createFolderActions(setFolders, setNotes, setTasks);
 
+  function convertTaskToNote(taskId: string): string {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return '';
+
+    const createdAt = new Date().toISOString();
+    const { time, date } = computeDisplayStrings(createdAt);
+    const noteId = Date.now().toString();
+    const newNote: Note = {
+      id: noteId,
+      folder: task.folder,
+      text: task.title,
+      time,
+      date,
+      createdAt,
+      tags: [],
+      pinned: task.pinned,
+      links: {},
+    };
+
+    setNotes(prev => {
+      const next = [newNote, ...prev];
+      safeSet(KEYS.notes, JSON.stringify(next));
+      return next;
+    });
+
+    setTasks(prev => {
+      const next = prev.filter(t => t.id !== taskId);
+      safeSet(KEYS.tasks, JSON.stringify(next));
+      return next;
+    });
+
+    if (extractUrls(task.title).length > 0) {
+      resolveNoteLinks(task.title).then((links) => {
+        setNotes(prev => {
+          const next = prev.map(n => n.id === noteId ? { ...n, links } : n);
+          safeSet(KEYS.notes, JSON.stringify(next));
+          return next;
+        });
+      });
+    }
+
+    return noteId;
+  }
+
+  function convertNoteToTask(noteId: string): string {
+    const note = notes.find(n => n.id === noteId);
+    if (!note) return '';
+
+    const createdAt = new Date().toISOString();
+    const taskId = Date.now().toString();
+    const newTask: Task = {
+      id: taskId,
+      folder: note.folder,
+      title: note.text,
+      dueDate: null,
+      done: false,
+      createdAt,
+      pinned: note.pinned,
+    };
+
+    setTasks(prev => {
+      const next = [newTask, ...prev];
+      safeSet(KEYS.tasks, JSON.stringify(next));
+      return next;
+    });
+
+    setNotes(prev => {
+      if (note.folder) {
+        setFolders(prevFolders => {
+          const next = prevFolders.map(f => f.id !== note.folder ? f : { ...f, count: Math.max(0, f.count - 1) });
+          safeSet(KEYS.folders, JSON.stringify(next));
+          return next;
+        });
+      }
+      const next = prev.filter(n => n.id !== noteId);
+      safeSet(KEYS.notes, JSON.stringify(next));
+      return next;
+    });
+
+    return taskId;
+  }
+
   async function updateProfile(patch: Partial<Profile>) {
     const nextProfile = { ...profile, ...patch };
     setProfile(nextProfile);
@@ -87,6 +175,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       ...taskActions,
       ...folderActions,
       updateProfile,
+      convertTaskToNote,
+      convertNoteToTask,
     }}>
       {children}
     </StoreContext.Provider>

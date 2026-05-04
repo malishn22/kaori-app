@@ -15,7 +15,7 @@ export default function TaskDetailScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { tasks, updateTask, deleteTask, toggleTask } = useStore();
+  const { tasks, updateTask, deleteTask, toggleTask, convertTaskToNote } = useStore();
   const folders = useActiveFolders();
   const task = tasks.find(t => t.id === id);
   const folder = task?.folder ? folders.find(f => f.id === task.folder) : undefined;
@@ -285,6 +285,15 @@ export default function TaskDetailScreen() {
           />
 
           <MenuRow label="share" onPress={handleShare} />
+
+          <MenuRow
+            label="convert to note"
+            onPress={() => {
+              const noteId = convertTaskToNote(task.id);
+              setMenuOpen(false);
+              if (noteId) router.replace(`/note/${noteId}`);
+            }}
+          />
 
           <MenuRow
             label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}

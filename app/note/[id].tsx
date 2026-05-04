@@ -15,7 +15,7 @@ export default function NoteDetailScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { notes, updateNote, deleteNote, archiveNote } = useStore();
+  const { notes, updateNote, deleteNote, archiveNote, convertNoteToTask } = useStore();
   const folders = useActiveFolders();
   const note = notes.find(n => n.id === id);
   const folder = note?.folder ? folders.find(f => f.id === note.folder) : undefined;
@@ -225,6 +225,15 @@ export default function NoteDetailScreen() {
         />
 
         <MenuRow label="share" onPress={handleShare} />
+
+        <MenuRow
+          label="convert to task"
+          onPress={() => {
+            const taskId = convertNoteToTask(note.id);
+            setMenuOpen(false);
+            if (taskId) router.replace(`/task/${taskId}`);
+          }}
+        />
 
         <MenuRow
           label="archive"
