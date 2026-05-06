@@ -45,9 +45,7 @@ export default function HomeScreen() {
                 const folder = folders.find(f => f.id === note.folder);
                 return (
                   <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                    <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                      <NoteCard note={note} folder={folder} index={i} />
-                    </TouchableOpacity>
+                    <NoteCard note={note} folder={folder} index={i} onPress={() => router.push(`/note/${note.id}`)} />
                   </SwipeablePinWrapper>
                 );
               })}
@@ -71,9 +69,7 @@ export default function HomeScreen() {
               const folder = folders.find(f => f.id === note.folder);
               return (
                 <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                  <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                    <NoteCard note={note} folder={folder} index={i} />
-                  </TouchableOpacity>
+                  <NoteCard note={note} folder={folder} index={i} onPress={() => router.push(`/note/${note.id}`)} />
                 </SwipeablePinWrapper>
               );
             })}
