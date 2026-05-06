@@ -12,6 +12,8 @@ import {
   BellIcon, ChevronIcon,
 } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
+import { REMINDER_OPTIONS } from '@/constants/options';
+import { rescheduleAllReminders, cancelAllReminders } from '@/utils/notifications';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -94,6 +96,40 @@ export default function SettingsScreen() {
               label="haptic on save"
               right={<CustomSwitch value={settings.hapticOnSave} onValueChange={(v) => setSetting('hapticOnSave', v)} />}
             />
+          </View>
+        </View>
+
+        {/* NOTIFICATIONS section */}
+        <View className="px-6 pt-6">
+          <SectionTitle underlineWidth={42}>notifications</SectionTitle>
+          <View className="mt-3">
+
+            <SettingRow
+              icon={<BellIcon size={17} color={colors.ink3} strokeWidth={1.4} />}
+              label="task reminders"
+              right={<CustomSwitch value={settings.notificationsEnabled} onValueChange={(v) => {
+                setSetting('notificationsEnabled', v);
+                if (!v) {
+                  cancelAllReminders();
+                } else {
+                  rescheduleAllReminders(tasks, settings.reminderTiming);
+                }
+              }} />}
+              borderBottom
+            />
+
+            <SettingRow
+              icon={<SparkleIcon size={17} color={colors.ink3} />}
+              label="remind me"
+              right={<>
+                <ThemeText variant="meta" size={13}>
+                  {REMINDER_OPTIONS.find(o => o.value === settings.reminderTiming)?.label}
+                </ThemeText>
+                <ChevronIcon size={12} color={colors.ink4} />
+              </>}
+              onPress={() => setOpenSheet('reminder')}
+            />
+
           </View>
         </View>
 

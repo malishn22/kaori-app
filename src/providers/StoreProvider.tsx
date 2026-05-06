@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import type { Note, Folder, Profile, Task } from '@/types';
 import { SEED_NOTES, SEED_FOLDERS, SEED_TASKS } from '@/types';
 import { loadInitialData, DEFAULT_PROFILE, KEYS } from '@/utils/migration';
@@ -6,6 +6,15 @@ import { safeSet } from '@/utils/storage';
 import { computeDisplayStrings } from '@/utils/time';
 import { resolveNoteLinks, extractUrls } from '@/utils/links';
 import { createNoteActions, createTaskActions, createFolderActions } from './actions';
+import { useSettings } from './SettingsProvider';
+import {
+  configureNotifications,
+  requestPermissions,
+  scheduleTaskReminder,
+  cancelTaskReminder,
+  cancelAllReminders,
+  rescheduleAllReminders,
+} from '@/utils/notifications';
 
 type StoreContextValue = {
   notes: Note[];
@@ -66,6 +75,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [folders, setFolders] = useState<Folder[]>(SEED_FOLDERS);
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [tasks, setTasks] = useState<Task[]>(SEED_TASKS);
+  const { settings } = useSettings();
+  const tasksRef = useRef<Task[]>(tasks);
+  tasksRef.current = tasks;
+
+  useEffect(() => {
+    configureNotifications();
+  }, []);
 
   useEffect(() => {
     loadInitialData().then((data) => {
@@ -73,12 +89,75 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setFolders(data.folders);
       setProfile(data.profile);
       setTasks(data.tasks);
+
+      if (settings.notificationsEnabled) {
+        requestPermissions().then((granted) => {
+          if (granted) {
+            rescheduleAllReminders(data.tasks, settings.reminderTiming);
+          }
+        });
+      }
     });
   }, []);
 
   const noteActions = createNoteActions(setNotes, setFolders);
-  const taskActions = createTaskActions(setTasks, setFolders);
+  const rawTaskActions = createTaskActions(setTasks, setFolders);
   const folderActions = createFolderActions(setFolders, setNotes, setTasks);
+
+  // Notification-aware task action wrappers
+  const taskActions = {
+    addTask(title: string, dueDate: string | null, folderId: string | null) {
+      rawTaskActions.addTask(title, dueDate, folderId);
+      if (settings.notificationsEnabled && dueDate) {
+        const task: Task = {
+          id: Date.now().toString(),
+          folder: folderId,
+          title,
+          dueDate,
+          done: false,
+          createdAt: new Date().toISOString(),
+          pinned: false,
+        };
+        requestPermissions().then((granted) => {
+          if (granted) scheduleTaskReminder(task, settings.reminderTiming);
+        });
+      }
+    },
+    updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) {
+      rawTaskActions.updateTask(id, patch);
+      if (settings.notificationsEnabled && 'dueDate' in patch) {
+        const task = tasksRef.current.find(t => t.id === id);
+        if (task) {
+          const updated = { ...task, ...patch };
+          if (updated.dueDate) {
+            scheduleTaskReminder(updated, settings.reminderTiming);
+          } else {
+            cancelTaskReminder(id);
+          }
+        }
+      }
+    },
+    toggleTask(id: string) {
+      rawTaskActions.toggleTask(id);
+      cancelTaskReminder(id);
+    },
+    deleteTask(id: string) {
+      rawTaskActions.deleteTask(id);
+      cancelTaskReminder(id);
+    },
+    archiveTask(id: string, archived: boolean) {
+      rawTaskActions.archiveTask(id, archived);
+      if (archived) {
+        cancelTaskReminder(id);
+      } else if (settings.notificationsEnabled) {
+        const task = tasksRef.current.find(t => t.id === id);
+        if (task?.dueDate) {
+          scheduleTaskReminder({ ...task, archived: false }, settings.reminderTiming);
+        }
+      }
+    },
+    pinTask: rawTaskActions.pinTask,
+  };
 
   function convertTaskToNote(taskId: string): string {
     const task = tasks.find(t => t.id === taskId);
@@ -110,6 +189,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
+
+    cancelTaskReminder(taskId);
 
     if (extractUrls(task.title).length > 0) {
       resolveNoteLinks(task.title).then((links) => {

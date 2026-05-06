@@ -1,19 +1,21 @@
 import '../global.css';
 import { Kalam_700Bold, useFonts as useKalamFonts } from '@expo-google-fonts/kalam';
 import * as SplashScreen from 'expo-splash-screen';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, type ReactNode } from 'react';
 import { useFonts } from 'expo-font';
 import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as Notifications from 'expo-notifications';
 import { useTheme, getColors, themeVars } from '@/theme';
 import { SettingsProvider, useSettings } from '@/providers/SettingsProvider';
 import { StoreProvider, useStore } from '@/providers/StoreProvider';
 import { SettingSheetProvider, useSettingSheet } from '@/providers/SettingSheetProvider';
 import { SettingSheet } from '@/components/ui';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TONE_OPTIONS, ACCENT_OPTIONS } from '@/constants/options';
+import { TONE_OPTIONS, ACCENT_OPTIONS, REMINDER_OPTIONS } from '@/constants/options';
+import { rescheduleAllReminders, cancelAllReminders } from '@/utils/notifications';
 
 function AndroidNavBarFill() {
   const insets = useSafeAreaInsets();
@@ -37,7 +39,7 @@ function ThemeVarsRoot({ children }: { children: ReactNode }) {
 
 function RootSettingSheets() {
   const { settings, setSetting } = useTheme();
-  const { folders, profile, updateProfile } = useStore();
+  const { folders, tasks, profile, updateProfile } = useStore();
   const { openSheet, setOpenSheet } = useSettingSheet();
   const folderOptions = folders.map(f => ({ value: f.id, label: f.name }));
 
@@ -67,8 +69,38 @@ function RootSettingSheets() {
         onSelect={(v) => { updateProfile({ defaultFolder: v }); setOpenSheet(null); }}
         onClose={() => setOpenSheet(null)}
       />
+      <SettingSheet
+        visible={openSheet === 'reminder'}
+        title="reminder timing"
+        options={REMINDER_OPTIONS}
+        value={settings.reminderTiming}
+        onSelect={(v) => {
+          setSetting('reminderTiming', v);
+          if (settings.notificationsEnabled) {
+            rescheduleAllReminders(tasks, v);
+          }
+        }}
+        onClose={() => setOpenSheet(null)}
+      />
     </>
   );
+}
+
+function NotificationHandler() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const taskId = response.notification.request.content.data?.taskId;
+      if (taskId) {
+        router.push(`/task/${taskId}`);
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  return null;
 }
 
 SplashScreen.preventAutoHideAsync();
@@ -96,6 +128,7 @@ export default function RootLayout() {
           <ThemeVarsRoot>
             <StoreProvider>
               <SettingSheetProvider>
+                <NotificationHandler />
                 <StatusBar style="light" />
                 <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>
                   <Stack.Screen name="(tabs)" />

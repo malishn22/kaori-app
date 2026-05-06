@@ -8,6 +8,8 @@ const DEFAULTS: Settings = {
   tone: 'warm-ink',
   accent: 'amber',
   hapticOnSave: true,
+  notificationsEnabled: true,
+  reminderTiming: 'at_time',
 };
 
 type SettingsContextValue = {

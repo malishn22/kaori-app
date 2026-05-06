@@ -3,4 +3,4 @@ export type { ThemeColors } from './colors';
 export { FONT } from './fonts';
 export { useTheme } from './useTheme';
 export { themeVars } from './themeVars';
-export type { Tone, Accent, Settings } from './types';
+export type { Tone, Accent, Settings, ReminderTiming } from './types';
