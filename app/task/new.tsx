@@ -49,9 +49,9 @@ export default function NewTaskScreen() {
             <TextInput
               style={{
                 fontFamily: FONT.kalam,
-                fontSize: 28,
+                fontSize: 20,
                 color: colors.ink,
-                lineHeight: 38,
+                lineHeight: 28,
                 letterSpacing: 0.1,
               }}
               value={title}
