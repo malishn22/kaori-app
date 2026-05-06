@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 
-type SheetKey = 'tone' | 'accent' | 'folder' | null;
+type SheetKey = 'tone' | 'accent' | 'folder' | 'reminder' | null;
 
 type SettingSheetContextValue = {
   openSheet: SheetKey;

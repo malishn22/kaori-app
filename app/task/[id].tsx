@@ -4,11 +4,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
+import { useSettings } from '@/providers/SettingsProvider';
 import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders } from '@/hooks';
 import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, HeaderText, CalendarPicker, PopupMenu, FolderChipSelector } from '@/components/ui';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
 import { computeDisplayStrings } from '@/utils/time';
+import { cancelTaskReminder, scheduleTaskReminder } from '@/utils/notifications';
+import { REMINDER_OPTIONS } from '@/constants/options';
 
 export default function TaskDetailScreen() {
   const router = useRouter();
@@ -20,6 +23,7 @@ export default function TaskDetailScreen() {
   const task = tasks.find(t => t.id === id);
   const folder = task?.folder ? folders.find(f => f.id === task.folder) : undefined;
 
+  const { settings } = useSettings();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
 
   const [editing, setEditing] = useState(false);
@@ -233,6 +237,14 @@ export default function TaskDetailScreen() {
                 <ThemeText variant="meta">
                   {date === 'today' ? 'today' : date}, {time}
                 </ThemeText>
+                {task.dueDate && settings.notificationsEnabled && !task.done && (
+                  <>
+                    <ThemeText variant="meta" style={{ opacity: 0.4 }}>·</ThemeText>
+                    <ThemeText variant="meta" color="amber">
+                      {REMINDER_OPTIONS.find(o => o.value === settings.reminderTiming)?.label}
+                    </ThemeText>
+                  </>
+                )}
               </View>
             )}
           </View>
@@ -285,6 +297,17 @@ export default function TaskDetailScreen() {
             right={task.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
             onPress={handlePin}
           />
+
+          {task.dueDate && settings.notificationsEnabled && (
+            <MenuRow
+              label="mute reminder"
+              onPress={() => {
+                cancelTaskReminder(task.id);
+                impact();
+                closeMenu();
+              }}
+            />
+          )}
 
           <MenuRow label="share" onPress={handleShare} />
 
