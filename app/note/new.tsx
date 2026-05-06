@@ -41,9 +41,9 @@ export default function NewNoteScreen() {
           <TextInput
             style={{
               fontFamily: FONT.kalam,
-              fontSize: 26,
+              fontSize: 20,
               color: colors.ink,
-              lineHeight: 36,
+              lineHeight: 28,
               letterSpacing: 0.1,
               textAlignVertical: 'top',
               minHeight: 160,

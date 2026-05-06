@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { NoteCard, PageHeader, ThemeText, SectionTitle, SwipeablePinWrapper } from '@/components/ui';
@@ -35,9 +35,7 @@ export default function NotesScreen() {
                 const folder = note.folder ? folders.find(f => f.id === note.folder) : undefined;
                 return (
                   <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                    <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                      <NoteCard note={note} folder={folder} index={i} />
-                    </TouchableOpacity>
+                    <NoteCard note={note} folder={folder} index={i} onPress={() => router.push(`/note/${note.id}`)} />
                   </SwipeablePinWrapper>
                 );
               })}
@@ -56,9 +54,7 @@ export default function NotesScreen() {
                 const folder = note.folder ? folders.find(f => f.id === note.folder) : undefined;
                 return (
                   <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                    <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                      <NoteCard note={note} folder={folder} index={i} />
-                    </TouchableOpacity>
+                    <NoteCard note={note} folder={folder} index={i} onPress={() => router.push(`/note/${note.id}`)} />
                   </SwipeablePinWrapper>
                 );
               })}

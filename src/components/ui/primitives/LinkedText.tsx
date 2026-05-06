@@ -12,6 +12,10 @@ type Props = {
   letterSpacing?: number;
   numberOfLines?: number;
   onLinkPress?: (url: string, currentLabel: string) => void;
+  /** Merged after variant base styles (e.g. line-through, opacity for hidden rows). */
+  style?: TextStyle;
+  /** Merged after default link styles when URLs are present. */
+  linkStyle?: TextStyle;
 };
 
 type Segment = { type: 'text'; value: string } | { type: 'url'; value: string };
@@ -46,7 +50,18 @@ const VARIANT_STYLES: Record<string, { fontFamily: string; fontSize: number; col
   heading: { fontFamily: FONT.kalam, fontSize: 22, color: 'ink' },
 };
 
-export function LinkedText({ text, links = {}, variant = 'body', size, lineHeight, letterSpacing, numberOfLines, onLinkPress }: Props) {
+export function LinkedText({
+  text,
+  links = {},
+  variant = 'body',
+  size,
+  lineHeight,
+  letterSpacing,
+  numberOfLines,
+  onLinkPress,
+  style: styleOverride,
+  linkStyle: linkStyleOverride,
+}: Props) {
   const { colors } = useTheme();
   const segments = useMemo(() => splitTextByUrls(text), [text]);
 
@@ -57,6 +72,7 @@ export function LinkedText({ text, links = {}, variant = 'body', size, lineHeigh
     color: colors[v.color as keyof typeof colors] ?? colors.ink,
     ...(lineHeight ?? v.lineHeight ? { lineHeight: lineHeight ?? v.lineHeight } : {}),
     ...(letterSpacing ?? v.letterSpacing ? { letterSpacing: letterSpacing ?? v.letterSpacing } : {}),
+    ...styleOverride,
   };
 
   const linkStyle: TextStyle = {
@@ -64,6 +80,7 @@ export function LinkedText({ text, links = {}, variant = 'body', size, lineHeigh
     color: colors.amber,
     textDecorationLine: 'underline',
     textDecorationColor: colors.amber,
+    ...linkStyleOverride,
   };
 
   return (

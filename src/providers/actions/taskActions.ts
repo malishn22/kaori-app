@@ -18,6 +18,7 @@ export function createTaskActions(
       done: false,
       createdAt,
       pinned: false,
+      links: {},
     };
 
     setTasks(prev => {

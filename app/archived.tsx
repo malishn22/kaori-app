@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback } from '@/hooks';
@@ -56,9 +56,14 @@ export default function ArchivedScreen() {
                 {archivedNotes.map((note, i) => {
                   const folder = note.folder ? folders.find(f => f.id === note.folder) : undefined;
                   return (
-                    <TouchableOpacity key={note.id} onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                      <NoteCard note={note} folder={folder} index={i} onRestore={() => handleUnarchiveNote(note.id)} />
-                    </TouchableOpacity>
+                    <NoteCard
+                      key={note.id}
+                      note={note}
+                      folder={folder}
+                      index={i}
+                      onPress={() => router.push(`/note/${note.id}`)}
+                      onRestore={() => handleUnarchiveNote(note.id)}
+                    />
                   );
                 })}
               </View>

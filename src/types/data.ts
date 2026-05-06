@@ -38,6 +38,8 @@ export type Task = {
   createdAt: string;
   pinned: boolean;
   archived?: boolean;
+  /** URL label overrides; omitted in persisted data until populated. */
+  links?: Record<string, string>;
 };
 
 export type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night';

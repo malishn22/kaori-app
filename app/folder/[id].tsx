@@ -174,9 +174,7 @@ export default function FolderDetailScreen() {
           <View className="px-[18px] gap-3">
             {notes.map((note, ix) => (
               <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                <TouchableOpacity onPress={() => router.push(`/note/${note.id}`)} activeOpacity={0.85}>
-                  <NoteCard note={note} folder={folder} index={ix + 1} />
-                </TouchableOpacity>
+                <NoteCard note={note} folder={folder} index={ix + 1} onPress={() => router.push(`/note/${note.id}`)} />
               </SwipeablePinWrapper>
             ))}
           </View>
