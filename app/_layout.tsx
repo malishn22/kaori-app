@@ -86,6 +86,14 @@ function RootSettingSheets() {
   );
 }
 
+function SplashHider({ fontsLoaded }: { fontsLoaded: boolean }) {
+  const { dataLoaded } = useStore();
+  useEffect(() => {
+    if (fontsLoaded && dataLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded, dataLoaded]);
+  return null;
+}
+
 function NotificationHandler() {
   const router = useRouter();
 
@@ -115,10 +123,6 @@ export default function RootLayout() {
 
   const loaded = kalamLoaded && geistLoaded;
 
-  useEffect(() => {
-    if (loaded) SplashScreen.hideAsync();
-  }, [loaded]);
-
   if (!loaded) return null;
 
   return (
@@ -128,6 +132,7 @@ export default function RootLayout() {
           <ThemeVarsRoot>
             <StoreProvider>
               <SettingSheetProvider>
+                <SplashHider fontsLoaded={loaded} />
                 <NotificationHandler />
                 <StatusBar style="light" />
                 <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>

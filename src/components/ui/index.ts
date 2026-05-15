@@ -32,6 +32,7 @@ export { FolderAvatar } from './cards/FolderAvatar';
 export { ProfileCard } from './cards/ProfileCard';
 export { TaskCard } from './cards/TaskCard';
 export { FolderCard } from './cards/FolderCard';
+export { DraggableFolderList } from './cards/DraggableFolderList';
 export { SwipeablePinWrapper } from './cards/SwipeablePinWrapper';
 
 // pickers

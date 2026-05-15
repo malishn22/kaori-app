@@ -53,9 +53,18 @@ export async function loadInitialData(): Promise<{
 
   try {
     const notes = rawNotes ? JSON.parse(rawNotes).map((n: Note) => ({ ...n, links: n.links ?? {} })) : SEED_NOTES;
-    const folders = rawFolders ? JSON.parse(rawFolders) : SEED_FOLDERS;
+    const folders: Folder[] = rawFolders ? JSON.parse(rawFolders) : SEED_FOLDERS;
     const profile = rawProfile ? { ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) } : DEFAULT_PROFILE;
     const tasks = rawTasks ? JSON.parse(rawTasks) : SEED_TASKS;
+
+    // Migration: assign order values to folders that don't have one yet.
+    // Respects existing pinned-first order so the visual order matches what users already see.
+    if (folders.some((f: Folder) => f.order === undefined)) {
+      const sorted = [...folders].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+      sorted.forEach((f: Folder, i: number) => { f.order = i; });
+      await safeSet(KEYS.folders, JSON.stringify(folders));
+    }
+
     return { notes, folders, profile, tasks };
   } catch (e) {
     console.warn('[Kaori] Failed to parse stored data:', e);

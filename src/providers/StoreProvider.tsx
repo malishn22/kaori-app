@@ -21,6 +21,7 @@ type StoreContextValue = {
   folders: Folder[];
   profile: Profile;
   tasks: Task[];
+  dataLoaded: boolean;
   addNote: (text: string, folderId: string | null) => void;
   addFolder: (name: string, color: string, note: string) => void;
   updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>) => void;
@@ -33,6 +34,7 @@ type StoreContextValue = {
   renameFolder: (id: string, name: string) => void;
   archiveNote: (id: string, archived: boolean) => void;
   archiveFolder: (id: string, archived: boolean) => void;
+  reorderFolders: (orderedIds: string[]) => void;
   addTask: (title: string, dueDate: string | null, folderId: string | null) => void;
   updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) => void;
   toggleTask: (id: string) => void;
@@ -48,6 +50,7 @@ const StoreContext = createContext<StoreContextValue>({
   folders: SEED_FOLDERS,
   profile: DEFAULT_PROFILE,
   tasks: SEED_TASKS,
+  dataLoaded: false,
   addNote: () => {},
   addFolder: () => {},
   updateNote: () => {},
@@ -60,6 +63,7 @@ const StoreContext = createContext<StoreContextValue>({
   renameFolder: () => {},
   archiveNote: () => {},
   archiveFolder: () => {},
+  reorderFolders: () => {},
   addTask: () => {},
   updateTask: () => {},
   toggleTask: () => {},
@@ -75,6 +79,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [folders, setFolders] = useState<Folder[]>(SEED_FOLDERS);
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [tasks, setTasks] = useState<Task[]>(SEED_TASKS);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const { settings } = useSettings();
   const tasksRef = useRef<Task[]>(tasks);
   tasksRef.current = tasks;
@@ -83,22 +88,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     configureNotifications();
   }, []);
 
+  // Critical path: load data and mark ready so the splash screen can hide
   useEffect(() => {
     loadInitialData().then((data) => {
       setNotes(data.notes);
       setFolders(data.folders);
       setProfile(data.profile);
       setTasks(data.tasks);
-
-      if (settings.notificationsEnabled) {
-        requestPermissions().then((granted) => {
-          if (granted) {
-            rescheduleAllReminders(data.tasks, settings.reminderTiming);
-          }
-        });
-      }
+      setDataLoaded(true);
     });
   }, []);
+
+  // Non-critical: notification permissions run after data is ready, decoupled from splash
+  useEffect(() => {
+    if (!dataLoaded || !settings.notificationsEnabled) return;
+    requestPermissions().then((granted) => {
+      if (granted) rescheduleAllReminders(tasks, settings.reminderTiming);
+    });
+  }, [dataLoaded]);
 
   const noteActions = createNoteActions(setNotes, setFolders);
   const rawTaskActions = createTaskActions(setTasks, setFolders);
@@ -251,7 +258,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <StoreContext.Provider value={{
-      notes, folders, profile, tasks,
+      notes, folders, profile, tasks, dataLoaded,
       ...noteActions,
       ...taskActions,
       ...folderActions,
