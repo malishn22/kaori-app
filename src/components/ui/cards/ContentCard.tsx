@@ -4,7 +4,7 @@ import { useTheme } from '@/theme';
 import type { Note, Task, Folder } from '@/types';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
-import { LinkedText } from '../primitives/LinkedText';
+import { FormattedText } from '../primitives/FormattedText';
 import { ColorDot } from '../primitives/ColorDot';
 import { RestoreChip } from '../primitives/RestoreChip';
 import { BookmarkIcon, CheckIcon } from '@/assets/icons';
@@ -65,7 +65,7 @@ export function ContentCard(props: ContentCardProps) {
           <GrainOverlay />
           <View className="flex-row items-center gap-2">
             <View className="min-w-0 flex-1">
-              <LinkedText
+              <FormattedText
                 text={note.text}
                 links={note.links}
                 numberOfLines={3}
@@ -122,7 +122,7 @@ export function ContentCard(props: ContentCardProps) {
         <GrainOverlay />
         <View className="flex-row items-center gap-2">
           <View className="min-w-0 flex-1">
-            <LinkedText
+            <FormattedText
               text={task.title}
               links={task.links ?? {}}
               numberOfLines={3}
