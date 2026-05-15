@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, ScrollView, TextInput, TouchableOpacity, InputAccessoryView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
-import { PageHeader, ThemeText, FolderChipSelector } from '@/components/ui';
+import { PageHeader, ThemeText, FolderChipSelector, FormatToolbar } from '@/components/ui';
+import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
+
+const INPUT_ACCESSORY_ID = 'new-note-toolbar';
 
 export default function NewNoteScreen() {
   const router = useRouter();
@@ -19,6 +22,7 @@ export default function NewNoteScreen() {
 
   const [text, setText] = useState('');
   const [selectedFolder, setSelectedFolder] = useState<string | null>(folderId ?? null);
+  const selectionRef = useRef({ start: 0, end: 0 });
 
   async function handleSave() {
     if (!text.trim()) return;
@@ -27,8 +31,26 @@ export default function NewNoteScreen() {
     router.back();
   }
 
+  function handleInsertCheckbox() {
+    const { newText } = insertCheckboxAtCursor(text, selectionRef.current.start);
+    setText(newText);
+  }
+
+  function handleInsertStrikethrough() {
+    const { start, end } = selectionRef.current;
+    const { newText } = wrapStrikethrough(text, start, end);
+    setText(newText);
+  }
+
+  const toolbar = (
+    <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
+  );
+
   return (
-    <View className="flex-1 bg-theme-bg">
+    <KeyboardAvoidingView
+      className="flex-1 bg-theme-bg"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <PageHeader onBack={() => router.back()} />
 
       <ScrollView
@@ -37,7 +59,6 @@ export default function NewNoteScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 pt-3">
-          {/* Text input */}
           <TextInput
             style={{
               fontFamily: FONT.kalam,
@@ -50,19 +71,19 @@ export default function NewNoteScreen() {
             }}
             value={text}
             onChangeText={setText}
+            onSelectionChange={e => { selectionRef.current = e.nativeEvent.selection; }}
             placeholder="what's on your mind..."
             placeholderTextColor={colors.ink4}
             multiline
             autoFocus
             selectionColor={colors.amber}
             cursorColor={colors.amber}
+            inputAccessoryViewID={Platform.OS === 'ios' ? INPUT_ACCESSORY_ID : undefined}
           />
 
-          {/* Folder selector */}
           <FolderChipSelector folders={folders} selected={selectedFolder} onSelect={setSelectedFolder} label="folder" />
         </View>
 
-        {/* Save button */}
         <View className="px-4 pt-8">
           <TouchableOpacity
             onPress={handleSave}
@@ -75,6 +96,16 @@ export default function NewNoteScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+
+      {Platform.OS === 'ios' ? (
+        <InputAccessoryView nativeID={INPUT_ACCESSORY_ID}>
+          {toolbar}
+        </InputAccessoryView>
+      ) : (
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
+          {toolbar}
+        </View>
+      )}
+    </KeyboardAvoidingView>
   );
 }

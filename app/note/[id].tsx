@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking, KeyboardAvoidingView } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking, KeyboardAvoidingView, InputAccessoryView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useAnimatedPopup, useInlineEdit, useConfirmAction, useActiveFolders } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, LinkedText, ConfirmationDialog, MenuRow, PopupMenu, FolderChipSelector } from '@/components/ui';
+import { ThemeText, ColorDot, Chip, PageHeader, FormattedText, GrainOverlay, FormatToolbar, ConfirmationDialog, MenuRow, PopupMenu, FolderChipSelector } from '@/components/ui';
 import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
+import { toggleCheckboxLine, insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { FONT } from '@/theme';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
+
+const INPUT_ACCESSORY_ID = 'note-detail-toolbar';
 
 export default function NoteDetailScreen() {
   const router = useRouter();
@@ -21,6 +24,8 @@ export default function NoteDetailScreen() {
   const folder = note?.folder ? folders.find(f => f.id === note.folder) : undefined;
 
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
+
+  const selectionRef = useRef({ start: 0, end: 0 });
 
   const { editing, draft, setDraft, startEditing, cancelEdit } = useInlineEdit({
     initialValue: note?.text ?? '',
@@ -102,7 +107,28 @@ export default function NoteDetailScreen() {
     setLinkAction({ url, label });
   }
 
+  function handleCheckboxToggle(lineIndex: number) {
+    const newText = toggleCheckboxLine(note!.text, lineIndex);
+    updateNote(note!.id, { text: newText });
+    impact();
+  }
+
+  function handleInsertCheckbox() {
+    const { newText } = insertCheckboxAtCursor(draft, selectionRef.current.start);
+    setDraft(newText);
+  }
+
+  function handleInsertStrikethrough() {
+    const { start, end } = selectionRef.current;
+    const { newText } = wrapStrikethrough(draft, start, end);
+    setDraft(newText);
+  }
+
   const popupTop = insets.top + 16 + 52 + 8;
+
+  const toolbar = (
+    <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
+  );
 
   return (
     <View className="flex-1 bg-theme-bg">
@@ -112,7 +138,7 @@ export default function NoteDetailScreen() {
         moreButton={{ onPress: openMenu }}
       />
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View className="px-6 pt-6">
           {/* Folder pill */}
@@ -137,20 +163,22 @@ export default function NoteDetailScreen() {
               }}
               value={draft}
               onChangeText={setDraft}
+              onSelectionChange={e => { selectionRef.current = e.nativeEvent.selection; }}
               multiline
               autoFocus
               selectionColor={colors.amber}
               cursorColor={colors.amber}
+              inputAccessoryViewID={Platform.OS === 'ios' ? INPUT_ACCESSORY_ID : undefined}
             />
           ) : (
-            <LinkedText
+            <FormattedText
               text={note.text}
               links={note.links}
-              variant="heading"
               size={20}
               lineHeight={28}
               letterSpacing={0.1}
               onLinkPress={handleLinkPress}
+              onCheckboxToggle={handleCheckboxToggle}
             />
           )}
 
@@ -183,7 +211,7 @@ export default function NoteDetailScreen() {
           </View>
         )}
 
-        {/* Save bar */}
+        {/* Save bar (edit mode only) */}
         {editing ? (
           <View className="px-4 pt-6">
             <TouchableOpacity
@@ -199,6 +227,19 @@ export default function NoteDetailScreen() {
         ) : null}
       </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Format toolbar — keyboard-attached */}
+      {editing && (
+        Platform.OS === 'ios' ? (
+          <InputAccessoryView nativeID={INPUT_ACCESSORY_ID}>
+            {toolbar}
+          </InputAccessoryView>
+        ) : (
+          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
+            {toolbar}
+          </View>
+        )
+      )}
 
       {/* Popup menu */}
       <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>

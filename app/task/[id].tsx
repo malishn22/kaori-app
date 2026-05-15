@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, KeyboardAvoidingView } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, KeyboardAvoidingView, InputAccessoryView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, HeaderText, CalendarPicker, PopupMenu, FolderChipSelector } from '@/components/ui';
+import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, PopupMenu, FolderChipSelector, FormatToolbar } from '@/components/ui';
+import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
 import { computeDisplayStrings } from '@/utils/time';
-import { cancelTaskReminder, scheduleTaskReminder } from '@/utils/notifications';
+import { cancelTaskReminder } from '@/utils/notifications';
 import { REMINDER_OPTIONS } from '@/constants/options';
+
+const INPUT_ACCESSORY_ID = 'task-detail-toolbar';
 
 export default function TaskDetailScreen() {
   const router = useRouter();
@@ -25,6 +28,8 @@ export default function TaskDetailScreen() {
 
   const { settings } = useSettings();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
+
+  const selectionRef = useRef({ start: 0, end: 0 });
 
   const [editing, setEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
@@ -98,7 +103,6 @@ export default function TaskDetailScreen() {
     await toggleTask(task!.id);
     impact();
     if (!task!.done) {
-      // Was open, now completed + archived — go back
       setMenuOpen(false);
       router.back();
     } else {
@@ -132,209 +136,236 @@ export default function TaskDetailScreen() {
     }
   }
 
+  function handleInsertCheckbox() {
+    const { newText } = insertCheckboxAtCursor(draftTitle, selectionRef.current.start);
+    setDraftTitle(newText);
+  }
+
+  function handleInsertStrikethrough() {
+    const { start, end } = selectionRef.current;
+    const { newText } = wrapStrikethrough(draftTitle, start, end);
+    setDraftTitle(newText);
+  }
+
   const popupTop = insets.top + 16 + 52 + 8;
+
+  const toolbar = (
+    <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
+  );
 
   return (
     <View className="flex-1 bg-theme-bg">
-        <PageHeader
-          onBack={handleBack}
-          editButton={{ onPress: () => editing ? cancelEdit() : startEditing(), active: editing }}
-          moreButton={{ onPress: openMenu }}
-        />
+      <PageHeader
+        onBack={handleBack}
+        editButton={{ onPress: () => editing ? cancelEdit() : startEditing(), active: editing }}
+        moreButton={{ onPress: openMenu }}
+      />
 
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 60 }}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View className="px-6 pt-6">
-            {/* Folder pill */}
-            {folder && (
-              <View className="self-start mb-4">
-                <Chip color={folder.color} dot dotSize={7}>
-                  <ThemeText variant="chip" size={12} color="cream">{folder.name}</ThemeText>
-                </Chip>
-              </View>
-            )}
-
-            {/* Done badge */}
-            {task.done && !editing && (
-              <View className="self-start mb-3 px-2.5 py-1 rounded-lg" style={{ backgroundColor: `${colors.amber}22` }}>
-                <ThemeText variant="meta" size={11} color="amber">completed</ThemeText>
-              </View>
-            )}
-
-            {/* Title */}
-            {editing ? (
-              <TextInput
-                style={{
-                  fontFamily: FONT.kalam,
-                  fontSize: 20,
-                  color: colors.ink,
-                  lineHeight: 28,
-                  letterSpacing: 0.1,
-                }}
-                value={draftTitle}
-                onChangeText={setDraftTitle}
-                multiline
-                autoFocus
-                selectionColor={colors.amber}
-                cursorColor={colors.amber}
-              />
-            ) : (
-              <HeaderText
-                size={20}
-                lineHeight={28}
-                style={{
-                  textDecorationLine: task.done ? 'line-through' : 'none',
-                  opacity: task.done ? 0.5 : 1,
-                }}
-              >
-                {task.title}
-              </HeaderText>
-            )}
-
-            {/* Due date (edit mode) */}
-            {editing && (
-              <View className="mt-5">
-                <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
-                  due date
-                </ThemeText>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-1.5">
-                    <Chip active={draftDueDate === null} onPress={() => { setDraftDueDate(null); setShowDatePicker(false); }}>
-                      <ThemeText variant="chip" size={13} color={draftDueDate === null ? 'ink' : 'ink2'}>none</ThemeText>
-                    </Chip>
-                    <Chip active={isCustomDraftDate} onPress={() => setShowDatePicker(true)}>
-                      <ThemeText variant="chip" size={13} color={isCustomDraftDate ? 'ink' : 'ink2'}>
-                        {isCustomDraftDate ? formatDueDate(draftDueDate!.toISOString()) : '+'}
-                      </ThemeText>
-                    </Chip>
-                    {getDateChipOptions().map(opt => {
-                      const isActive = draftDueDate !== null && isSameDay(draftDueDate, opt.date);
-                      return (
-                        <Chip key={opt.label} active={isActive} onPress={() => { setDraftDueDate(opt.date); setShowDatePicker(false); }}>
-                          <ThemeText variant="chip" size={13} color={isActive ? 'ink' : 'ink2'}>{opt.label}</ThemeText>
-                        </Chip>
-                      );
-                    })}
-                  </View>
-                </ScrollView>
-
-              </View>
-            )}
-
-            {/* Meta (display mode) */}
-            {!editing && (
-              <View className="flex-row flex-wrap gap-3 mt-[18px] items-center">
-                {task.dueDate && (
-                  <ThemeText variant="meta" color={dueDateColor}>
-                    due {formatDueDate(task.dueDate)}
-                  </ThemeText>
-                )}
-                {task.dueDate && <ThemeText variant="meta" style={{ opacity: 0.4 }}>·</ThemeText>}
-                <ThemeText variant="meta">
-                  {date === 'today' ? 'today' : date}, {time}
-                </ThemeText>
-                {task.dueDate && settings.notificationsEnabled && !task.done && (
-                  <>
-                    <ThemeText variant="meta" style={{ opacity: 0.4 }}>·</ThemeText>
-                    <ThemeText variant="meta" color="amber">
-                      {REMINDER_OPTIONS.find(o => o.value === settings.reminderTiming)?.label}
-                    </ThemeText>
-                  </>
-                )}
-              </View>
-            )}
-          </View>
-
-          {/* Save bar */}
-          {editing && (
-            <View className="px-4 pt-6">
-              <TouchableOpacity
-                onPress={handleSave}
-                disabled={!draftTitle.trim()}
-                className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
-                style={{ opacity: draftTitle.trim() ? 1 : 0.4 }}
-                activeOpacity={0.85}
-              >
-                <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
-              </TouchableOpacity>
-            </View>
-          )}
-        </ScrollView>
-        </KeyboardAvoidingView>
-
-        {/* Popup menu */}
-        <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
-          <MenuRow
-            label={task.done ? 'mark open' : 'mark done'}
-            right={task.done ? <ThemeText variant="meta" color="amber">done</ThemeText> : undefined}
-            onPress={handleToggleDone}
-          />
-
-          <MenuRow
-            label="move to folder"
-            right={folder
-              ? <View className="flex-row items-center gap-[5px]">
-                  <ColorDot color={folder.color} size={6} />
-                  <ThemeText variant="meta">{folder.name}</ThemeText>
-                </View>
-              : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
-            }
-            onPress={() => setMovingFolder(v => !v)}
-          />
-
-          {movingFolder && (
-            <View className="px-3 py-2.5 border-b border-theme-line">
-              <FolderChipSelector folders={folders} selected={task.folder} onSelect={handleMoveFolder} />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 60 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="px-6 pt-6">
+          {/* Folder pill */}
+          {folder && (
+            <View className="self-start mb-4">
+              <Chip color={folder.color} dot dotSize={7}>
+                <ThemeText variant="chip" size={12} color="cream">{folder.name}</ThemeText>
+              </Chip>
             </View>
           )}
 
-          <MenuRow
-            label={task.pinned ? 'unpin' : 'pin'}
-            right={task.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
-            onPress={handlePin}
-          />
+          {/* Done badge */}
+          {task.done && !editing && (
+            <View className="self-start mb-3 px-2.5 py-1 rounded-lg" style={{ backgroundColor: `${colors.amber}22` }}>
+              <ThemeText variant="meta" size={11} color="amber">completed</ThemeText>
+            </View>
+          )}
 
-          {task.dueDate && settings.notificationsEnabled && (
-            <MenuRow
-              label="mute reminder"
-              onPress={() => {
-                cancelTaskReminder(task.id);
-                impact();
-                closeMenu();
+          {/* Title */}
+          {editing ? (
+            <TextInput
+              style={{
+                fontFamily: FONT.kalam,
+                fontSize: 20,
+                color: colors.ink,
+                lineHeight: 28,
+                letterSpacing: 0.1,
               }}
+              value={draftTitle}
+              onChangeText={setDraftTitle}
+              onSelectionChange={e => { selectionRef.current = e.nativeEvent.selection; }}
+              multiline
+              autoFocus
+              selectionColor={colors.amber}
+              cursorColor={colors.amber}
+              inputAccessoryViewID={Platform.OS === 'ios' ? INPUT_ACCESSORY_ID : undefined}
+            />
+          ) : (
+            <FormattedText
+              text={task.title}
+              links={task.links ?? {}}
+              size={20}
+              lineHeight={28}
+              letterSpacing={0.1}
+              style={task.done ? { textDecorationLine: 'line-through', opacity: 0.5 } : undefined}
             />
           )}
 
-          <MenuRow label="share" onPress={handleShare} />
+          {/* Due date (edit mode) */}
+          {editing && (
+            <View className="mt-5">
+              <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
+                due date
+              </ThemeText>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View className="flex-row gap-1.5">
+                  <Chip active={draftDueDate === null} onPress={() => { setDraftDueDate(null); setShowDatePicker(false); }}>
+                    <ThemeText variant="chip" size={13} color={draftDueDate === null ? 'ink' : 'ink2'}>none</ThemeText>
+                  </Chip>
+                  <Chip active={isCustomDraftDate} onPress={() => setShowDatePicker(true)}>
+                    <ThemeText variant="chip" size={13} color={isCustomDraftDate ? 'ink' : 'ink2'}>
+                      {isCustomDraftDate ? formatDueDate(draftDueDate!.toISOString()) : '+'}
+                    </ThemeText>
+                  </Chip>
+                  {getDateChipOptions().map(opt => {
+                    const isActive = draftDueDate !== null && isSameDay(draftDueDate, opt.date);
+                    return (
+                      <Chip key={opt.label} active={isActive} onPress={() => { setDraftDueDate(opt.date); setShowDatePicker(false); }}>
+                        <ThemeText variant="chip" size={13} color={isActive ? 'ink' : 'ink2'}>{opt.label}</ThemeText>
+                      </Chip>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
+          )}
 
+          {/* Meta (display mode) */}
+          {!editing && (
+            <View className="flex-row flex-wrap gap-3 mt-[18px] items-center">
+              {task.dueDate && (
+                <ThemeText variant="meta" color={dueDateColor}>
+                  due {formatDueDate(task.dueDate)}
+                </ThemeText>
+              )}
+              {task.dueDate && <ThemeText variant="meta" style={{ opacity: 0.4 }}>·</ThemeText>}
+              <ThemeText variant="meta">
+                {date === 'today' ? 'today' : date}, {time}
+              </ThemeText>
+              {task.dueDate && settings.notificationsEnabled && !task.done && (
+                <>
+                  <ThemeText variant="meta" style={{ opacity: 0.4 }}>·</ThemeText>
+                  <ThemeText variant="meta" color="amber">
+                    {REMINDER_OPTIONS.find(o => o.value === settings.reminderTiming)?.label}
+                  </ThemeText>
+                </>
+              )}
+            </View>
+          )}
+        </View>
+
+        {/* Save bar */}
+        {editing && (
+          <View className="px-4 pt-6">
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={!draftTitle.trim()}
+              className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+              style={{ opacity: draftTitle.trim() ? 1 : 0.4 }}
+              activeOpacity={0.85}
+            >
+              <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+      </KeyboardAvoidingView>
+
+      {/* Format toolbar — keyboard-attached, edit mode only */}
+      {editing && (
+        Platform.OS === 'ios' ? (
+          <InputAccessoryView nativeID={INPUT_ACCESSORY_ID}>
+            {toolbar}
+          </InputAccessoryView>
+        ) : (
+          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
+            {toolbar}
+          </View>
+        )
+      )}
+
+      {/* Popup menu */}
+      <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
+        <MenuRow
+          label={task.done ? 'mark open' : 'mark done'}
+          right={task.done ? <ThemeText variant="meta" color="amber">done</ThemeText> : undefined}
+          onPress={handleToggleDone}
+        />
+
+        <MenuRow
+          label="move to folder"
+          right={folder
+            ? <View className="flex-row items-center gap-[5px]">
+                <ColorDot color={folder.color} size={6} />
+                <ThemeText variant="meta">{folder.name}</ThemeText>
+              </View>
+            : <ThemeText variant="meta" size={13} color="ink4">›</ThemeText>
+          }
+          onPress={() => setMovingFolder(v => !v)}
+        />
+
+        {movingFolder && (
+          <View className="px-3 py-2.5 border-b border-theme-line">
+            <FolderChipSelector folders={folders} selected={task.folder} onSelect={handleMoveFolder} />
+          </View>
+        )}
+
+        <MenuRow
+          label={task.pinned ? 'unpin' : 'pin'}
+          right={task.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
+          onPress={handlePin}
+        />
+
+        {task.dueDate && settings.notificationsEnabled && (
           <MenuRow
-            label="convert to note"
+            label="mute reminder"
             onPress={() => {
-              const noteId = convertTaskToNote(task.id);
-              setMenuOpen(false);
-              if (noteId) router.replace(`/note/${noteId}`);
+              cancelTaskReminder(task.id);
+              impact();
+              closeMenu();
             }}
           />
+        )}
 
-          <MenuRow
-            label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}
-            labelColor={DELETE_COLOR}
-            onPress={confirmDelete.handlePress}
-            borderBottom={false}
-          />
-        </PopupMenu>
+        <MenuRow label="share" onPress={handleShare} />
 
-        <CalendarPicker
-          visible={showDatePicker}
-          onClose={() => setShowDatePicker(false)}
-          value={draftDueDate}
-          onChange={setDraftDueDate}
-          minimumDate={new Date()}
+        <MenuRow
+          label="convert to note"
+          onPress={() => {
+            const noteId = convertTaskToNote(task.id);
+            setMenuOpen(false);
+            if (noteId) router.replace(`/note/${noteId}`);
+          }}
         />
-      </View>
+
+        <MenuRow
+          label={confirmDelete.needsConfirm ? 'tap again to confirm' : 'delete'}
+          labelColor={DELETE_COLOR}
+          onPress={confirmDelete.handlePress}
+          borderBottom={false}
+        />
+      </PopupMenu>
+
+      <CalendarPicker
+        visible={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        value={draftDueDate}
+        onChange={setDraftDueDate}
+        minimumDate={new Date()}
+      />
+    </View>
   );
 }
