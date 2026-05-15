@@ -8,6 +8,7 @@ export type Folder = {
   createdAt: string;
   pinned: boolean;
   archived?: boolean;
+  order?: number;
 };
 
 export type Note = {

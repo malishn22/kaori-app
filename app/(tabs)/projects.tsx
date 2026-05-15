@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { useActiveFolders } from '@/hooks';
-import { FAB, FolderCard, PageHeader } from '@/components/ui';
-import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
+import { FAB, DraggableFolderList, PageHeader } from '@/components/ui';
 
 export default function FoldersScreen() {
   const router = useRouter();
-  const { notes: allNotes, tasks: allTasks } = useStore();
+  const { notes: allNotes, tasks: allTasks, reorderFolders } = useStore();
   const folders = useActiveFolders();
   const noteCounts = useMemo(
     () => allNotes.filter(n => !n.archived).reduce<Record<string, number>>((acc, note) => {
@@ -26,26 +24,21 @@ export default function FoldersScreen() {
     [allTasks]
   );
   const sortedFolders = useMemo(
-    () => [...folders].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)),
+    () => [...folders].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
     [folders]
   );
-  const insets = useSafeAreaInsets();
 
   return (
     <View className="flex-1 bg-theme-bg">
       <PageHeader caption="your folders" title="folders" underlineWidth={92} settingsButton />
-      <ScrollView contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom + 180 }} showsVerticalScrollIndicator={false}>
-
-        <View className="px-[18px] pt-6 gap-3.5">
-          {sortedFolders.map((f, i) => (
-            <TouchableOpacity key={f.id} onPress={() => router.push(`/folder/${f.id}`)} activeOpacity={0.85}>
-              <FolderCard folder={f} index={i} noteCount={noteCounts[f.id] ?? 0} taskCount={taskCounts[f.id] ?? 0} />
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
-
-      <FAB onPress={() => router.push('/folder/new')}  />
+      <DraggableFolderList
+        folders={sortedFolders}
+        noteCounts={noteCounts}
+        taskCounts={taskCounts}
+        onReorder={reorderFolders}
+        onFolderPress={(id) => router.push(`/folder/${id}`)}
+      />
+      <FAB onPress={() => router.push('/folder/new')} />
     </View>
   );
 }

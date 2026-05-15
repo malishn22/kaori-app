@@ -22,7 +22,7 @@ export function createFolderActions(
       pinned: false,
     };
     setFolders(prev => {
-      const next = [...prev, newFolder];
+      const next = [...prev, { ...newFolder, order: prev.length }];
       safeSet(KEYS.folders, JSON.stringify(next));
       return next;
     });
@@ -88,5 +88,16 @@ export function createFolderActions(
     });
   }
 
-  return { addFolder, pinFolder, deleteFolder, updateFolderColor, renameFolder, archiveFolder };
+  function reorderFolders(orderedIds: string[]) {
+    setFolders(prev => {
+      const next = prev.map(f => {
+        const idx = orderedIds.indexOf(f.id);
+        return idx === -1 ? f : { ...f, order: idx };
+      });
+      safeSet(KEYS.folders, JSON.stringify(next));
+      return next;
+    });
+  }
+
+  return { addFolder, pinFolder, deleteFolder, updateFolderColor, renameFolder, archiveFolder, reorderFolders };
 }
