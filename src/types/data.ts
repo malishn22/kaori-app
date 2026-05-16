@@ -35,6 +35,7 @@ export type Task = {
   folder: string | null;
   title: string;
   dueDate: string | null;
+  reminderAt?: string | null;
   done: boolean;
   createdAt: string;
   pinned: boolean;

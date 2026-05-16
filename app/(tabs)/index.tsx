@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
-import { NoteCard, FAB, ThemeText, SectionTitle, PageHeader, GreetingTitle, EmptyState, SwipeablePinWrapper } from '@/components/ui';
+import { NoteCard, FAB, SectionTitle, PageHeader, GreetingTitle, EmptyState, SwipeablePinWrapper } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function HomeScreen() {
@@ -55,17 +55,12 @@ export default function HomeScreen() {
 
         {/* Notes */}
         <View className="pt-7">
-          <View className="px-6 pb-3 flex-row items-end justify-between">
-            <View>
-              <SectionTitle underlineWidth={72}>notes</SectionTitle>
-            </View>
-            <TouchableOpacity onPress={() => router.push('/notes')} activeOpacity={0.7} hitSlop={8}>
-              <ThemeText variant="meta">see all</ThemeText>
-            </TouchableOpacity>
+          <View className="px-6 pb-3">
+            <SectionTitle underlineWidth={72}>notes</SectionTitle>
           </View>
 
           <View className="px-[18px] gap-3">
-            {unpinnedNotes.slice(0, 4).map((note, i) => {
+            {unpinnedNotes.map((note, i) => {
               const folder = folders.find(f => f.id === note.folder);
               return (
                 <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>

@@ -38,6 +38,7 @@ export { SwipeablePinWrapper } from './cards/SwipeablePinWrapper';
 
 // pickers
 export { CalendarPicker } from './pickers/CalendarPicker';
+export { ReminderPicker } from './pickers/ReminderPicker';
 export { FolderChipSelector } from './pickers/FolderChipSelector';
 
 // sheets

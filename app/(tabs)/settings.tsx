@@ -12,8 +12,7 @@ import {
   BellIcon, ChevronIcon,
 } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
-import { REMINDER_OPTIONS } from '@/constants/options';
-import { rescheduleAllReminders, cancelAllReminders } from '@/utils/notifications';
+import { cancelAllReminders, rescheduleAllReminders } from '@/utils/notifications';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -112,7 +111,7 @@ export default function SettingsScreen() {
                 if (!v) {
                   cancelAllReminders();
                 } else {
-                  rescheduleAllReminders(tasks, settings.reminderTiming);
+                  rescheduleAllReminders(tasks);
                 }
               }} />}
               borderBottom
@@ -121,13 +120,9 @@ export default function SettingsScreen() {
             <SettingRow
               icon={<SparkleIcon size={17} color={colors.ink3} />}
               label="remind me"
-              right={<>
-                <ThemeText variant="meta" size={13}>
-                  {REMINDER_OPTIONS.find(o => o.value === settings.reminderTiming)?.label}
-                </ThemeText>
-                <ChevronIcon size={12} color={colors.ink4} />
-              </>}
-              onPress={() => setOpenSheet('reminder')}
+              right={
+                <ThemeText variant="meta" size={13} color="ink4">set per task</ThemeText>
+              }
             />
 
           </View>

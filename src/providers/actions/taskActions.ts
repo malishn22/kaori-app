@@ -36,7 +36,7 @@ export function createTaskActions(
     }
   }
 
-  function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) {
+  function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) {
     setTasks(prev => {
       const next = prev.map(t => t.id === id ? { ...t, ...patch } : t);
       safeSet(KEYS.tasks, JSON.stringify(next));
