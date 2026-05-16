@@ -6,8 +6,6 @@ import type { Task } from '@/types/data';
 
 const NOTIF_REGISTRY_KEY = '@kaori_notif_registry';
 
-export type ReminderTiming = 'at_time' | '1h_before' | '1d_before';
-
 type NotifRegistry = Record<string, { notifId: string }>;
 
 export function configureNotifications() {
@@ -42,16 +40,12 @@ export async function requestPermissions(): Promise<boolean> {
   return status === 'granted';
 }
 
-export async function scheduleTaskReminder(
-  task: Task,
-  timing: ReminderTiming,
-): Promise<void> {
-  if (!task.dueDate) return;
+export async function scheduleTaskReminder(task: Task): Promise<void> {
+  if (!task.reminderAt) return;
 
-  const triggerDate = computeTriggerDate(task.dueDate, timing);
-  if (!triggerDate || triggerDate.getTime() <= Date.now()) return;
+  const triggerDate = new Date(task.reminderAt);
+  if (isNaN(triggerDate.getTime()) || triggerDate.getTime() <= Date.now()) return;
 
-  // Cancel existing reminder for this task first
   await cancelTaskReminder(task.id);
 
   const notifId = await Notifications.scheduleNotificationAsync({
@@ -88,18 +82,15 @@ export async function cancelAllReminders(): Promise<void> {
   await saveRegistry({});
 }
 
-export async function rescheduleAllReminders(
-  tasks: Task[],
-  timing: ReminderTiming,
-): Promise<void> {
+export async function rescheduleAllReminders(tasks: Task[]): Promise<void> {
   await Notifications.cancelAllScheduledNotificationsAsync();
   const newRegistry: NotifRegistry = {};
 
   for (const task of tasks) {
-    if (!task.dueDate || task.done || task.archived) continue;
+    if (!task.reminderAt || task.done || task.archived) continue;
 
-    const triggerDate = computeTriggerDate(task.dueDate, timing);
-    if (!triggerDate || triggerDate.getTime() <= Date.now()) continue;
+    const triggerDate = new Date(task.reminderAt);
+    if (isNaN(triggerDate.getTime()) || triggerDate.getTime() <= Date.now()) continue;
 
     const notifId = await Notifications.scheduleNotificationAsync({
       content: {
@@ -121,34 +112,6 @@ export async function rescheduleAllReminders(
   await saveRegistry(newRegistry);
 }
 
-function computeTriggerDate(
-  dueDateIso: string,
-  timing: ReminderTiming,
-): Date | null {
-  const dueDate = new Date(dueDateIso);
-  if (isNaN(dueDate.getTime())) return null;
-
-  // Set to 9 AM on due date
-  const trigger = new Date(dueDate);
-  trigger.setHours(9, 0, 0, 0);
-
-  switch (timing) {
-    case 'at_time':
-      // 9 AM on due date
-      break;
-    case '1h_before':
-      // 8 AM on due date
-      trigger.setHours(8, 0, 0, 0);
-      break;
-    case '1d_before':
-      // 9 AM day before
-      trigger.setDate(trigger.getDate() - 1);
-      break;
-  }
-
-  return trigger;
-}
-
 async function loadRegistry(): Promise<NotifRegistry> {
   try {
     const raw = await AsyncStorage.getItem(NOTIF_REGISTRY_KEY);
@@ -160,15 +123,4 @@ async function loadRegistry(): Promise<NotifRegistry> {
 
 async function saveRegistry(registry: NotifRegistry): Promise<void> {
   await AsyncStorage.setItem(NOTIF_REGISTRY_KEY, JSON.stringify(registry));
-}
-
-export function getReminderTimingLabel(timing: ReminderTiming): string {
-  switch (timing) {
-    case 'at_time':
-      return 'At due time (9 AM)';
-    case '1h_before':
-      return '1 hour before (8 AM)';
-    case '1d_before':
-      return '1 day before';
-  }
 }

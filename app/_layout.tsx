@@ -14,8 +14,7 @@ import { StoreProvider, useStore } from '@/providers/StoreProvider';
 import { SettingSheetProvider, useSettingSheet } from '@/providers/SettingSheetProvider';
 import { SettingSheet } from '@/components/ui';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TONE_OPTIONS, ACCENT_OPTIONS, REMINDER_OPTIONS } from '@/constants/options';
-import { rescheduleAllReminders, cancelAllReminders } from '@/utils/notifications';
+import { TONE_OPTIONS, ACCENT_OPTIONS } from '@/constants/options';
 
 function AndroidNavBarFill() {
   const insets = useSafeAreaInsets();
@@ -39,7 +38,7 @@ function ThemeVarsRoot({ children }: { children: ReactNode }) {
 
 function RootSettingSheets() {
   const { settings, setSetting } = useTheme();
-  const { folders, tasks, profile, updateProfile } = useStore();
+  const { folders, profile, updateProfile } = useStore();
   const { openSheet, setOpenSheet } = useSettingSheet();
   const folderOptions = folders.map(f => ({ value: f.id, label: f.name }));
 
@@ -67,19 +66,6 @@ function RootSettingSheets() {
         options={folderOptions}
         value={profile.defaultFolder}
         onSelect={(v) => { updateProfile({ defaultFolder: v }); setOpenSheet(null); }}
-        onClose={() => setOpenSheet(null)}
-      />
-      <SettingSheet
-        visible={openSheet === 'reminder'}
-        title="reminder timing"
-        options={REMINDER_OPTIONS}
-        value={settings.reminderTiming}
-        onSelect={(v) => {
-          setSetting('reminderTiming', v);
-          if (settings.notificationsEnabled) {
-            rescheduleAllReminders(tasks, v);
-          }
-        }}
         onClose={() => setOpenSheet(null)}
       />
     </>

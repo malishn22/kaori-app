@@ -12,7 +12,6 @@ import {
   requestPermissions,
   scheduleTaskReminder,
   cancelTaskReminder,
-  cancelAllReminders,
   rescheduleAllReminders,
 } from '@/utils/notifications';
 
@@ -36,7 +35,7 @@ type StoreContextValue = {
   archiveFolder: (id: string, archived: boolean) => void;
   reorderFolders: (orderedIds: string[]) => void;
   addTask: (title: string, dueDate: string | null, folderId: string | null) => void;
-  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) => void;
+  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) => void;
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
   archiveTask: (id: string, archived: boolean) => void;
@@ -103,7 +102,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!dataLoaded || !settings.notificationsEnabled) return;
     requestPermissions().then((granted) => {
-      if (granted) rescheduleAllReminders(tasks, settings.reminderTiming);
+      if (granted) rescheduleAllReminders(tasks);
     });
   }, [dataLoaded]);
 
@@ -115,29 +114,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const taskActions = {
     addTask(title: string, dueDate: string | null, folderId: string | null) {
       rawTaskActions.addTask(title, dueDate, folderId);
-      if (settings.notificationsEnabled && dueDate) {
-        const task: Task = {
-          id: Date.now().toString(),
-          folder: folderId,
-          title,
-          dueDate,
-          done: false,
-          createdAt: new Date().toISOString(),
-          pinned: false,
-        };
-        requestPermissions().then((granted) => {
-          if (granted) scheduleTaskReminder(task, settings.reminderTiming);
-        });
-      }
     },
-    updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'folder' | 'pinned' | 'done'>>) {
+    updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) {
       rawTaskActions.updateTask(id, patch);
-      if (settings.notificationsEnabled && 'dueDate' in patch) {
+      if (settings.notificationsEnabled && 'reminderAt' in patch) {
         const task = tasksRef.current.find(t => t.id === id);
         if (task) {
           const updated = { ...task, ...patch };
-          if (updated.dueDate) {
-            scheduleTaskReminder(updated, settings.reminderTiming);
+          if (updated.reminderAt) {
+            scheduleTaskReminder(updated);
           } else {
             cancelTaskReminder(id);
           }
@@ -158,8 +143,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         cancelTaskReminder(id);
       } else if (settings.notificationsEnabled) {
         const task = tasksRef.current.find(t => t.id === id);
-        if (task?.dueDate) {
-          scheduleTaskReminder({ ...task, archived: false }, settings.reminderTiming);
+        if (task?.reminderAt) {
+          scheduleTaskReminder({ ...task, archived: false });
         }
       }
     },

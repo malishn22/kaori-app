@@ -6,15 +6,27 @@ import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, PopupMenu, FolderChipSelector, FormatToolbar } from '@/components/ui';
+import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar } from '@/components/ui';
 import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
 import { computeDisplayStrings } from '@/utils/time';
 import { cancelTaskReminder } from '@/utils/notifications';
-import { REMINDER_OPTIONS } from '@/constants/options';
 
 const INPUT_ACCESSORY_ID = 'task-detail-toolbar';
+
+const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatReminderDate(date: Date): string {
+  const month = MONTH_SHORT[date.getMonth()];
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours % 12 === 0 ? 12 : hours % 12;
+  const displayMin = String(minutes).padStart(2, '0');
+  return `${month} ${day} · ${displayHour}:${displayMin} ${ampm}`;
+}
 
 export default function TaskDetailScreen() {
   const router = useRouter();
@@ -34,7 +46,9 @@ export default function TaskDetailScreen() {
   const [editing, setEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
   const [draftDueDate, setDraftDueDate] = useState<Date | null>(null);
+  const [draftReminderAt, setDraftReminderAt] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showReminderPicker, setShowReminderPicker] = useState(false);
   const isCustomDraftDate = draftDueDate !== null && !getDateChipOptions().some(opt => isSameDay(draftDueDate, opt.date));
 
   const confirmDelete = useConfirmAction({
@@ -65,13 +79,16 @@ export default function TaskDetailScreen() {
   function startEditing() {
     setDraftTitle(task!.title);
     setDraftDueDate(task!.dueDate ? new Date(task!.dueDate) : null);
+    setDraftReminderAt(task!.reminderAt ? new Date(task!.reminderAt) : null);
     setShowDatePicker(false);
+    setShowReminderPicker(false);
     setEditing(true);
   }
 
   function cancelEdit() {
     setEditing(false);
     setShowDatePicker(false);
+    setShowReminderPicker(false);
   }
 
   async function handleSave() {
@@ -79,10 +96,12 @@ export default function TaskDetailScreen() {
     await updateTask(task!.id, {
       title: draftTitle.trim(),
       dueDate: draftDueDate ? draftDueDate.toISOString() : null,
+      reminderAt: draftReminderAt ? draftReminderAt.toISOString() : null,
     });
     impactOnSave();
     setEditing(false);
     setShowDatePicker(false);
+    setShowReminderPicker(false);
   }
 
   function openMenu() {
@@ -243,6 +262,29 @@ export default function TaskDetailScreen() {
             </View>
           )}
 
+          {/* Reminder (edit mode, only when a due date is set) */}
+          {editing && draftDueDate !== null && (
+            <View className="mt-4">
+              <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
+                reminder
+              </ThemeText>
+              <View className="flex-row gap-1.5">
+                <Chip active={draftReminderAt !== null} onPress={() => setShowReminderPicker(true)}>
+                  <ThemeText variant="chip" size={13} color={draftReminderAt !== null ? 'ink' : 'ink2'}>
+                    {draftReminderAt !== null
+                      ? formatReminderDate(draftReminderAt)
+                      : 'set reminder'}
+                  </ThemeText>
+                </Chip>
+                {draftReminderAt !== null && (
+                  <Chip onPress={() => setDraftReminderAt(null)}>
+                    <ThemeText variant="chip" size={13} color="ink2">clear</ThemeText>
+                  </Chip>
+                )}
+              </View>
+            </View>
+          )}
+
           {/* Meta (display mode) */}
           {!editing && (
             <View className="flex-row flex-wrap gap-3 mt-[18px] items-center">
@@ -255,11 +297,11 @@ export default function TaskDetailScreen() {
               <ThemeText variant="meta">
                 {date === 'today' ? 'today' : date}, {time}
               </ThemeText>
-              {task.dueDate && settings.notificationsEnabled && !task.done && (
+              {task.reminderAt && settings.notificationsEnabled && !task.done && (
                 <>
                   <ThemeText variant="meta" style={{ opacity: 0.4 }}>·</ThemeText>
                   <ThemeText variant="meta" color="amber">
-                    {REMINDER_OPTIONS.find(o => o.value === settings.reminderTiming)?.label}
+                    {formatReminderDate(new Date(task.reminderAt))}
                   </ThemeText>
                 </>
               )}
@@ -364,6 +406,14 @@ export default function TaskDetailScreen() {
         onClose={() => setShowDatePicker(false)}
         value={draftDueDate}
         onChange={setDraftDueDate}
+        minimumDate={new Date()}
+      />
+
+      <ReminderPicker
+        visible={showReminderPicker}
+        onClose={() => setShowReminderPicker(false)}
+        value={draftReminderAt}
+        onChange={setDraftReminderAt}
         minimumDate={new Date()}
       />
     </View>
