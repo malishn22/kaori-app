@@ -394,13 +394,15 @@ export default function TaskDetailScreen() {
         minimumDate={new Date()}
       />
 
-      <ReminderPicker
-        visible={showReminderPicker}
-        onClose={() => setShowReminderPicker(false)}
-        value={draftReminderAt}
-        onChange={setDraftReminderAt}
-        minimumDate={new Date()}
-      />
+      {draftDueDate !== null && (
+        <ReminderPicker
+          visible={showReminderPicker}
+          onClose={() => setShowReminderPicker(false)}
+          value={draftReminderAt}
+          onChange={setDraftReminderAt}
+          baseDate={draftDueDate}
+        />
+      )}
     </View>
   );
 }

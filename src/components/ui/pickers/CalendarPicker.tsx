@@ -117,8 +117,10 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
   }, [close, onClose]);
 
   function handleSelect(date: Date) {
-    onChange(date);
-    close(() => onClose());
+    close(() => {
+      onChange(date);
+      onClose();
+    });
   }
 
   if (!visible) return null;

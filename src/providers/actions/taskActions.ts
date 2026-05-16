@@ -8,13 +8,14 @@ export function createTaskActions(
   setTasks: SetState<Task[]>,
   setFolders: SetState<Folder[]>,
 ) {
-  function addTask(title: string, dueDate: string | null, folderId: string | null) {
+  function addTask(title: string, dueDate: string | null, folderId: string | null, reminderAt?: string | null) {
     const createdAt = new Date().toISOString();
     const newTask: Task = {
       id: Date.now().toString(),
       folder: folderId,
       title,
       dueDate,
+      ...(reminderAt != null && { reminderAt }),
       done: false,
       createdAt,
       pinned: false,

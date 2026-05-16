@@ -4,10 +4,23 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
-import { PageHeader, ThemeText, Chip, CalendarPicker, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
+import { PageHeader, ThemeText, Chip, CalendarPicker, ReminderPicker, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
 import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 import { getDateChipOptions, isSameDay, formatDueDate } from '@/utils';
+
+const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatReminderDate(date: Date): string {
+  const month = MONTH_SHORT[date.getMonth()];
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours % 12 === 0 ? 12 : hours % 12;
+  const displayMin = String(minutes).padStart(2, '0');
+  return `${month} ${day} · ${displayHour}:${displayMin} ${ampm}`;
+}
 
 export default function NewTaskScreen() {
   const router = useRouter();
@@ -21,6 +34,8 @@ export default function NewTaskScreen() {
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(folderId ?? null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [draftReminderAt, setDraftReminderAt] = useState<Date | null>(null);
+  const [showReminderPicker, setShowReminderPicker] = useState(false);
   const selectionRef = useRef({ start: 0, end: 0 });
 
   const isCustomDate = dueDate !== null && !getDateChipOptions().some(opt => isSameDay(dueDate, opt.date));
@@ -31,9 +46,16 @@ export default function NewTaskScreen() {
       title.trim(),
       dueDate ? dueDate.toISOString() : null,
       selectedFolder,
+      draftReminderAt ? draftReminderAt.toISOString() : null,
     );
     impactOnSave();
     router.back();
+  }
+
+  function handleClearDueDate() {
+    setDueDate(null);
+    setDraftReminderAt(null);
+    setShowDatePicker(false);
   }
 
   function handleInsertCheckbox() {
@@ -77,7 +99,7 @@ export default function NewTaskScreen() {
             </ThemeText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View className="flex-row gap-1.5">
-                <Chip active={dueDate === null} onPress={() => { setDueDate(null); setShowDatePicker(false); }}>
+                <Chip active={dueDate === null} onPress={handleClearDueDate}>
                   <ThemeText variant="chip" size={13} color={dueDate === null ? 'ink' : 'ink2'}>none</ThemeText>
                 </Chip>
                 <Chip active={isCustomDate} onPress={() => setShowDatePicker(true)}>
@@ -96,6 +118,26 @@ export default function NewTaskScreen() {
               </View>
             </ScrollView>
           </View>
+
+          {dueDate !== null && (
+            <View className="mt-4">
+              <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
+                reminder
+              </ThemeText>
+              <View className="flex-row gap-1.5">
+                <Chip active={draftReminderAt !== null} onPress={() => setShowReminderPicker(true)}>
+                  <ThemeText variant="chip" size={13} color={draftReminderAt !== null ? 'ink' : 'ink2'}>
+                    {draftReminderAt !== null ? formatReminderDate(draftReminderAt) : 'set reminder'}
+                  </ThemeText>
+                </Chip>
+                {draftReminderAt !== null && (
+                  <Chip onPress={() => setDraftReminderAt(null)}>
+                    <ThemeText variant="chip" size={13} color="ink2">clear</ThemeText>
+                  </Chip>
+                )}
+              </View>
+            </View>
+          )}
 
           <FolderChipSelector folders={folders} selected={selectedFolder} onSelect={setSelectedFolder} label="folder" />
         </View>
@@ -120,6 +162,16 @@ export default function NewTaskScreen() {
         onChange={setDueDate}
         minimumDate={new Date()}
       />
+
+      {dueDate !== null && (
+        <ReminderPicker
+          visible={showReminderPicker}
+          onClose={() => setShowReminderPicker(false)}
+          value={draftReminderAt}
+          onChange={setDraftReminderAt}
+          baseDate={dueDate}
+        />
+      )}
     </View>
   );
 }
