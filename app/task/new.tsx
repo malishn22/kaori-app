@@ -1,18 +1,16 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
-import { PageHeader, ThemeText, Chip, CalendarPicker, FolderChipSelector, FormatToolbar } from '@/components/ui';
+import { PageHeader, ThemeText, Chip, CalendarPicker, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
 import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 import { getDateChipOptions, isSameDay, formatDueDate } from '@/utils';
 
 export default function NewTaskScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { folderId } = useLocalSearchParams<{ folderId?: string }>();
   const { addTask } = useStore();
@@ -50,21 +48,10 @@ export default function NewTaskScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-theme-bg"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      enabled={Platform.OS === 'ios'}
-    >
+    <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
-
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="always"
-      >
+      <EditorScreen toolbar={<FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />}>
         <View className="px-6 pt-3">
-          {/* Title */}
           <TextInput
             style={{
               fontFamily: FONT.kalam,
@@ -84,7 +71,6 @@ export default function NewTaskScreen() {
             cursorColor={colors.amber}
           />
 
-          {/* Due date */}
           <View className="mt-6">
             <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
               due date
@@ -111,11 +97,9 @@ export default function NewTaskScreen() {
             </ScrollView>
           </View>
 
-          {/* Folder selector */}
           <FolderChipSelector folders={folders} selected={selectedFolder} onSelect={setSelectedFolder} label="folder" />
         </View>
 
-        {/* Save button */}
         <View className="px-4 pt-8">
           <TouchableOpacity
             onPress={handleSave}
@@ -127,11 +111,7 @@ export default function NewTaskScreen() {
             <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save task</ThemeText>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      <View style={{ paddingBottom: Math.min(insets.bottom, 8) }}>
-        <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
-      </View>
+      </EditorScreen>
 
       <CalendarPicker
         visible={showDatePicker}
@@ -140,6 +120,6 @@ export default function NewTaskScreen() {
         onChange={setDueDate}
         minimumDate={new Date()}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }

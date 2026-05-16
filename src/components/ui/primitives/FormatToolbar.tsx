@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
-import { CircleIcon } from '@/assets/icons';
-import StrikethroughSvg from '@/assets/icons/strikethrough.svg';
+import { CircleIcon, StrikethroughIcon } from '@/assets/icons';
 
 type Props = {
   onCheckbox: () => void;
@@ -39,7 +38,7 @@ export function FormatToolbar({ onCheckbox, onStrikethrough }: Props) {
         style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         activeOpacity={0.6}
       >
-        <StrikethroughSvg width={16} height={16} color={colors.amber} />
+        <StrikethroughIcon size={16} color={colors.amber} />
       </TouchableOpacity>
     </View>
   );

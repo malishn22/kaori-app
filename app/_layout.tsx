@@ -7,7 +7,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useFonts } from 'expo-font';
 import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import * as Notifications from 'expo-notifications';
+import { IS_EXPO_GO } from '@/utils/notifications';
 import { useTheme, getColors, themeVars } from '@/theme';
 import { SettingsProvider, useSettings } from '@/providers/SettingsProvider';
 import { StoreProvider, useStore } from '@/providers/StoreProvider';
@@ -84,7 +84,10 @@ function NotificationHandler() {
   const router = useRouter();
 
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+    if (IS_EXPO_GO) return;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const N = require('expo-notifications') as typeof import('expo-notifications');
+    const subscription = N.addNotificationResponseReceivedListener((response) => {
       const taskId = response.notification.request.content.data?.taskId;
       if (taskId) {
         router.push(`/task/${taskId}`);

@@ -8,3 +8,4 @@ export { useFolderTasks } from './useFolderTasks';
 export { useActiveFolders } from './useActiveFolders';
 export { useActiveNotes } from './useActiveNotes';
 export { useActiveTasks } from './useActiveTasks';
+export { useKeyboardHeight } from './useKeyboardHeight';

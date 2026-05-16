@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, TouchableOpacity, Share, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useAnimatedPopup, useInlineEdit, useConfirmAction, useActiveFolders } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, FormattedText, GrainOverlay, FormatToolbar, ConfirmationDialog, MenuRow, PopupMenu, FolderChipSelector } from '@/components/ui';
+import { ThemeText, ColorDot, Chip, PageHeader, FormattedText, GrainOverlay, FormatToolbar, ConfirmationDialog, MenuRow, PopupMenu, FolderChipSelector, EditorScreen } from '@/components/ui';
 import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
 import { toggleCheckboxLine, insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { FONT } from '@/theme';
@@ -125,19 +125,18 @@ export default function NoteDetailScreen() {
 
   const popupTop = insets.top + 16 + 52 + 8;
 
-  const toolbar = (
-    <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
-  );
-
   return (
-    <KeyboardAvoidingView className="flex-1 bg-theme-bg" behavior="padding" enabled={Platform.OS === 'ios'}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader
         onBack={handleBack}
         editButton={{ onPress: () => startEditing(toEditableText(note.text, note.links)), active: editing }}
         moreButton={{ onPress: openMenu }}
       />
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always">
+      <EditorScreen
+        toolbarVisible={editing}
+        toolbar={<FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />}
+      >
         <View className="px-6 pt-6">
           {/* Folder pill */}
           {folder && (
@@ -222,14 +221,7 @@ export default function NoteDetailScreen() {
             </TouchableOpacity>
           </View>
         ) : null}
-      </ScrollView>
-
-      {/* Format toolbar */}
-      {editing && (
-        <View style={{ paddingBottom: Math.min(insets.bottom, 8) }}>
-          {toolbar}
-        </View>
-      )}
+      </EditorScreen>
 
       {/* Popup menu */}
       <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
@@ -303,7 +295,6 @@ export default function NoteDetailScreen() {
         ]}
         onClose={() => setLinkAction(null)}
       />
-
-    </KeyboardAvoidingView>
+    </View>
   );
 }

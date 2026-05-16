@@ -24,6 +24,7 @@ export { MenuRow } from './layout/MenuRow';
 export { PagedSections } from './layout/PagedSections';
 export { EmptyState } from './layout/EmptyState';
 export { PopupMenu } from './layout/PopupMenu';
+export { EditorScreen } from './layout/EditorScreen';
 
 // cards
 export { ContentCard } from './cards/ContentCard';

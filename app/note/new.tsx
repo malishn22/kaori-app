@@ -1,17 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
-import { PageHeader, ThemeText, FolderChipSelector, FormatToolbar } from '@/components/ui';
+import { PageHeader, ThemeText, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
 import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function NewNoteScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { folderId } = useLocalSearchParams<{ folderId?: string }>();
   const { addNote } = useStore();
@@ -41,19 +39,9 @@ export default function NewNoteScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-theme-bg"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      enabled={Platform.OS === 'ios'}
-    >
+    <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
-
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="always"
-      >
+      <EditorScreen toolbar={<FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />}>
         <View className="px-6 pt-3">
           <TextInput
             style={{
@@ -90,11 +78,7 @@ export default function NewNoteScreen() {
             <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save note</ThemeText>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      <View style={{ paddingBottom: Math.min(insets.bottom, 8) }}>
-        <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
-      </View>
-    </KeyboardAvoidingView>
+      </EditorScreen>
+    </View>
   );
 }

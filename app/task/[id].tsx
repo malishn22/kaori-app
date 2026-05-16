@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar } from '@/components/ui';
+import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
 import { insertCheckboxAtCursor, wrapStrikethrough, toggleCheckboxLine } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
@@ -173,22 +173,17 @@ export default function TaskDetailScreen() {
 
   const popupTop = insets.top + 16 + 52 + 8;
 
-  const toolbar = (
-    <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
-  );
-
   return (
-    <KeyboardAvoidingView className="flex-1 bg-theme-bg" behavior="padding" enabled={Platform.OS === 'ios'}>
+    <View className="flex-1 bg-theme-bg">
       <PageHeader
         onBack={handleBack}
         editButton={{ onPress: () => editing ? cancelEdit() : startEditing(), active: editing }}
         moreButton={{ onPress: openMenu }}
       />
 
-      <ScrollView style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 60 }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+      <EditorScreen
+        toolbarVisible={editing}
+        toolbar={<FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />}
       >
         <View className="px-6 pt-6">
           {/* Folder pill */}
@@ -327,14 +322,7 @@ export default function TaskDetailScreen() {
             </TouchableOpacity>
           </View>
         )}
-      </ScrollView>
-
-      {/* Format toolbar */}
-      {editing && (
-        <View style={{ paddingBottom: Math.min(insets.bottom, 8) }}>
-          {toolbar}
-        </View>
-      )}
+      </EditorScreen>
 
       {/* Popup menu */}
       <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
@@ -413,6 +401,6 @@ export default function TaskDetailScreen() {
         onChange={setDraftReminderAt}
         minimumDate={new Date()}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
