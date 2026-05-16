@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, InputAccessoryView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
@@ -9,8 +9,6 @@ import { PageHeader, ThemeText, Chip, CalendarPicker, FolderChipSelector, Format
 import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 import { getDateChipOptions, isSameDay, formatDueDate } from '@/utils';
-
-const INPUT_ACCESSORY_ID = 'new-task-toolbar';
 
 export default function NewTaskScreen() {
   const router = useRouter();
@@ -51,21 +49,19 @@ export default function NewTaskScreen() {
     setTitle(newText);
   }
 
-  const toolbar = (
-    <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
-  );
-
   return (
     <KeyboardAvoidingView
       className="flex-1 bg-theme-bg"
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      enabled={Platform.OS === 'ios'}
     >
       <PageHeader onBack={() => router.back()} />
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 16 }}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+        keyboardShouldPersistTaps="always"
       >
         <View className="px-6 pt-3">
           {/* Title */}
@@ -86,7 +82,6 @@ export default function NewTaskScreen() {
             autoFocus
             selectionColor={colors.amber}
             cursorColor={colors.amber}
-            inputAccessoryViewID={Platform.OS === 'ios' ? INPUT_ACCESSORY_ID : undefined}
           />
 
           {/* Due date */}
@@ -134,15 +129,9 @@ export default function NewTaskScreen() {
         </View>
       </ScrollView>
 
-      {Platform.OS === 'ios' ? (
-        <InputAccessoryView nativeID={INPUT_ACCESSORY_ID}>
-          {toolbar}
-        </InputAccessoryView>
-      ) : (
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
-          {toolbar}
-        </View>
-      )}
+      <View style={{ paddingBottom: Math.min(insets.bottom, 8) }}>
+        <FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />
+      </View>
 
       <CalendarPicker
         visible={showDatePicker}

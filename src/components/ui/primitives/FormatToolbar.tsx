@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { useTheme, FONT } from '@/theme';
-import { ThemeText } from './ThemeText';
+import { useTheme } from '@/theme';
+import { CircleIcon } from '@/assets/icons';
+import StrikethroughSvg from '@/assets/icons/strikethrough.svg';
 
 type Props = {
   onCheckbox: () => void;
@@ -16,7 +17,7 @@ export function FormatToolbar({ onCheckbox, onStrikethrough }: Props) {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        height: 44,
+        height: 46,
         paddingHorizontal: 8,
         backgroundColor: colors.bg,
         borderTopWidth: 1,
@@ -26,44 +27,19 @@ export function FormatToolbar({ onCheckbox, onStrikethrough }: Props) {
       <TouchableOpacity
         onPress={onCheckbox}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        style={{
-          width: 40,
-          height: 40,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+        style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         activeOpacity={0.6}
       >
-        <View
-          style={{
-            width: 19,
-            height: 19,
-            borderRadius: 10,
-            borderWidth: 1.5,
-            borderColor: colors.amber,
-          }}
-        />
+        <CircleIcon size={22} color={colors.amber} />
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={onStrikethrough}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        style={{
-          width: 40,
-          height: 40,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+        style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         activeOpacity={0.6}
       >
-        <ThemeText
-          variant="meta"
-          size={17}
-          color="amber"
-          style={{ fontFamily: FONT.kalam, textDecorationLine: 'line-through' }}
-        >
-          S
-        </ThemeText>
+        <StrikethroughSvg width={16} height={16} color={colors.amber} />
       </TouchableOpacity>
     </View>
   );

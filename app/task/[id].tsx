@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, KeyboardAvoidingView, InputAccessoryView, Platform } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
@@ -7,13 +7,12 @@ import { useStore } from '@/providers/StoreProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders } from '@/hooks';
 import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar } from '@/components/ui';
-import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
+import { insertCheckboxAtCursor, wrapStrikethrough, toggleCheckboxLine } from '@/utils/noteFormat';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
 import { computeDisplayStrings } from '@/utils/time';
 import { cancelTaskReminder } from '@/utils/notifications';
 
-const INPUT_ACCESSORY_ID = 'task-detail-toolbar';
 
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -166,6 +165,12 @@ export default function TaskDetailScreen() {
     setDraftTitle(newText);
   }
 
+  function handleCheckboxToggle(lineIndex: number) {
+    const newTitle = toggleCheckboxLine(task!.title, lineIndex);
+    updateTask(task!.id, { title: newTitle });
+    impact();
+  }
+
   const popupTop = insets.top + 16 + 52 + 8;
 
   const toolbar = (
@@ -173,15 +178,14 @@ export default function TaskDetailScreen() {
   );
 
   return (
-    <View className="flex-1 bg-theme-bg">
+    <KeyboardAvoidingView className="flex-1 bg-theme-bg" behavior="padding" enabled={Platform.OS === 'ios'}>
       <PageHeader
         onBack={handleBack}
         editButton={{ onPress: () => editing ? cancelEdit() : startEditing(), active: editing }}
         moreButton={{ onPress: openMenu }}
       />
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView
+      <ScrollView style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 60 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -220,7 +224,6 @@ export default function TaskDetailScreen() {
               autoFocus
               selectionColor={colors.amber}
               cursorColor={colors.amber}
-              inputAccessoryViewID={Platform.OS === 'ios' ? INPUT_ACCESSORY_ID : undefined}
             />
           ) : (
             <FormattedText
@@ -230,6 +233,7 @@ export default function TaskDetailScreen() {
               lineHeight={28}
               letterSpacing={0.1}
               style={task.done ? { textDecorationLine: 'line-through', opacity: 0.5 } : undefined}
+              onCheckboxToggle={handleCheckboxToggle}
             />
           )}
 
@@ -324,19 +328,12 @@ export default function TaskDetailScreen() {
           </View>
         )}
       </ScrollView>
-      </KeyboardAvoidingView>
 
-      {/* Format toolbar — keyboard-attached, edit mode only */}
+      {/* Format toolbar */}
       {editing && (
-        Platform.OS === 'ios' ? (
-          <InputAccessoryView nativeID={INPUT_ACCESSORY_ID}>
-            {toolbar}
-          </InputAccessoryView>
-        ) : (
-          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
-            {toolbar}
-          </View>
-        )
+        <View style={{ paddingBottom: Math.min(insets.bottom, 8) }}>
+          {toolbar}
+        </View>
       )}
 
       {/* Popup menu */}
@@ -416,6 +413,6 @@ export default function TaskDetailScreen() {
         onChange={setDraftReminderAt}
         minimumDate={new Date()}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

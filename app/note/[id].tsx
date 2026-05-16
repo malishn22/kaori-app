@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking, KeyboardAvoidingView, InputAccessoryView, Platform } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
@@ -11,7 +11,6 @@ import { toggleCheckboxLine, insertCheckboxAtCursor, wrapStrikethrough } from '@
 import { FONT } from '@/theme';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 
-const INPUT_ACCESSORY_ID = 'note-detail-toolbar';
 
 export default function NoteDetailScreen() {
   const router = useRouter();
@@ -131,15 +130,14 @@ export default function NoteDetailScreen() {
   );
 
   return (
-    <View className="flex-1 bg-theme-bg">
+    <KeyboardAvoidingView className="flex-1 bg-theme-bg" behavior="padding" enabled={Platform.OS === 'ios'}>
       <PageHeader
         onBack={handleBack}
         editButton={{ onPress: () => startEditing(toEditableText(note.text, note.links)), active: editing }}
         moreButton={{ onPress: openMenu }}
       />
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always">
         <View className="px-6 pt-6">
           {/* Folder pill */}
           {folder && (
@@ -168,7 +166,6 @@ export default function NoteDetailScreen() {
               autoFocus
               selectionColor={colors.amber}
               cursorColor={colors.amber}
-              inputAccessoryViewID={Platform.OS === 'ios' ? INPUT_ACCESSORY_ID : undefined}
             />
           ) : (
             <FormattedText
@@ -226,19 +223,12 @@ export default function NoteDetailScreen() {
           </View>
         ) : null}
       </ScrollView>
-      </KeyboardAvoidingView>
 
-      {/* Format toolbar — keyboard-attached */}
+      {/* Format toolbar */}
       {editing && (
-        Platform.OS === 'ios' ? (
-          <InputAccessoryView nativeID={INPUT_ACCESSORY_ID}>
-            {toolbar}
-          </InputAccessoryView>
-        ) : (
-          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
-            {toolbar}
-          </View>
-        )
+        <View style={{ paddingBottom: Math.min(insets.bottom, 8) }}>
+          {toolbar}
+        </View>
       )}
 
       {/* Popup menu */}
@@ -314,6 +304,6 @@ export default function NoteDetailScreen() {
         onClose={() => setLinkAction(null)}
       />
 
-    </View>
+    </KeyboardAvoidingView>
   );
 }

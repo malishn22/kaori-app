@@ -23,8 +23,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1A1510"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
+"predictiveBackGestureEnabled": false,
       "softInputMode": "adjustResize",
       "package": "com.kaori.app"
     },
