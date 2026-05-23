@@ -3,12 +3,36 @@ import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
-import { PageHeader, ThemeText, Chip, CalendarPicker, ReminderPicker, FolderChipSelector, FormatToolbar, EditorScreen, TextContent, type TextContentHandle } from '@/components/ui';
+import {
+  PageHeader,
+  ThemeText,
+  Chip,
+  CalendarPicker,
+  ReminderPicker,
+  FolderChipSelector,
+  FormatToolbar,
+  EditorScreen,
+  TextContent,
+  type TextContentHandle,
+} from '@/components/ui';
 import { fromEditableText } from '@/utils/links';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 import { getDateChipOptions, isSameDay, formatDueDate } from '@/utils';
 
-const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_SHORT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 function formatReminderDate(date: Date): string {
   const month = MONTH_SHORT[date.getMonth()];
@@ -36,7 +60,8 @@ export default function NewTaskScreen() {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const editorRef = useRef<TextContentHandle>(null);
 
-  const isCustomDate = dueDate !== null && !getDateChipOptions().some(opt => isSameDay(dueDate, opt.date));
+  const isCustomDate =
+    dueDate !== null && !getDateChipOptions().some((opt) => isSameDay(dueDate, opt.date));
 
   async function handleSave() {
     if (!title.trim()) return;
@@ -88,18 +113,29 @@ export default function NewTaskScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View className="flex-row gap-1.5">
                 <Chip active={dueDate === null} onPress={handleClearDueDate}>
-                  <ThemeText variant="chip" size={13} color={dueDate === null ? 'ink' : 'ink2'}>none</ThemeText>
+                  <ThemeText variant="chip" size={13} color={dueDate === null ? 'ink' : 'ink2'}>
+                    none
+                  </ThemeText>
                 </Chip>
                 <Chip active={isCustomDate} onPress={() => setShowDatePicker(true)}>
                   <ThemeText variant="chip" size={13} color={isCustomDate ? 'ink' : 'ink2'}>
                     {isCustomDate ? formatDueDate(dueDate!.toISOString()) : '+'}
                   </ThemeText>
                 </Chip>
-                {getDateChipOptions().map(opt => {
+                {getDateChipOptions().map((opt) => {
                   const isActive = dueDate !== null && isSameDay(dueDate, opt.date);
                   return (
-                    <Chip key={opt.label} active={isActive} onPress={() => { setDueDate(opt.date); setShowDatePicker(false); }}>
-                      <ThemeText variant="chip" size={13} color={isActive ? 'ink' : 'ink2'}>{opt.label}</ThemeText>
+                    <Chip
+                      key={opt.label}
+                      active={isActive}
+                      onPress={() => {
+                        setDueDate(opt.date);
+                        setShowDatePicker(false);
+                      }}
+                    >
+                      <ThemeText variant="chip" size={13} color={isActive ? 'ink' : 'ink2'}>
+                        {opt.label}
+                      </ThemeText>
                     </Chip>
                   );
                 })}
@@ -109,25 +145,43 @@ export default function NewTaskScreen() {
 
           {dueDate !== null && (
             <View className="mt-4">
-              <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
+              <ThemeText
+                variant="caption"
+                size={11}
+                letterSpacing={0.4}
+                style={{ marginBottom: 10 }}
+              >
                 reminder
               </ThemeText>
               <View className="flex-row gap-1.5">
                 <Chip active={draftReminderAt !== null} onPress={() => setShowReminderPicker(true)}>
-                  <ThemeText variant="chip" size={13} color={draftReminderAt !== null ? 'ink' : 'ink2'}>
-                    {draftReminderAt !== null ? formatReminderDate(draftReminderAt) : 'set reminder'}
+                  <ThemeText
+                    variant="chip"
+                    size={13}
+                    color={draftReminderAt !== null ? 'ink' : 'ink2'}
+                  >
+                    {draftReminderAt !== null
+                      ? formatReminderDate(draftReminderAt)
+                      : 'set reminder'}
                   </ThemeText>
                 </Chip>
                 {draftReminderAt !== null && (
                   <Chip onPress={() => setDraftReminderAt(null)}>
-                    <ThemeText variant="chip" size={13} color="ink2">clear</ThemeText>
+                    <ThemeText variant="chip" size={13} color="ink2">
+                      clear
+                    </ThemeText>
                   </Chip>
                 )}
               </View>
             </View>
           )}
 
-          <FolderChipSelector folders={folders} selected={selectedFolder} onSelect={setSelectedFolder} label="folder" />
+          <FolderChipSelector
+            folders={folders}
+            selected={selectedFolder}
+            onSelect={setSelectedFolder}
+            label="folder"
+          />
         </View>
 
         <View className="px-4 pt-8">
@@ -138,7 +192,9 @@ export default function NewTaskScreen() {
             style={{ opacity: title.trim() ? 1 : 0.4 }}
             activeOpacity={0.85}
           >
-            <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save task</ThemeText>
+            <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>
+              save task
+            </ThemeText>
           </TouchableOpacity>
         </View>
       </EditorScreen>

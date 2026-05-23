@@ -6,7 +6,7 @@ import { GrainOverlay } from '../primitives/GrainOverlay';
 import { FolderAvatar } from './FolderAvatar';
 import { RestoreChip } from '../primitives/RestoreChip';
 import { ChevronIcon, BookmarkIcon } from '@/assets/icons';
-import { SHADOW_CARD, CARD_BORDER_RADIUS, ARCHIVED_OPACITY } from '@/constants';
+import { SHADOW_CARD, ARCHIVED_OPACITY } from '@/constants';
 import type { Folder } from '@/types';
 
 type FolderCardProps = {
@@ -20,9 +20,20 @@ type FolderCardProps = {
   onLongPress?: () => void;
 };
 
-export function FolderCard({ folder, index, noteCount, taskCount, onRestore, isDragging, onPress, onLongPress }: FolderCardProps) {
+export function FolderCard({
+  folder,
+  index: _index,
+  noteCount,
+  taskCount,
+  onRestore,
+  isDragging,
+  onPress,
+  onLongPress,
+}: FolderCardProps) {
   const { colors } = useTheme();
-  const shadowStyle = isDragging ? { ...SHADOW_CARD, shadowOpacity: 0.4, elevation: 12 } : SHADOW_CARD;
+  const shadowStyle = isDragging
+    ? { ...SHADOW_CARD, shadowOpacity: 0.4, elevation: 12 }
+    : SHADOW_CARD;
   const isArchived = !!folder.archived;
 
   return (

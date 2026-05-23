@@ -3,7 +3,15 @@ import { View, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
-import { PageHeader, ThemeText, FolderChipSelector, FormatToolbar, EditorScreen, TextContent, type TextContentHandle } from '@/components/ui';
+import {
+  PageHeader,
+  ThemeText,
+  FolderChipSelector,
+  FormatToolbar,
+  EditorScreen,
+  TextContent,
+  type TextContentHandle,
+} from '@/components/ui';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function NewNoteScreen() {
@@ -48,7 +56,12 @@ export default function NewNoteScreen() {
             minHeight={160}
           />
 
-          <FolderChipSelector folders={folders} selected={selectedFolder} onSelect={setSelectedFolder} label="folder" />
+          <FolderChipSelector
+            folders={folders}
+            selected={selectedFolder}
+            onSelect={setSelectedFolder}
+            label="folder"
+          />
         </View>
 
         <View className="px-4 pt-8">
@@ -59,7 +72,9 @@ export default function NewNoteScreen() {
             style={{ opacity: text.trim() ? 1 : 0.4 }}
             activeOpacity={0.85}
           >
-            <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save note</ThemeText>
+            <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>
+              save note
+            </ThemeText>
           </TouchableOpacity>
         </View>
       </EditorScreen>

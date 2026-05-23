@@ -1,6 +1,9 @@
 import React from 'react';
 import { View } from 'react-native';
-import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
+import DraggableFlatList, {
+  RenderItemParams,
+  ScaleDecorator,
+} from 'react-native-draggable-flatlist';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FolderCard } from './FolderCard';
@@ -15,14 +18,25 @@ type Props = {
   onFolderPress: (id: string) => void;
 };
 
-export function DraggableFolderList({ folders, noteCounts, taskCounts, onReorder, onFolderPress }: Props) {
+export function DraggableFolderList({
+  folders,
+  noteCounts,
+  taskCounts,
+  onReorder,
+  onFolderPress,
+}: Props) {
   const insets = useSafeAreaInsets();
 
   const renderItem = ({ item, drag, isActive, getIndex }: RenderItemParams<Folder>) => {
     const index = getIndex()!;
     return (
       <ScaleDecorator>
-        <View style={[{ marginBottom: 14 }, isActive ? { elevation: 8, shadowOpacity: 0.3, shadowRadius: 8 } : undefined]}>
+        <View
+          style={[
+            { marginBottom: 14 },
+            isActive ? { elevation: 8, shadowOpacity: 0.3, shadowRadius: 8 } : undefined,
+          ]}
+        >
           <FolderCard
             folder={item}
             index={index}

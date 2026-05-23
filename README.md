@@ -4,16 +4,16 @@ A minimal, offline-first note and task manager for iOS and Android, built with E
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Expo SDK 55 + React Native 0.83 |
-| Language | TypeScript 5.9 (strict) |
-| Routing | Expo Router (file-based) |
-| Styling | NativeWind v4 (Tailwind CSS) |
-| Animations | React Native Reanimated 4 + Gesture Handler |
-| State | React Context API |
-| Storage | AsyncStorage (local, no backend) |
-| Notifications | Expo Notifications |
+| Layer         | Technology                                  |
+| ------------- | ------------------------------------------- |
+| Framework     | Expo SDK 55 + React Native 0.83             |
+| Language      | TypeScript 5.9 (strict)                     |
+| Routing       | Expo Router (file-based)                    |
+| Styling       | NativeWind v4 (Tailwind CSS)                |
+| Animations    | React Native Reanimated 4 + Gesture Handler |
+| State         | React Context API                           |
+| Storage       | AsyncStorage (local, no backend)            |
+| Notifications | Expo Notifications                          |
 
 ## Prerequisites
 
@@ -34,12 +34,15 @@ npm install
 ## Running
 
 ### Development (Expo Go)
+
 ```bash
 npm start
 ```
+
 Scan the QR code with the Expo Go app on your device.
 
 ### iOS Simulator
+
 ```bash
 npm run ios
 # or
@@ -47,6 +50,7 @@ expo run:ios
 ```
 
 ### Android Emulator / Device
+
 ```bash
 npm run android
 # or
@@ -54,6 +58,7 @@ expo run:android
 ```
 
 ### Web (limited)
+
 ```bash
 npm run web
 ```
@@ -61,6 +66,7 @@ npm run web
 ## Building for Production
 
 ### Local builds
+
 Requires native toolchains installed (Xcode / Android Studio).
 
 ```bash
@@ -72,6 +78,7 @@ expo run:android --variant release
 ```
 
 ### EAS Build (recommended)
+
 [EAS Build](https://docs.expo.dev/build/introduction/) handles signing, certificates, and CI/CD without needing Xcode or Android Studio locally.
 
 ```bash
@@ -81,6 +88,7 @@ eas build --platform ios      # or android | all
 ```
 
 App identifiers:
+
 - iOS bundle ID: `com.kaori.app`
 - Android package: `com.kaori.app`
 

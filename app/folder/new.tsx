@@ -34,40 +34,42 @@ export default function NewFolderScreen() {
       >
         <View className="px-6 pt-3">
           {/* Name input */}
-            <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 8 }}>
-              name
+          <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 8 }}>
+            name
+          </ThemeText>
+          <CountedInput
+            value={name}
+            onChangeText={(t) => setName(t.slice(0, 30))}
+            placeholder="folder name..."
+            maxLength={30}
+            autoFocus
+            style={{ fontSize: 28, lineHeight: 38, letterSpacing: 0.1 }}
+          />
+
+          {/* Color picker */}
+          <View className="mt-6">
+            <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
+              color
             </ThemeText>
-            <CountedInput
-              value={name}
-              onChangeText={(t) => setName(t.slice(0, 30))}
-              placeholder="folder name..."
-              maxLength={30}
-              autoFocus
-              style={{ fontSize: 28, lineHeight: 38, letterSpacing: 0.1 }}
-            />
-
-            {/* Color picker */}
-            <View className="mt-6">
-              <ThemeText variant="caption" size={11} letterSpacing={0.4} style={{ marginBottom: 10 }}>
-                color
-              </ThemeText>
-              <ColorSwatchPicker selectedColor={selectedColor} onSelect={setSelectedColor} />
-            </View>
+            <ColorSwatchPicker selectedColor={selectedColor} onSelect={setSelectedColor} />
           </View>
+        </View>
 
-          {/* Save button */}
-          <View className="px-4 pt-8">
-            <TouchableOpacity
-              onPress={handleSave}
-              disabled={!name.trim()}
-              className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
-              style={{ opacity: name.trim() ? 1 : 0.4 }}
-              activeOpacity={0.85}
-            >
-              <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>create folder</ThemeText>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
+        {/* Save button */}
+        <View className="px-4 pt-8">
+          <TouchableOpacity
+            onPress={handleSave}
+            disabled={!name.trim()}
+            className="h-[52px] rounded-2xl bg-theme-amber items-center justify-center"
+            style={{ opacity: name.trim() ? 1 : 0.4 }}
+            activeOpacity={0.85}
+          >
+            <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>
+              create folder
+            </ThemeText>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }

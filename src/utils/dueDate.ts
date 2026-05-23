@@ -18,9 +18,11 @@ export function getDateChipOptions(): { label: string; date: Date }[] {
 }
 
 export function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear()
-    && a.getMonth() === b.getMonth()
-    && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
 export function formatDueDate(iso: string): string {
@@ -32,7 +34,20 @@ export function formatDueDate(iso: string): string {
   if (diff === 1) return 'tomorrow';
   if (diff === -1) return 'yesterday';
 
-  const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+  const months = [
+    'jan',
+    'feb',
+    'mar',
+    'apr',
+    'may',
+    'jun',
+    'jul',
+    'aug',
+    'sep',
+    'oct',
+    'nov',
+    'dec',
+  ];
   const label = `${months[due.getMonth()]} ${due.getDate()}`;
 
   if (due.getFullYear() !== today.getFullYear()) {

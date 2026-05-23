@@ -25,9 +25,11 @@ export type IconProps = { size?: number; color?: string; strokeWidth?: number };
 type ChevDir = 'right' | 'left' | 'up' | 'down';
 
 function icon(Svg: React.FC<SvgProps>, defaultSize: number) {
-  return ({ size = defaultSize, color, strokeWidth }: IconProps) => (
+  const Icon = ({ size = defaultSize, color, strokeWidth }: IconProps) => (
     <Svg width={size} height={size} color={color} strokeWidth={strokeWidth} />
   );
+  Icon.displayName = 'Icon';
+  return Icon;
 }
 
 export const PlusIcon = icon(PlusSvg, 22);
@@ -47,15 +49,34 @@ export const TrashIcon = icon(TrashSvg, 18);
 export const TaskIcon = icon(TaskSvg, 20);
 export const StrikethroughIcon = icon(StrikethroughSvg, 20);
 
-export function BookmarkIcon({ size = 20, color = 'currentColor', fill = 'transparent' }: { size?: number; color?: string; fill?: string }) {
+export function BookmarkIcon({
+  size = 20,
+  color = 'currentColor',
+  fill = 'transparent',
+}: {
+  size?: number;
+  color?: string;
+  fill?: string;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path d="M6 4h12v17l-6-4-6 4V4z" fill={fill} stroke={color} strokeWidth={1.4} strokeLinejoin="round" />
+      <Path
+        d="M6 4h12v17l-6-4-6 4V4z"
+        fill={fill}
+        stroke={color}
+        strokeWidth={1.4}
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 }
 
-export function ChevronIcon({ size = 16, color, strokeWidth, dir = 'right' }: IconProps & { dir?: ChevDir }) {
+export function ChevronIcon({
+  size = 16,
+  color,
+  strokeWidth,
+  dir = 'right',
+}: IconProps & { dir?: ChevDir }) {
   const rotation = { right: '0deg', left: '180deg', up: '-90deg', down: '90deg' }[dir];
   return (
     <ChevSvg

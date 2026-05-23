@@ -63,11 +63,14 @@ export function SwipeablePinWrapper({ children, isPinned, onTogglePin }: Props) 
   return (
     <View style={{ overflow: 'hidden' }}>
       <GestureDetector gesture={pan}>
-        <Animated.View style={[{ flexDirection: 'row', marginLeft: -WING_WIDTH, marginRight: -WING_WIDTH }, rowStyle]}>
+        <Animated.View
+          style={[
+            { flexDirection: 'row', marginLeft: -WING_WIDTH, marginRight: -WING_WIDTH },
+            rowStyle,
+          ]}
+        >
           <PinWing isPinned={isPinned} amberColor={colors.amber} />
-          <View style={{ flex: 1 }}>
-            {children}
-          </View>
+          <View style={{ flex: 1 }}>{children}</View>
           <PinWing isPinned={isPinned} amberColor={colors.amber} />
         </Animated.View>
       </GestureDetector>

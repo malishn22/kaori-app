@@ -48,26 +48,44 @@ export async function loadInitialData(): Promise<{
       [KEYS.profile, JSON.stringify(DEFAULT_PROFILE)],
       [KEYS.tasks, JSON.stringify(SEED_TASKS)],
     ]);
-    return { notes: SEED_NOTES, folders: SEED_FOLDERS, profile: DEFAULT_PROFILE, tasks: SEED_TASKS };
+    return {
+      notes: SEED_NOTES,
+      folders: SEED_FOLDERS,
+      profile: DEFAULT_PROFILE,
+      tasks: SEED_TASKS,
+    };
   }
 
   try {
-    const notes = rawNotes ? JSON.parse(rawNotes).map((n: Note) => ({ ...n, links: n.links ?? {} })) : SEED_NOTES;
+    const notes = rawNotes
+      ? JSON.parse(rawNotes).map((n: Note) => ({ ...n, links: n.links ?? {} }))
+      : SEED_NOTES;
     const folders: Folder[] = rawFolders ? JSON.parse(rawFolders) : SEED_FOLDERS;
-    const profile = rawProfile ? { ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) } : DEFAULT_PROFILE;
-    const tasks = rawTasks ? JSON.parse(rawTasks).map((t: Task) => ({ ...t, links: t.links ?? {} })) : SEED_TASKS;
+    const profile = rawProfile
+      ? { ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) }
+      : DEFAULT_PROFILE;
+    const tasks = rawTasks
+      ? JSON.parse(rawTasks).map((t: Task) => ({ ...t, links: t.links ?? {} }))
+      : SEED_TASKS;
 
     // Migration: assign order values to folders that don't have one yet.
     // Respects existing pinned-first order so the visual order matches what users already see.
     if (folders.some((f: Folder) => f.order === undefined)) {
       const sorted = [...folders].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-      sorted.forEach((f: Folder, i: number) => { f.order = i; });
+      sorted.forEach((f: Folder, i: number) => {
+        f.order = i;
+      });
       await safeSet(KEYS.folders, JSON.stringify(folders));
     }
 
     return { notes, folders, profile, tasks };
   } catch (e) {
     console.warn('[Kaori] Failed to parse stored data:', e);
-    return { notes: SEED_NOTES, folders: SEED_FOLDERS, profile: DEFAULT_PROFILE, tasks: SEED_TASKS };
+    return {
+      notes: SEED_NOTES,
+      folders: SEED_FOLDERS,
+      profile: DEFAULT_PROFILE,
+      tasks: SEED_TASKS,
+    };
   }
 }

@@ -11,5 +11,14 @@ type Props = {
 };
 
 export function NoteCard({ note, folder, index = 0, onRestore, onPress }: Props) {
-  return <ContentCard kind="note" note={note} folder={folder} index={index} onPress={onPress} onRestore={onRestore} />;
+  return (
+    <ContentCard
+      kind="note"
+      note={note}
+      folder={folder}
+      index={index}
+      onPress={onPress}
+      onRestore={onRestore}
+    />
+  );
 }

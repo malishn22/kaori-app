@@ -32,13 +32,13 @@ export function PagedSections({ children }: PagedSectionsProps) {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={e => {
+        onMomentumScrollEnd={(e) => {
           const page = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
           setActivePage(page);
         }}
         style={{ flex: 1 }}
       >
-        {React.Children.map(children, child => (
+        {React.Children.map(children, (child) => (
           <View style={{ width: SCREEN_WIDTH }}>{child}</View>
         ))}
       </ScrollView>

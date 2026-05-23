@@ -26,9 +26,8 @@ export function FAB({
   const insets = useSafeAreaInsets();
 
   const rawBottomInset = insets.bottom;
-  const bottomInsetForFab = Platform.OS === 'android'
-    ? Math.min(rawBottomInset, 12)
-    : rawBottomInset;
+  const bottomInsetForFab =
+    Platform.OS === 'android' ? Math.min(rawBottomInset, 12) : rawBottomInset;
 
   const bottom = bottomInsetForFab + TAB_BAR_BASE_HEIGHT + TAB_BAR_BOTTOM_INSET + bottomGap;
   return (

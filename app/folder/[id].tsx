@@ -2,9 +2,31 @@ import React, { useState, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useFolderNotes, useFolderTasks, useHapticFeedback, useAnimatedPopup, useConfirmAction } from '@/hooks';
+import {
+  useFolderNotes,
+  useFolderTasks,
+  useHapticFeedback,
+  useAnimatedPopup,
+  useConfirmAction,
+} from '@/hooks';
 import { useStore } from '@/providers/StoreProvider';
-import { NoteCard, TaskCard, FAB, ThemeText, HeaderText, ColorDot, PageHeader, SectionTitle, MenuRow, ColorSwatchPicker, CountedInput, PagedSections, PopupMenu, GrainOverlay, SwipeablePinWrapper } from '@/components/ui';
+import {
+  NoteCard,
+  TaskCard,
+  FAB,
+  ThemeText,
+  HeaderText,
+  ColorDot,
+  PageHeader,
+  SectionTitle,
+  MenuRow,
+  ColorSwatchPicker,
+  CountedInput,
+  PagedSections,
+  PopupMenu,
+  GrainOverlay,
+  SwipeablePinWrapper,
+} from '@/components/ui';
 import { DELETE_COLOR, BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function FolderDetailScreen() {
@@ -13,7 +35,16 @@ export default function FolderDetailScreen() {
   const insets = useSafeAreaInsets();
   const { folder, notes, notesThisWeek, pinnedCount } = useFolderNotes(id);
   const { tasks, openCount } = useFolderTasks(id);
-  const { toggleTask, pinFolder, deleteFolder, updateFolderColor, renameFolder, archiveFolder, updateNote, pinTask } = useStore();
+  const {
+    toggleTask,
+    pinFolder,
+    deleteFolder,
+    updateFolderColor,
+    renameFolder,
+    archiveFolder,
+    updateNote,
+    pinTask,
+  } = useStore();
   const { impact, notificationWarning } = useHapticFeedback();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,7 +54,12 @@ export default function FolderDetailScreen() {
   const [draftName, setDraftName] = useState('');
   const inputRef = useRef<TextInput>(null);
 
-  const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
+  const {
+    anim: menuAnim,
+    opacity: popupOpacity,
+    open: openPopup,
+    close: closePopup,
+  } = useAnimatedPopup();
   const { anim: fabAnim, opacity: fabOpacity, open: openFab, close: closeFab } = useAnimatedPopup();
 
   const confirmDelete = useConfirmAction({
@@ -95,7 +131,10 @@ export default function FolderDetailScreen() {
     <View className="flex-1 bg-theme-bg">
       <PageHeader
         onBack={() => router.back()}
-        editButton={{ onPress: () => renaming ? handleSaveRename() : handleStartRename(), active: renaming }}
+        editButton={{
+          onPress: () => (renaming ? handleSaveRename() : handleStartRename()),
+          active: renaming,
+        }}
         moreButton={{ onPress: openMenu }}
       />
 
@@ -105,7 +144,13 @@ export default function FolderDetailScreen() {
           <GrainOverlay />
           {/* Folded corner */}
           <View className="absolute top-0 right-0 w-7 h-7 bg-transparent rounded-tr-[22px] overflow-hidden">
-            <View className="absolute top-0 right-0 w-7 h-7" style={{ backgroundColor: 'rgba(232,200,154,0.12)', transform: [{ rotate: '45deg' }, { translateX: 14 }] }} />
+            <View
+              className="absolute top-0 right-0 w-7 h-7"
+              style={{
+                backgroundColor: 'rgba(232,200,154,0.12)',
+                transform: [{ rotate: '45deg' }, { translateX: 14 }],
+              }}
+            />
           </View>
 
           <View className="flex-row items-center gap-2 mb-1.5">
@@ -122,11 +167,18 @@ export default function FolderDetailScreen() {
                 />
               </View>
             ) : (
-              <HeaderText size={26} lineHeight={30}>{folder.name}</HeaderText>
+              <HeaderText size={26} lineHeight={30}>
+                {folder.name}
+              </HeaderText>
             )}
           </View>
           {folder.note ? (
-            <ThemeText variant="meta" size={13} color="ink2" style={{ marginTop: 4, lineHeight: 20 }}>
+            <ThemeText
+              variant="meta"
+              size={13}
+              color="ink2"
+              style={{ marginTop: 4, lineHeight: 20 }}
+            >
               {folder.note}
             </ThemeText>
           ) : null}
@@ -138,7 +190,9 @@ export default function FolderDetailScreen() {
               { val: pinnedCount, label: 'pinned' },
             ].map(({ val, label }) => (
               <ThemeText key={label} variant="meta">
-                <ThemeText variant="chip" color="cream" size={16}>{val} </ThemeText>
+                <ThemeText variant="chip" color="cream" size={16}>
+                  {val}{' '}
+                </ThemeText>
                 {label}
               </ThemeText>
             ))}
@@ -156,7 +210,9 @@ export default function FolderDetailScreen() {
             style={{ opacity: draftName.trim() ? 1 : 0.4 }}
             activeOpacity={0.85}
           >
-            <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>save</ThemeText>
+            <ThemeText variant="button" color={BUTTON_TEXT_ON_ACCENT}>
+              save
+            </ThemeText>
           </TouchableOpacity>
         </View>
       )}
@@ -173,8 +229,17 @@ export default function FolderDetailScreen() {
           </View>
           <View className="px-[18px] gap-3">
             {notes.map((note, ix) => (
-              <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                <NoteCard note={note} folder={folder} index={ix + 1} onPress={() => router.push(`/note/${note.id}`)} />
+              <SwipeablePinWrapper
+                key={note.id}
+                isPinned={note.pinned}
+                onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}
+              >
+                <NoteCard
+                  note={note}
+                  folder={folder}
+                  index={ix + 1}
+                  onPress={() => router.push(`/note/${note.id}`)}
+                />
               </SwipeablePinWrapper>
             ))}
           </View>
@@ -190,7 +255,11 @@ export default function FolderDetailScreen() {
           </View>
           <View className="px-[18px] gap-3">
             {tasks.map((task, i) => (
-              <SwipeablePinWrapper key={task.id} isPinned={task.pinned} onTogglePin={() => pinTask(task.id, !task.pinned)}>
+              <SwipeablePinWrapper
+                key={task.id}
+                isPinned={task.pinned}
+                onTogglePin={() => pinTask(task.id, !task.pinned)}
+              >
                 <TaskCard
                   task={task}
                   folder={folder}
@@ -204,17 +273,27 @@ export default function FolderDetailScreen() {
         </ScrollView>
       </PagedSections>
 
-      <FAB onPress={() => {
-        if (fabMenuOpen) {
-          closeFabMenu();
-        } else {
-          setFabMenuOpen(true);
-          openFab();
-        }
-      }} />
+      <FAB
+        onPress={() => {
+          if (fabMenuOpen) {
+            closeFabMenu();
+          } else {
+            setFabMenuOpen(true);
+            openFab();
+          }
+        }}
+      />
 
       {/* FAB popup — note or task */}
-      <PopupMenu visible={fabMenuOpen} onClose={() => closeFabMenu()} anim={fabAnim} opacity={fabOpacity} anchor="bottom-right" bottom={insets.bottom + 140} right={20}>
+      <PopupMenu
+        visible={fabMenuOpen}
+        onClose={() => closeFabMenu()}
+        anim={fabAnim}
+        opacity={fabOpacity}
+        anchor="bottom-right"
+        bottom={insets.bottom + 140}
+        right={20}
+      >
         <MenuRow
           label="note"
           onPress={() => closeFabMenu(() => router.push(`/note/new?folderId=${folder.id}`))}
@@ -227,11 +306,18 @@ export default function FolderDetailScreen() {
       </PopupMenu>
 
       {/* Popup menu */}
-      <PopupMenu visible={menuOpen} onClose={() => closeMenu()} anim={menuAnim} opacity={popupOpacity} anchor="top-right" top={popupTop}>
+      <PopupMenu
+        visible={menuOpen}
+        onClose={() => closeMenu()}
+        anim={menuAnim}
+        opacity={popupOpacity}
+        anchor="top-right"
+        top={popupTop}
+      >
         <MenuRow
           label="change color"
           right={<ColorDot color={folder.color} size={8} />}
-          onPress={() => setShowColorPicker(v => !v)}
+          onPress={() => setShowColorPicker((v) => !v)}
         />
 
         {showColorPicker && (
@@ -242,7 +328,13 @@ export default function FolderDetailScreen() {
 
         <MenuRow
           label={folder.pinned ? 'unpin' : 'pin to top'}
-          right={folder.pinned ? <ThemeText variant="meta" color="amber">pinned</ThemeText> : undefined}
+          right={
+            folder.pinned ? (
+              <ThemeText variant="meta" color="amber">
+                pinned
+              </ThemeText>
+            ) : undefined
+          }
           onPress={handlePin}
         />
 

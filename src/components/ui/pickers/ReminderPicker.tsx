@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  View, TouchableOpacity, TouchableWithoutFeedback, Modal, Animated,
-  ScrollView, NativeSyntheticEvent, NativeScrollEvent,
+  View,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Modal,
+  Animated,
+  ScrollView,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { useTheme, FONT } from '@/theme';
 import { ThemeText } from '@/components/ui/primitives/ThemeText';
@@ -38,10 +44,14 @@ function Wheel({ items, selectedIndex, onIndexChange }: WheelProps) {
   // Set initial scroll position once on mount — never synced again from props
   useEffect(() => {
     scrollRef.current?.scrollTo({ y: selectedIndex * ITEM_HEIGHT, animated: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function onScrollDone(e: NativeSyntheticEvent<NativeScrollEvent>) {
-    const idx = Math.max(0, Math.min(items.length - 1, Math.round(e.nativeEvent.contentOffset.y / ITEM_HEIGHT)));
+    const idx = Math.max(
+      0,
+      Math.min(items.length - 1, Math.round(e.nativeEvent.contentOffset.y / ITEM_HEIGHT)),
+    );
     setActiveIdx(idx);
     onIndexChange(idx);
   }
@@ -70,7 +80,9 @@ function Wheel({ items, selectedIndex, onIndexChange }: WheelProps) {
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
         contentContainerStyle={{ paddingVertical: ITEM_HEIGHT }}
-        onMomentumScrollBegin={() => { momentumActive.current = true; }}
+        onMomentumScrollBegin={() => {
+          momentumActive.current = true;
+        }}
         onMomentumScrollEnd={onScrollDone}
         onScrollEndDrag={(e) => {
           if (!momentumActive.current) onScrollDone(e);
@@ -132,9 +144,11 @@ export function ReminderPicker({ visible, onClose, value, onChange, baseDate }: 
       setPeriodIdx(h >= 12 ? 1 : 0);
       open();
     }
-  }, [visible]);
+  }, [visible, value, baseDate, open]);
 
-  const handleDismiss = useCallback(() => { close(() => onClose()); }, [close, onClose]);
+  const handleDismiss = useCallback(() => {
+    close(() => onClose());
+  }, [close, onClose]);
 
   function handleConfirm() {
     const hour = HOURS[hourIdx];
@@ -146,8 +160,8 @@ export function ReminderPicker({ visible, onClose, value, onChange, baseDate }: 
     close(() => onClose());
   }
 
-  const hourLabels = HOURS.map(h => String(h).padStart(2, '0'));
-  const minuteLabels = MINUTES.map(m => String(m).padStart(2, '0'));
+  const hourLabels = HOURS.map((h) => String(h).padStart(2, '0'));
+  const minuteLabels = MINUTES.map((m) => String(m).padStart(2, '0'));
   const periodLabels = [...PERIODS];
 
   if (!visible) return null;
@@ -160,36 +174,48 @@ export function ReminderPicker({ visible, onClose, value, onChange, baseDate }: 
           style={{ backgroundColor: `${colors.bg}cc` }}
         >
           <View onStartShouldSetResponder={() => true} className="w-full">
-          <Animated.View
-            className="w-full bg-theme-paper rounded-2xl border border-theme-line2 p-4 overflow-hidden"
-            style={{ opacity, ...SHADOW_POPUP }}
-          >
-            <GrainOverlay />
-
-            {/* Time picker header */}
-            <View className="items-center mb-4">
-              <ThemeText variant="chip" size={16} color="cream">
-                pick a time
-              </ThemeText>
-            </View>
-
-            {/* Scroll wheels */}
-            <View className="flex-row items-center gap-2 mb-5">
-              <Wheel items={hourLabels} selectedIndex={hourIdx} onIndexChange={setHourIdx} />
-              <ThemeText variant="chip" size={20} color="ink3">:</ThemeText>
-              <Wheel items={minuteLabels} selectedIndex={minuteIdx} onIndexChange={setMinuteIdx} />
-              <Wheel items={periodLabels} selectedIndex={periodIdx} onIndexChange={setPeriodIdx} />
-            </View>
-
-            {/* Confirm button */}
-            <TouchableOpacity
-              onPress={handleConfirm}
-              activeOpacity={0.85}
-              className="h-[48px] rounded-2xl bg-theme-amber items-center justify-center"
+            <Animated.View
+              className="w-full bg-theme-paper rounded-2xl border border-theme-line2 p-4 overflow-hidden"
+              style={{ opacity, ...SHADOW_POPUP }}
             >
-              <ThemeText variant="button" style={{ color: BUTTON_TEXT_ON_ACCENT }}>set reminder</ThemeText>
-            </TouchableOpacity>
-          </Animated.View>
+              <GrainOverlay />
+
+              {/* Time picker header */}
+              <View className="items-center mb-4">
+                <ThemeText variant="chip" size={16} color="cream">
+                  pick a time
+                </ThemeText>
+              </View>
+
+              {/* Scroll wheels */}
+              <View className="flex-row items-center gap-2 mb-5">
+                <Wheel items={hourLabels} selectedIndex={hourIdx} onIndexChange={setHourIdx} />
+                <ThemeText variant="chip" size={20} color="ink3">
+                  :
+                </ThemeText>
+                <Wheel
+                  items={minuteLabels}
+                  selectedIndex={minuteIdx}
+                  onIndexChange={setMinuteIdx}
+                />
+                <Wheel
+                  items={periodLabels}
+                  selectedIndex={periodIdx}
+                  onIndexChange={setPeriodIdx}
+                />
+              </View>
+
+              {/* Confirm button */}
+              <TouchableOpacity
+                onPress={handleConfirm}
+                activeOpacity={0.85}
+                className="h-[48px] rounded-2xl bg-theme-amber items-center justify-center"
+              >
+                <ThemeText variant="button" style={{ color: BUTTON_TEXT_ON_ACCENT }}>
+                  set reminder
+                </ThemeText>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
         </View>
       </TouchableWithoutFeedback>

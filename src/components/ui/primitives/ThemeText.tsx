@@ -3,7 +3,18 @@ import { Text, type TextProps, type TextStyle } from 'react-native';
 import { useTheme, FONT } from '@/theme';
 import { resolveColor } from '@/theme/colors';
 
-type Variant = 'display' | 'heading' | 'subheading' | 'title' | 'body' | 'caption' | 'meta' | 'label' | 'button' | 'chip' | 'tab';
+type Variant =
+  | 'display'
+  | 'heading'
+  | 'subheading'
+  | 'title'
+  | 'body'
+  | 'caption'
+  | 'meta'
+  | 'label'
+  | 'button'
+  | 'chip'
+  | 'tab';
 
 type ThemeTextProps = {
   variant?: Variant;
@@ -26,20 +37,42 @@ type VariantDef = {
 };
 
 const VARIANTS: Record<Variant, VariantDef> = {
-  display:    { fontFamily: FONT.kalam, fontSize: 36, color: 'cream', lineHeight: 40 },
-  heading:    { fontFamily: FONT.kalam, fontSize: 22, color: 'cream' },
+  display: { fontFamily: FONT.kalam, fontSize: 36, color: 'cream', lineHeight: 40 },
+  heading: { fontFamily: FONT.kalam, fontSize: 22, color: 'cream' },
   subheading: { fontFamily: FONT.kalam, fontSize: 18, color: 'cream' },
-  title:      { fontFamily: FONT.kalam, fontSize: 19, color: 'ink',  lineHeight: 22 },
-  body:       { fontFamily: FONT.geist, fontSize: 15, color: 'ink',  lineHeight: 22, letterSpacing: -0.05 },
-  caption:    { fontFamily: FONT.geist, fontSize: 12, color: 'ink3', letterSpacing: 0.5, uppercase: true },
-  meta:       { fontFamily: FONT.geist, fontSize: 12, color: 'ink3' },
-  label:      { fontFamily: FONT.geist, fontSize: 14.5, color: 'ink' },
-  button:     { fontFamily: FONT.kalam, fontSize: 18, letterSpacing: 0.3 },
-  chip:       { fontFamily: FONT.kalam, fontSize: 14, color: 'ink' },
-  tab:        { fontFamily: FONT.kalam, fontSize: 10.5, letterSpacing: 0.2 },
+  title: { fontFamily: FONT.kalam, fontSize: 19, color: 'ink', lineHeight: 22 },
+  body: {
+    fontFamily: FONT.geist,
+    fontSize: 15,
+    color: 'ink',
+    lineHeight: 22,
+    letterSpacing: -0.05,
+  },
+  caption: {
+    fontFamily: FONT.geist,
+    fontSize: 12,
+    color: 'ink3',
+    letterSpacing: 0.5,
+    uppercase: true,
+  },
+  meta: { fontFamily: FONT.geist, fontSize: 12, color: 'ink3' },
+  label: { fontFamily: FONT.geist, fontSize: 14.5, color: 'ink' },
+  button: { fontFamily: FONT.kalam, fontSize: 18, letterSpacing: 0.3 },
+  chip: { fontFamily: FONT.kalam, fontSize: 14, color: 'ink' },
+  tab: { fontFamily: FONT.kalam, fontSize: 10.5, letterSpacing: 0.2 },
 };
 
-export function ThemeText({ variant = 'body', color, size, lineHeight, letterSpacing, uppercase, style, children, ...rest }: ThemeTextProps) {
+export function ThemeText({
+  variant = 'body',
+  color,
+  size,
+  lineHeight,
+  letterSpacing,
+  uppercase,
+  style,
+  children,
+  ...rest
+}: ThemeTextProps) {
   const { colors } = useTheme();
   const v = VARIANTS[variant];
 
@@ -50,11 +83,17 @@ export function ThemeText({ variant = 'body', color, size, lineHeight, letterSpa
     fontFamily: v.fontFamily,
     fontSize: size ?? v.fontSize,
     color: resolvedColor,
-    ...(lineHeight ?? v.lineHeight ? { lineHeight: lineHeight ?? v.lineHeight } : {}),
-    ...(letterSpacing ?? v.letterSpacing ? { letterSpacing: letterSpacing ?? v.letterSpacing } : {}),
+    ...((lineHeight ?? v.lineHeight) ? { lineHeight: lineHeight ?? v.lineHeight } : {}),
+    ...((letterSpacing ?? v.letterSpacing)
+      ? { letterSpacing: letterSpacing ?? v.letterSpacing }
+      : {}),
     ...(isUppercase ? { textTransform: 'uppercase' as const } : {}),
     ...style,
   };
 
-  return <Text style={merged} {...rest}>{children}</Text>;
+  return (
+    <Text style={merged} {...rest}>
+      {children}
+    </Text>
+  );
 }

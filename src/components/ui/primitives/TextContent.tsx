@@ -24,24 +24,38 @@ type Props = {
 };
 
 export const TextContent = forwardRef<TextContentHandle, Props>(function TextContent(
-  { text, links, editing, draft, onDraftChange, onCheckboxToggle, textStyle, placeholder, minHeight },
+  {
+    text,
+    links,
+    editing,
+    draft,
+    onDraftChange,
+    onCheckboxToggle,
+    textStyle,
+    placeholder,
+    minHeight,
+  },
   ref,
 ) {
   const { colors } = useTheme();
   const selectionRef = useRef({ start: 0, end: 0 });
   const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
 
-  useImperativeHandle(ref, () => ({
-    insertCheckbox: () => {
-      const { newText } = insertCheckboxAtCursor(draft, selectionRef.current.start);
-      onDraftChange(newText);
-    },
-    wrapStrikethrough: () => {
-      const { start, end } = selectionRef.current;
-      const { newText } = wrapStrikethrough(draft, start, end);
-      onDraftChange(newText);
-    },
-  }), [draft, onDraftChange]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      insertCheckbox: () => {
+        const { newText } = insertCheckboxAtCursor(draft, selectionRef.current.start);
+        onDraftChange(newText);
+      },
+      wrapStrikethrough: () => {
+        const { start, end } = selectionRef.current;
+        const { newText } = wrapStrikethrough(draft, start, end);
+        onDraftChange(newText);
+      },
+    }),
+    [draft, onDraftChange],
+  );
 
   function handleCheckboxToggle(lineIndex: number) {
     onCheckboxToggle(toggleCheckboxLine(text, lineIndex));
@@ -61,7 +75,9 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
         }}
         value={draft}
         onChangeText={onDraftChange}
-        onSelectionChange={e => { selectionRef.current = e.nativeEvent.selection; }}
+        onSelectionChange={(e) => {
+          selectionRef.current = e.nativeEvent.selection;
+        }}
         placeholder={placeholder}
         placeholderTextColor={colors.ink4}
         multiline

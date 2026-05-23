@@ -42,7 +42,9 @@ export function ConfirmationDialog({ visible, title, subtitle, actions, onClose 
           <View className="px-[18px] pt-[18px]" style={{ paddingBottom: subtitle ? 4 : 14 }}>
             <ThemeText variant="title">{title}</ThemeText>
             {subtitle && (
-              <ThemeText variant="meta" style={{ marginTop: 4 }}>{subtitle}</ThemeText>
+              <ThemeText variant="meta" style={{ marginTop: 4 }}>
+                {subtitle}
+              </ThemeText>
             )}
           </View>
 

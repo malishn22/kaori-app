@@ -9,9 +9,25 @@ npm run android      # Build & run on Android emulator/device
 npm run web          # Start web preview (limited support)
 ```
 
+## Quality Checks
+
+**Always run `npm run check` before declaring any task complete.** It runs typecheck + lint + format check and must exit 0.
+
+```bash
+npm run typecheck      # tsc --noEmit
+npm run lint           # eslint .
+npm run lint:fix       # eslint . --fix
+npm run format         # prettier --write .
+npm run format:check   # prettier --check .
+npm run check          # composite: typecheck + lint + format:check
+```
+
+ESLint uses `eslint-config-expo/flat` as the base, plus `react-native` and `prettier` plugins. Prettier config is in `.prettierrc.json`. Lint warnings are tolerated; lint errors are not.
+
 ## Building for iOS & Android
 
 ### Local builds (requires native toolchains)
+
 ```bash
 # iOS — requires Xcode installed
 expo run:ios
@@ -23,15 +39,18 @@ expo run:android --variant release      # production build
 ```
 
 ### Cloud builds via EAS (recommended for distribution)
+
 ```bash
 npm install -g eas-cli
 eas build --platform ios
 eas build --platform android
 eas build --platform all
 ```
+
 EAS handles signing, certificates, and provisioning. Add `eas.json` to configure build profiles.
 
 ### App identifiers
+
 - iOS bundle ID: `com.kaori.app`
 - Android package: `com.kaori.app`
 
@@ -77,7 +96,9 @@ assets/
 ## Architecture
 
 ### State Management
+
 Three React Context providers, composed in `app/_layout.tsx`:
+
 - **StoreProvider** — all app data (notes, tasks, folders, profile); persists via AsyncStorage
 - **SettingsProvider** — theme tone and accent; persists via AsyncStorage
 - **SettingSheetProvider** — ephemeral UI state for the settings bottom sheet
@@ -85,9 +106,11 @@ Three React Context providers, composed in `app/_layout.tsx`:
 Action creators live in `src/providers/actions/` and are called by the providers. Data is loaded from storage via `src/utils/migration.ts` on app start.
 
 ### Navigation
+
 Expo Router (file-based). Tabs defined in `app/(tabs)/_layout.tsx` using a custom `TabBar` component. The custom TabBar hardcodes the tab list in `src/components/ui/layout/TabBar.tsx` — adding a tab requires updating both the `_layout.tsx` registration and the `tabs` array in TabBar.
 
 ### Styling
+
 NativeWind v4 (Tailwind for React Native). Theme colors are injected as CSS variables (e.g. `--color-bg`, `--color-ink`) in `src/theme/themeVars.ts` and consumed via `className="bg-theme-bg"` etc. The `useTheme()` hook provides typed color values for imperative styling.
 
 ## Key Conventions

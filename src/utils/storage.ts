@@ -27,10 +27,11 @@ export async function safeMultiSet(pairs: [string, string][]): Promise<void> {
 
 export async function safeMultiGet(keys: string[]): Promise<[string, string | null][]> {
   try {
-    return await AsyncStorage.multiGet(keys);
+    const result = await AsyncStorage.multiGet(keys);
+    return result.map(([k, v]) => [k, v]);
   } catch (e) {
     console.warn('[Kaori] storage.multiGet failed:', e);
-    return keys.map(k => [k, null]);
+    return keys.map((k) => [k, null]);
   }
 }
 

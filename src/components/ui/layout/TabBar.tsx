@@ -12,9 +12,8 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
   const rawBottomInset = insets.bottom;
-  const bottomInsetForTabBar = Platform.OS === 'android'
-    ? Math.min(rawBottomInset, 12)
-    : rawBottomInset;
+  const bottomInsetForTabBar =
+    Platform.OS === 'android' ? Math.min(rawBottomInset, 12) : rawBottomInset;
 
   const tabBarPaddingBottom = bottomInsetForTabBar + 16;
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + tabBarPaddingBottom;

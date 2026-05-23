@@ -30,7 +30,11 @@ export { EditorScreen } from './layout/EditorScreen';
 
 // cards
 export { ContentCard } from './cards/ContentCard';
-export type { ContentCardProps, ContentCardNoteProps, ContentCardTaskProps } from './cards/ContentCard';
+export type {
+  ContentCardProps,
+  ContentCardNoteProps,
+  ContentCardTaskProps,
+} from './cards/ContentCard';
 export { NoteCard } from './cards/NoteCard';
 export { FolderAvatar } from './cards/FolderAvatar';
 export { ProfileCard } from './cards/ProfileCard';

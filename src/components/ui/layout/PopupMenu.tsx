@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Animated } from 'react-native';
-import { useTheme } from '@/theme';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { POPUP_WIDTH, SHADOW_POPUP } from '@/constants';
 
@@ -16,8 +15,17 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function PopupMenu({ visible, onClose, anim, opacity, anchor, top, bottom, right = 16, children }: Props) {
-  const { colors } = useTheme();
+export function PopupMenu({
+  visible,
+  onClose,
+  anim,
+  opacity,
+  anchor,
+  top,
+  bottom,
+  right = 16,
+  children,
+}: Props) {
   const [height, setHeight] = useState(0);
 
   if (!visible) return null;
@@ -27,14 +35,10 @@ export function PopupMenu({ visible, onClose, anim, opacity, anchor, top, bottom
 
   return (
     <>
-      <TouchableOpacity
-        className="absolute inset-0"
-        activeOpacity={1}
-        onPress={onClose}
-      />
+      <TouchableOpacity className="absolute inset-0" activeOpacity={1} onPress={onClose} />
 
       <Animated.View
-        onLayout={e => setHeight(e.nativeEvent.layout.height)}
+        onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
         className="absolute overflow-hidden rounded-2xl border border-theme-line2 bg-theme-paper"
         style={{
           ...(top != null ? { top } : {}),
@@ -45,9 +49,9 @@ export function PopupMenu({ visible, onClose, anim, opacity, anchor, top, bottom
           opacity,
           transform: [
             { translateX: POPUP_WIDTH / 2 },
-            { translateY: translateYSign * height / 2 },
+            { translateY: (translateYSign * height) / 2 },
             { scale: anim },
-            { translateY: -translateYSign * height / 2 },
+            { translateY: (-translateYSign * height) / 2 },
             { translateX: -POPUP_WIDTH / 2 },
           ],
         }}

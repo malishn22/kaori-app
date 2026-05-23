@@ -10,22 +10,28 @@ export default function FoldersScreen() {
   const { notes: allNotes, tasks: allTasks, reorderFolders } = useStore();
   const folders = useActiveFolders();
   const noteCounts = useMemo(
-    () => allNotes.filter(n => !n.archived).reduce<Record<string, number>>((acc, note) => {
-      if (note.folder) acc[note.folder] = (acc[note.folder] ?? 0) + 1;
-      return acc;
-    }, {}),
-    [allNotes]
+    () =>
+      allNotes
+        .filter((n) => !n.archived)
+        .reduce<Record<string, number>>((acc, note) => {
+          if (note.folder) acc[note.folder] = (acc[note.folder] ?? 0) + 1;
+          return acc;
+        }, {}),
+    [allNotes],
   );
   const taskCounts = useMemo(
-    () => allTasks.filter(t => !t.archived && !t.done).reduce<Record<string, number>>((acc, task) => {
-      if (task.folder) acc[task.folder] = (acc[task.folder] ?? 0) + 1;
-      return acc;
-    }, {}),
-    [allTasks]
+    () =>
+      allTasks
+        .filter((t) => !t.archived && !t.done)
+        .reduce<Record<string, number>>((acc, task) => {
+          if (task.folder) acc[task.folder] = (acc[task.folder] ?? 0) + 1;
+          return acc;
+        }, {}),
+    [allTasks],
   );
   const sortedFolders = useMemo(
     () => [...folders].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [folders]
+    [folders],
   );
 
   return (

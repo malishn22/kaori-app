@@ -29,18 +29,14 @@ function AndroidNavBarFill() {
 
 function ThemeVarsRoot({ children }: { children: ReactNode }) {
   const { settings } = useSettings();
-  return (
-    <View style={[{ flex: 1 }, themeVars(settings.tone, settings.accent)]}>
-      {children}
-    </View>
-  );
+  return <View style={[{ flex: 1 }, themeVars(settings.tone, settings.accent)]}>{children}</View>;
 }
 
 function RootSettingSheets() {
   const { settings, setSetting } = useTheme();
   const { folders, profile, updateProfile } = useStore();
   const { openSheet, setOpenSheet } = useSettingSheet();
-  const folderOptions = folders.map(f => ({ value: f.id, label: f.name }));
+  const folderOptions = folders.map((f) => ({ value: f.id, label: f.name }));
 
   return (
     <>
@@ -65,7 +61,10 @@ function RootSettingSheets() {
         title="default folder"
         options={folderOptions}
         value={profile.defaultFolder}
-        onSelect={(v) => { updateProfile({ defaultFolder: v }); setOpenSheet(null); }}
+        onSelect={(v) => {
+          updateProfile({ defaultFolder: v });
+          setOpenSheet(null);
+        }}
         onClose={() => setOpenSheet(null)}
       />
     </>
@@ -95,6 +94,8 @@ function NotificationHandler() {
     });
 
     return () => subscription.remove();
+    // Persistent notification listener — subscribe once on mount; `router` is stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;
@@ -124,7 +125,12 @@ export default function RootLayout() {
                 <SplashHider fontsLoaded={loaded} />
                 <NotificationHandler />
                 <StatusBar style="light" />
-                <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: getColors().bg } }}>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: getColors().bg },
+                  }}
+                >
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
                   <Stack.Screen name="folder/[id]" options={{ animation: 'slide_from_right' }} />

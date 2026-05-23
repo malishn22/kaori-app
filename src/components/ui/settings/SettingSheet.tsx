@@ -19,7 +19,14 @@ type Props<T extends string> = {
   onClose: () => void;
 };
 
-export function SettingSheet<T extends string>({ visible, title, options, value, onSelect, onClose }: Props<T>) {
+export function SettingSheet<T extends string>({
+  visible,
+  title,
+  options,
+  value,
+  onSelect,
+  onClose,
+}: Props<T>) {
   const { colors } = useTheme();
   const sheetRef = useBottomSheetControl(visible);
   const { impact } = useHapticFeedback();
@@ -39,7 +46,9 @@ export function SettingSheet<T extends string>({ visible, title, options, value,
       <View className="pt-3 px-[22px]">
         <GrainOverlay />
 
-        <SectionTitle showUnderline={false} style={{ marginBottom: 16 }}>{title}</SectionTitle>
+        <SectionTitle showUnderline={false} style={{ marginBottom: 16 }}>
+          {title}
+        </SectionTitle>
 
         {options.map((opt, ix) => {
           const isActive = opt.value === value;
