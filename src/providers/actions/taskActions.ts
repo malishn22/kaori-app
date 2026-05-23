@@ -1,7 +1,7 @@
 import type { Task, Folder } from '@/types';
 import { safeSet } from '@/utils/storage';
 import { KEYS } from '@/utils/migration';
-import { resolveNoteLinks, extractUrls } from '@/utils/links';
+import { resolveLinksFor } from './resolveLinksFor';
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -44,15 +44,7 @@ export function createTaskActions(
       });
     }
 
-    if (extractUrls(title).length > 0) {
-      resolveNoteLinks(title, links).then((resolved) => {
-        setTasks(prev => {
-          const next = prev.map(t => t.id === taskId ? { ...t, links: { ...resolved, ...links } } : t);
-          safeSet(KEYS.tasks, JSON.stringify(next));
-          return next;
-        });
-      });
-    }
+    resolveLinksFor(setTasks, KEYS.tasks, taskId, title, links);
   }
 
   function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done' | 'links'>>) {
@@ -60,19 +52,9 @@ export function createTaskActions(
       const next = prev.map(t => t.id === id ? { ...t, ...patch } : t);
       safeSet(KEYS.tasks, JSON.stringify(next));
 
-      if (patch.title && extractUrls(patch.title).length > 0) {
-        const existing = next.find(t => t.id === id);
-        const mergedExisting = { ...existing?.links };
-        resolveNoteLinks(patch.title, mergedExisting).then((resolved) => {
-          setTasks(inner => {
-            const updated = inner.map(t => {
-              if (t.id !== id) return t;
-              return { ...t, links: { ...resolved, ...(patch.links ?? {}) } };
-            });
-            safeSet(KEYS.tasks, JSON.stringify(updated));
-            return updated;
-          });
-        });
+      if (patch.title) {
+        const updated = next.find(t => t.id === id);
+        resolveLinksFor(setTasks, KEYS.tasks, id, patch.title, { ...updated?.links });
       }
 
       return next;

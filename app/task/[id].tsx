@@ -1,14 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, FONT } from '@/theme';
+import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders, useInlineEdit } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar, EditorScreen, ConfirmationDialog } from '@/components/ui';
-import { insertCheckboxAtCursor, wrapStrikethrough, toggleCheckboxLine } from '@/utils/noteFormat';
-import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
+import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar, EditorScreen, TextContent, type TextContentHandle } from '@/components/ui';
+import { toEditableText, fromEditableText } from '@/utils/links';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
 import { computeDisplayStrings } from '@/utils/time';
@@ -41,7 +40,7 @@ export default function TaskDetailScreen() {
   const { settings } = useSettings();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
 
-  const selectionRef = useRef({ start: 0, end: 0 });
+  const editorRef = useRef<TextContentHandle>(null);
 
   const { editing, draft: draftTitle, setDraft: setDraftTitle, startEditing: startTitleEditing, cancelEdit: cancelTitleEdit } = useInlineEdit({
     initialValue: task?.title ?? '',
@@ -51,7 +50,6 @@ export default function TaskDetailScreen() {
   const [draftReminderAt, setDraftReminderAt] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showReminderPicker, setShowReminderPicker] = useState(false);
-  const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
   const isCustomDraftDate = draftDueDate !== null && !getDateChipOptions().some(opt => isSameDay(draftDueDate, opt.date));
 
   const confirmDelete = useConfirmAction({
@@ -108,10 +106,6 @@ export default function TaskDetailScreen() {
     setShowReminderPicker(false);
   }
 
-  function handleLinkPress(url: string, label: string) {
-    setLinkAction({ url, label });
-  }
-
   function openMenu() {
     confirmDelete.reset();
     setMovingFolder(false);
@@ -163,20 +157,8 @@ export default function TaskDetailScreen() {
     }
   }
 
-  function handleInsertCheckbox() {
-    const { newText } = insertCheckboxAtCursor(draftTitle, selectionRef.current.start);
-    setDraftTitle(newText);
-  }
-
-  function handleInsertStrikethrough() {
-    const { start, end } = selectionRef.current;
-    const { newText } = wrapStrikethrough(draftTitle, start, end);
-    setDraftTitle(newText);
-  }
-
-  function handleCheckboxToggle(lineIndex: number) {
-    const newTitle = toggleCheckboxLine(task!.title, lineIndex);
-    updateTask(task!.id, { title: newTitle });
+  function handleCheckboxToggle(next: string) {
+    updateTask(task!.id, { title: next });
     impact();
   }
 
@@ -192,7 +174,12 @@ export default function TaskDetailScreen() {
 
       <EditorScreen
         toolbarVisible={editing}
-        toolbar={<FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />}
+        toolbar={
+          <FormatToolbar
+            onCheckbox={() => editorRef.current?.insertCheckbox()}
+            onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
+          />
+        }
       >
         <View className="px-6 pt-6">
           {/* Folder pill */}
@@ -211,36 +198,16 @@ export default function TaskDetailScreen() {
             </View>
           )}
 
-          {/* Title */}
-          {editing ? (
-            <TextInput
-              style={{
-                fontFamily: FONT.kalam,
-                fontSize: 20,
-                color: colors.ink,
-                lineHeight: 28,
-                letterSpacing: 0.1,
-              }}
-              value={draftTitle}
-              onChangeText={setDraftTitle}
-              onSelectionChange={e => { selectionRef.current = e.nativeEvent.selection; }}
-              multiline
-              autoFocus
-              selectionColor={colors.amber}
-              cursorColor={colors.amber}
-            />
-          ) : (
-            <FormattedText
-              text={task.title}
-              links={task.links ?? {}}
-              size={20}
-              lineHeight={28}
-              letterSpacing={0.1}
-              style={task.done ? { textDecorationLine: 'line-through', opacity: 0.5 } : undefined}
-              onLinkPress={handleLinkPress}
-              onCheckboxToggle={handleCheckboxToggle}
-            />
-          )}
+          <TextContent
+            ref={editorRef}
+            text={task.title}
+            links={task.links ?? {}}
+            editing={editing}
+            draft={draftTitle}
+            onDraftChange={setDraftTitle}
+            onCheckboxToggle={handleCheckboxToggle}
+            textStyle={task.done ? { textDecorationLine: 'line-through', opacity: 0.5 } : undefined}
+          />
 
           {/* Due date (edit mode) */}
           {editing && (
@@ -413,23 +380,6 @@ export default function TaskDetailScreen() {
           baseDate={draftDueDate}
         />
       )}
-
-      <ConfirmationDialog
-        visible={!!linkAction}
-        title={linkAction?.label ?? ''}
-        subtitle={linkAction ? getDomain(linkAction.url) : undefined}
-        actions={[
-          {
-            label: 'open link',
-            color: 'amber',
-            onPress: () => {
-              if (linkAction) Linking.openURL(linkAction.url);
-              setLinkAction(null);
-            },
-          },
-        ]}
-        onClose={() => setLinkAction(null)}
-      />
     </View>
   );
 }

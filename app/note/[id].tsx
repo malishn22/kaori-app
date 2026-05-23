@@ -1,21 +1,17 @@
 import React, { useState, useRef } from 'react';
-import { View, TextInput, TouchableOpacity, Share, Linking } from 'react-native';
+import { View, TouchableOpacity, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useAnimatedPopup, useInlineEdit, useConfirmAction, useActiveFolders } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, FormattedText, GrainOverlay, FormatToolbar, ConfirmationDialog, MenuRow, PopupMenu, FolderChipSelector, EditorScreen } from '@/components/ui';
-import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
-import { toggleCheckboxLine, insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
-import { FONT } from '@/theme';
+import { ThemeText, ColorDot, Chip, PageHeader, GrainOverlay, FormatToolbar, MenuRow, PopupMenu, FolderChipSelector, EditorScreen, TextContent, type TextContentHandle } from '@/components/ui';
+import { toEditableText, fromEditableText } from '@/utils/links';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 
 
 export default function NoteDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { notes, updateNote, deleteNote, archiveNote, convertNoteToTask } = useStore();
   const folders = useActiveFolders();
@@ -24,7 +20,7 @@ export default function NoteDetailScreen() {
 
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
 
-  const selectionRef = useRef({ start: 0, end: 0 });
+  const editorRef = useRef<TextContentHandle>(null);
 
   const { editing, draft, setDraft, startEditing, cancelEdit } = useInlineEdit({
     initialValue: note?.text ?? '',
@@ -46,7 +42,6 @@ export default function NoteDetailScreen() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [movingFolder, setMovingFolder] = useState(false);
-  const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
 
   const { anim: menuAnim, opacity: popupOpacity, open: openPopup, close: closePopup } = useAnimatedPopup();
 
@@ -102,25 +97,9 @@ export default function NoteDetailScreen() {
     }
   }
 
-  function handleLinkPress(url: string, label: string) {
-    setLinkAction({ url, label });
-  }
-
-  function handleCheckboxToggle(lineIndex: number) {
-    const newText = toggleCheckboxLine(note!.text, lineIndex);
-    updateNote(note!.id, { text: newText });
+  function handleCheckboxToggle(next: string) {
+    updateNote(note!.id, { text: next });
     impact();
-  }
-
-  function handleInsertCheckbox() {
-    const { newText } = insertCheckboxAtCursor(draft, selectionRef.current.start);
-    setDraft(newText);
-  }
-
-  function handleInsertStrikethrough() {
-    const { start, end } = selectionRef.current;
-    const { newText } = wrapStrikethrough(draft, start, end);
-    setDraft(newText);
   }
 
   const popupTop = insets.top + 16 + 52 + 8;
@@ -135,7 +114,12 @@ export default function NoteDetailScreen() {
 
       <EditorScreen
         toolbarVisible={editing}
-        toolbar={<FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />}
+        toolbar={
+          <FormatToolbar
+            onCheckbox={() => editorRef.current?.insertCheckbox()}
+            onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
+          />
+        }
       >
         <View className="px-6 pt-6">
           {/* Folder pill */}
@@ -147,36 +131,15 @@ export default function NoteDetailScreen() {
             </View>
           )}
 
-          {/* Main text */}
-          {editing ? (
-            <TextInput
-              style={{
-                fontFamily: FONT.kalam,
-                fontSize: 20,
-                color: colors.ink,
-                lineHeight: 28,
-                letterSpacing: 0.1,
-                textAlignVertical: 'top',
-              }}
-              value={draft}
-              onChangeText={setDraft}
-              onSelectionChange={e => { selectionRef.current = e.nativeEvent.selection; }}
-              multiline
-              autoFocus
-              selectionColor={colors.amber}
-              cursorColor={colors.amber}
-            />
-          ) : (
-            <FormattedText
-              text={note.text}
-              links={note.links}
-              size={20}
-              lineHeight={28}
-              letterSpacing={0.1}
-              onLinkPress={handleLinkPress}
-              onCheckboxToggle={handleCheckboxToggle}
-            />
-          )}
+          <TextContent
+            ref={editorRef}
+            text={note.text}
+            links={note.links}
+            editing={editing}
+            draft={draft}
+            onDraftChange={setDraft}
+            onCheckboxToggle={handleCheckboxToggle}
+          />
 
           {/* Meta */}
           <View className="flex-row gap-3 mt-[18px]">
@@ -277,24 +240,6 @@ export default function NoteDetailScreen() {
           borderBottom={false}
         />
       </PopupMenu>
-
-      {/* Link action dialog */}
-      <ConfirmationDialog
-        visible={!!linkAction}
-        title={linkAction?.label ?? ''}
-        subtitle={linkAction ? getDomain(linkAction.url) : undefined}
-        actions={[
-          {
-            label: 'open link',
-            color: 'amber',
-            onPress: () => {
-              if (linkAction) Linking.openURL(linkAction.url);
-              setLinkAction(null);
-            },
-          },
-        ]}
-        onClose={() => setLinkAction(null)}
-      />
     </View>
   );
 }

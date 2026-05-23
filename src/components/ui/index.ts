@@ -11,6 +11,8 @@ export { GrainOverlay } from './primitives/GrainOverlay';
 export { FormattedText } from './primitives/FormattedText';
 export { FormatToolbar } from './primitives/FormatToolbar';
 export { ConfirmationDialog } from './primitives/ConfirmationDialog';
+export { TextContent } from './primitives/TextContent';
+export type { TextContentHandle } from './primitives/TextContent';
 export { Divider } from './primitives/Divider';
 export { GreetingTitle } from './primitives/GreetingTitle';
 export { RestoreChip } from './primitives/RestoreChip';

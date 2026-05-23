@@ -1,16 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { View, TextInput, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
-import { PageHeader, ThemeText, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
-import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
+import { PageHeader, ThemeText, FolderChipSelector, FormatToolbar, EditorScreen, TextContent, type TextContentHandle } from '@/components/ui';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 
 export default function NewNoteScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
   const { folderId } = useLocalSearchParams<{ folderId?: string }>();
   const { addNote } = useStore();
   const folders = useActiveFolders();
@@ -18,7 +15,7 @@ export default function NewNoteScreen() {
 
   const [text, setText] = useState('');
   const [selectedFolder, setSelectedFolder] = useState<string | null>(folderId ?? null);
-  const selectionRef = useRef({ start: 0, end: 0 });
+  const editorRef = useRef<TextContentHandle>(null);
 
   async function handleSave() {
     if (!text.trim()) return;
@@ -27,41 +24,28 @@ export default function NewNoteScreen() {
     router.back();
   }
 
-  function handleInsertCheckbox() {
-    const { newText } = insertCheckboxAtCursor(text, selectionRef.current.start);
-    setText(newText);
-  }
-
-  function handleInsertStrikethrough() {
-    const { start, end } = selectionRef.current;
-    const { newText } = wrapStrikethrough(text, start, end);
-    setText(newText);
-  }
-
   return (
     <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
-      <EditorScreen toolbar={<FormatToolbar onCheckbox={handleInsertCheckbox} onStrikethrough={handleInsertStrikethrough} />}>
+      <EditorScreen
+        toolbar={
+          <FormatToolbar
+            onCheckbox={() => editorRef.current?.insertCheckbox()}
+            onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
+          />
+        }
+      >
         <View className="px-6 pt-3">
-          <TextInput
-            style={{
-              fontFamily: FONT.kalam,
-              fontSize: 20,
-              color: colors.ink,
-              lineHeight: 28,
-              letterSpacing: 0.1,
-              textAlignVertical: 'top',
-              minHeight: 160,
-            }}
-            value={text}
-            onChangeText={setText}
-            onSelectionChange={e => { selectionRef.current = e.nativeEvent.selection; }}
+          <TextContent
+            ref={editorRef}
+            text=""
+            links={{}}
+            editing
+            draft={text}
+            onDraftChange={setText}
+            onCheckboxToggle={() => {}}
             placeholder="what's on your mind..."
-            placeholderTextColor={colors.ink4}
-            multiline
-            autoFocus
-            selectionColor={colors.amber}
-            cursorColor={colors.amber}
+            minHeight={160}
           />
 
           <FolderChipSelector folders={folders} selected={selectedFolder} onSelect={setSelectedFolder} label="folder" />

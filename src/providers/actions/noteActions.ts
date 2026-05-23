@@ -1,8 +1,8 @@
 import type { Note, Folder } from '@/types';
 import { computeDisplayStrings } from '@/utils/time';
-import { resolveNoteLinks, extractUrls } from '@/utils/links';
 import { safeSet } from '@/utils/storage';
 import { KEYS } from '@/utils/migration';
+import { resolveLinksFor } from './resolveLinksFor';
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -40,15 +40,7 @@ export function createNoteActions(
       });
     }
 
-    if (extractUrls(text).length > 0) {
-      resolveNoteLinks(text).then((links) => {
-        setNotes(prev => {
-          const next = prev.map(n => n.id === noteId ? { ...n, links } : n);
-          safeSet(KEYS.notes, JSON.stringify(next));
-          return next;
-        });
-      });
-    }
+    resolveLinksFor(setNotes, KEYS.notes, noteId, text);
   }
 
   function updateNote(id: string, patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>) {
@@ -56,16 +48,9 @@ export function createNoteActions(
       const next = prev.map(n => n.id === id ? { ...n, ...patch } : n);
       safeSet(KEYS.notes, JSON.stringify(next));
 
-      if (patch.text && extractUrls(patch.text).length > 0) {
-        const existing = next.find(n => n.id === id);
-        const mergedExisting = { ...existing?.links };
-        resolveNoteLinks(patch.text, mergedExisting).then((links) => {
-          setNotes(inner => {
-            const updated = inner.map(n => n.id === id ? { ...n, links } : n);
-            safeSet(KEYS.notes, JSON.stringify(updated));
-            return updated;
-          });
-        });
+      if (patch.text) {
+        const updated = next.find(n => n.id === id);
+        resolveLinksFor(setNotes, KEYS.notes, id, patch.text, { ...updated?.links });
       }
 
       return next;
