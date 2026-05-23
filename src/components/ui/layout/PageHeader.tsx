@@ -20,7 +20,17 @@ type PageHeaderProps = {
   titleElement?: React.ReactNode;
 };
 
-export function PageHeader({ onBack, settingsButton, editButton, moreButton, caption, title, subtitle, underlineWidth = 92, titleElement }: PageHeaderProps) {
+export function PageHeader({
+  onBack,
+  settingsButton,
+  editButton,
+  moreButton,
+  caption,
+  title,
+  subtitle,
+  underlineWidth = 92,
+  titleElement,
+}: PageHeaderProps) {
   const router = useRouter();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -45,7 +55,12 @@ export function PageHeader({ onBack, settingsButton, editButton, moreButton, cap
             </TouchableOpacity>
           )}
           {moreButton && (
-            <TouchableOpacity onPress={moreButton.onPress} hitSlop={12} activeOpacity={0.7} style={{ marginLeft: editButton ? 16 : 0 }}>
+            <TouchableOpacity
+              onPress={moreButton.onPress}
+              hitSlop={12}
+              activeOpacity={0.7}
+              style={{ marginLeft: editButton ? 16 : 0 }}
+            >
               <MoreIcon size={26} color={colors.ink2} />
             </TouchableOpacity>
           )}
@@ -69,7 +84,9 @@ export function PageHeader({ onBack, settingsButton, editButton, moreButton, cap
       {hasTitleSection && (
         <View className="px-6 gap-1.5" style={{ paddingTop: hasNavBar ? 0 : 8 }}>
           {caption && (
-            <ThemeText variant="caption" letterSpacing={0.6}>{caption}</ThemeText>
+            <ThemeText variant="caption" letterSpacing={0.6}>
+              {caption}
+            </ThemeText>
           )}
           <View className="flex-row items-center justify-between">
             {titleElement ?? <HeaderText>{title}</HeaderText>}
@@ -85,7 +102,9 @@ export function PageHeader({ onBack, settingsButton, editButton, moreButton, cap
           </View>
           <Underline width={underlineWidth} />
           {subtitle && (
-            <ThemeText variant="meta" color="ink2">{subtitle}</ThemeText>
+            <ThemeText variant="meta" color="ink2">
+              {subtitle}
+            </ThemeText>
           )}
         </View>
       )}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Platform, Keyboard } from 'react-native';
 import GorhomBottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
-import { useReducedMotion, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 
@@ -46,9 +45,7 @@ export function BottomSheet({ sheetRef, children, onChange }: BottomSheetProps) 
         onChange?.(index);
       }}
     >
-      <BottomSheetView style={{ paddingBottom: 44 + bottomInset }}>
-        {children}
-      </BottomSheetView>
+      <BottomSheetView style={{ paddingBottom: 44 + bottomInset }}>{children}</BottomSheetView>
     </GorhomBottomSheet>
   );
 }

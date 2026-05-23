@@ -39,9 +39,7 @@ function renderSegments(
         <Text
           key={i}
           style={linkStyle}
-          onPress={() =>
-            onLinkPress ? onLinkPress(seg.value, label) : Linking.openURL(seg.value)
-          }
+          onPress={() => (onLinkPress ? onLinkPress(seg.value, label) : Linking.openURL(seg.value))}
         >
           {label}
         </Text>
@@ -92,8 +90,7 @@ export function FormattedText({
       <Text style={baseStyle} numberOfLines={numberOfLines}>
         {lines.map((line, lineIdx) => {
           const separator = lineIdx > 0 ? '\n' : '';
-          const prefix =
-            line.type === 'checkbox' ? (line.checked ? '☑ ' : '☐ ') : '';
+          const prefix = line.type === 'checkbox' ? (line.checked ? '☑ ' : '☐ ') : '';
 
           return (
             <Text key={lineIdx}>

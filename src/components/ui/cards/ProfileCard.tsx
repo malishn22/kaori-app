@@ -17,7 +17,15 @@ type ProfileCardProps = {
   onCommitEdit: () => void;
 };
 
-export function ProfileCard({ initial, name, editing, draft, onChangeDraft, onStartEditing, onCommitEdit }: ProfileCardProps) {
+export function ProfileCard({
+  initial,
+  name,
+  editing,
+  draft,
+  onChangeDraft,
+  onStartEditing,
+  onCommitEdit,
+}: ProfileCardProps) {
   const { colors } = useTheme();
 
   return (
@@ -33,7 +41,9 @@ export function ProfileCard({ initial, name, editing, draft, onChangeDraft, onSt
         end={{ x: 1, y: 1 }}
         className="size-20 rounded-[20px] items-center justify-center mb-4"
       >
-        <ThemeText variant="heading" size={36} color="bg">{initial}</ThemeText>
+        <ThemeText variant="heading" size={36} color="bg">
+          {initial}
+        </ThemeText>
       </LinearGradient>
 
       {editing ? (
@@ -48,12 +58,16 @@ export function ProfileCard({ initial, name, editing, draft, onChangeDraft, onSt
         />
       ) : (
         <TouchableOpacity onPress={onStartEditing} activeOpacity={0.7}>
-          <HeaderText size={26} lineHeight={32}>{name}</HeaderText>
+          <HeaderText size={26} lineHeight={32}>
+            {name}
+          </HeaderText>
         </TouchableOpacity>
       )}
 
       {!editing && (
-        <ThemeText variant="meta" color="ink4" style={{ marginTop: 6 }}>tap your name to rename</ThemeText>
+        <ThemeText variant="meta" color="ink4" style={{ marginTop: 6 }}>
+          tap your name to rename
+        </ThemeText>
       )}
     </View>
   );

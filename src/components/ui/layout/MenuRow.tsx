@@ -50,8 +50,14 @@ export function MenuRow({
     <>
       {icon}
       <View className="flex-1">
-        <ThemeText variant={textVariant} color={labelColor}>{label}</ThemeText>
-        {subtitle && <ThemeText variant="meta" color={subtitleColor} style={{ marginTop: 2 }}>{subtitle}</ThemeText>}
+        <ThemeText variant={textVariant} color={labelColor}>
+          {label}
+        </ThemeText>
+        {subtitle && (
+          <ThemeText variant="meta" color={subtitleColor} style={{ marginTop: 2 }}>
+            {subtitle}
+          </ThemeText>
+        )}
       </View>
       {right}
       {showChevron && <ChevronIcon size={14} color={colors.ink4} />}

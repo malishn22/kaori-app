@@ -23,7 +23,10 @@ type StoreContextValue = {
   dataLoaded: boolean;
   addNote: (text: string, folderId: string | null) => void;
   addFolder: (name: string, color: string, note: string) => void;
-  updateNote: (id: string, patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>) => void;
+  updateNote: (
+    id: string,
+    patch: Partial<Pick<Note, 'text' | 'folder' | 'pinned' | 'links'>>,
+  ) => void;
   updateNoteLink: (noteId: string, url: string, label: string) => void;
   deleteNote: (id: string) => void;
   updateProfile: (patch: Partial<Profile>) => Promise<void>;
@@ -34,8 +37,19 @@ type StoreContextValue = {
   archiveNote: (id: string, archived: boolean) => void;
   archiveFolder: (id: string, archived: boolean) => void;
   reorderFolders: (orderedIds: string[]) => void;
-  addTask: (title: string, dueDate: string | null, folderId: string | null) => void;
-  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) => void;
+  addTask: (
+    title: string,
+    dueDate: string | null,
+    folderId: string | null,
+    reminderAt?: string | null,
+    links?: Record<string, string>,
+  ) => void;
+  updateTask: (
+    id: string,
+    patch: Partial<
+      Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done' | 'links'>
+    >,
+  ) => void;
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
   archiveTask: (id: string, archived: boolean) => void;
@@ -98,13 +112,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // Non-critical: notification permissions run after data is ready, decoupled from splash
+  // Non-critical: notification permissions run after data is ready, decoupled from splash.
+  // Read tasks via ref so this doesn't re-run on every task edit.
   useEffect(() => {
     if (!dataLoaded || !settings.notificationsEnabled) return;
     requestPermissions().then((granted) => {
-      if (granted) rescheduleAllReminders(tasks);
+      if (granted) rescheduleAllReminders(tasksRef.current);
     });
-  }, [dataLoaded]);
+  }, [dataLoaded, settings.notificationsEnabled]);
 
   const noteActions = createNoteActions(setNotes, setFolders);
   const rawTaskActions = createTaskActions(setTasks, setFolders);
@@ -112,13 +127,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   // Notification-aware task action wrappers
   const taskActions = {
-    addTask(title: string, dueDate: string | null, folderId: string | null) {
-      rawTaskActions.addTask(title, dueDate, folderId);
+    addTask(
+      title: string,
+      dueDate: string | null,
+      folderId: string | null,
+      reminderAt?: string | null,
+      links?: Record<string, string>,
+    ) {
+      rawTaskActions.addTask(title, dueDate, folderId, reminderAt, links);
     },
-    updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) {
+    updateTask(
+      id: string,
+      patch: Partial<
+        Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done' | 'links'>
+      >,
+    ) {
       rawTaskActions.updateTask(id, patch);
       if (settings.notificationsEnabled && 'reminderAt' in patch) {
-        const task = tasksRef.current.find(t => t.id === id);
+        const task = tasksRef.current.find((t) => t.id === id);
         if (task) {
           const updated = { ...task, ...patch };
           if (updated.reminderAt) {
@@ -142,7 +168,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (archived) {
         cancelTaskReminder(id);
       } else if (settings.notificationsEnabled) {
-        const task = tasksRef.current.find(t => t.id === id);
+        const task = tasksRef.current.find((t) => t.id === id);
         if (task?.reminderAt) {
           scheduleTaskReminder({ ...task, archived: false });
         }
@@ -152,7 +178,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
 
   function convertTaskToNote(taskId: string): string {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find((t) => t.id === taskId);
     if (!task) return '';
 
     const createdAt = new Date().toISOString();
@@ -167,17 +193,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       createdAt,
       tags: [],
       pinned: task.pinned,
-      links: {},
+      links: { ...(task.links ?? {}) },
     };
 
-    setNotes(prev => {
+    setNotes((prev) => {
       const next = [newNote, ...prev];
       safeSet(KEYS.notes, JSON.stringify(next));
       return next;
     });
 
-    setTasks(prev => {
-      const next = prev.filter(t => t.id !== taskId);
+    setTasks((prev) => {
+      const next = prev.filter((t) => t.id !== taskId);
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
@@ -186,8 +212,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     if (extractUrls(task.title).length > 0) {
       resolveNoteLinks(task.title).then((links) => {
-        setNotes(prev => {
-          const next = prev.map(n => n.id === noteId ? { ...n, links } : n);
+        setNotes((prev) => {
+          const next = prev.map((n) => (n.id === noteId ? { ...n, links } : n));
           safeSet(KEYS.notes, JSON.stringify(next));
           return next;
         });
@@ -198,7 +224,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   function convertNoteToTask(noteId: string): string {
-    const note = notes.find(n => n.id === noteId);
+    const note = notes.find((n) => n.id === noteId);
     if (!note) return '';
 
     const createdAt = new Date().toISOString();
@@ -211,23 +237,26 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       done: false,
       createdAt,
       pinned: note.pinned,
+      links: { ...(note.links ?? {}) },
     };
 
-    setTasks(prev => {
+    setTasks((prev) => {
       const next = [newTask, ...prev];
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
 
-    setNotes(prev => {
+    setNotes((prev) => {
       if (note.folder) {
-        setFolders(prevFolders => {
-          const next = prevFolders.map(f => f.id !== note.folder ? f : { ...f, count: Math.max(0, f.count - 1) });
+        setFolders((prevFolders) => {
+          const next = prevFolders.map((f) =>
+            f.id !== note.folder ? f : { ...f, count: Math.max(0, f.count - 1) },
+          );
           safeSet(KEYS.folders, JSON.stringify(next));
           return next;
         });
       }
-      const next = prev.filter(n => n.id !== noteId);
+      const next = prev.filter((n) => n.id !== noteId);
       safeSet(KEYS.notes, JSON.stringify(next));
       return next;
     });
@@ -242,15 +271,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <StoreContext.Provider value={{
-      notes, folders, profile, tasks, dataLoaded,
-      ...noteActions,
-      ...taskActions,
-      ...folderActions,
-      updateProfile,
-      convertTaskToNote,
-      convertNoteToTask,
-    }}>
+    <StoreContext.Provider
+      value={{
+        notes,
+        folders,
+        profile,
+        tasks,
+        dataLoaded,
+        ...noteActions,
+        ...taskActions,
+        ...folderActions,
+        updateProfile,
+        convertTaskToNote,
+        convertNoteToTask,
+      }}
+    >
       {children}
     </StoreContext.Provider>
   );

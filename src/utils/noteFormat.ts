@@ -18,7 +18,6 @@ export function parseLineSegments(content: string): FormattedSegment[] {
 
   // Split content into url / non-url chunks first, then apply strikethrough within text chunks
   let remaining = content;
-  let offset = 0;
 
   for (const url of urls) {
     const idx = remaining.indexOf(url);
@@ -29,7 +28,6 @@ export function parseLineSegments(content: string): FormattedSegment[] {
 
     segments.push({ type: 'url', value: url });
     remaining = remaining.slice(idx + url.length);
-    offset += idx + url.length;
   }
 
   if (remaining) segments.push(...parseStrikethrough(remaining));

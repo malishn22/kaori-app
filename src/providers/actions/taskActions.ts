@@ -1,17 +1,22 @@
 import type { Task, Folder } from '@/types';
 import { safeSet } from '@/utils/storage';
 import { KEYS } from '@/utils/migration';
+import { resolveLinksFor } from './resolveLinksFor';
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
-export function createTaskActions(
-  setTasks: SetState<Task[]>,
-  setFolders: SetState<Folder[]>,
-) {
-  function addTask(title: string, dueDate: string | null, folderId: string | null, reminderAt?: string | null) {
+export function createTaskActions(setTasks: SetState<Task[]>, setFolders: SetState<Folder[]>) {
+  function addTask(
+    title: string,
+    dueDate: string | null,
+    folderId: string | null,
+    reminderAt?: string | null,
+    links: Record<string, string> = {},
+  ) {
     const createdAt = new Date().toISOString();
+    const taskId = Date.now().toString();
     const newTask: Task = {
-      id: Date.now().toString(),
+      id: taskId,
       folder: folderId,
       title,
       dueDate,
@@ -19,59 +24,76 @@ export function createTaskActions(
       done: false,
       createdAt,
       pinned: false,
-      links: {},
+      links,
     };
 
-    setTasks(prev => {
+    setTasks((prev) => {
       const next = [newTask, ...prev];
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
 
     if (folderId) {
-      setFolders(prev => {
-        const next = prev.map(f => f.id !== folderId ? f : { ...f, updated: new Date().toISOString() });
+      setFolders((prev) => {
+        const next = prev.map((f) =>
+          f.id !== folderId ? f : { ...f, updated: new Date().toISOString() },
+        );
         safeSet(KEYS.folders, JSON.stringify(next));
         return next;
       });
     }
+
+    resolveLinksFor(setTasks, KEYS.tasks, taskId, title, links);
   }
 
-  function updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) {
-    setTasks(prev => {
-      const next = prev.map(t => t.id === id ? { ...t, ...patch } : t);
+  function updateTask(
+    id: string,
+    patch: Partial<
+      Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done' | 'links'>
+    >,
+  ) {
+    setTasks((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, ...patch } : t));
       safeSet(KEYS.tasks, JSON.stringify(next));
+
+      if (patch.title) {
+        const updated = next.find((t) => t.id === id);
+        resolveLinksFor(setTasks, KEYS.tasks, id, patch.title, { ...updated?.links });
+      }
+
       return next;
     });
   }
 
   function toggleTask(id: string) {
-    setTasks(prev => {
-      const next = prev.map(t => t.id === id ? { ...t, done: !t.done, archived: !t.done } : t);
+    setTasks((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, done: !t.done, archived: !t.done } : t));
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
   }
 
   function deleteTask(id: string) {
-    setTasks(prev => {
-      const next = prev.filter(t => t.id !== id);
+    setTasks((prev) => {
+      const next = prev.filter((t) => t.id !== id);
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
   }
 
   function archiveTask(id: string, archived: boolean) {
-    setTasks(prev => {
-      const next = prev.map(t => t.id === id ? { ...t, archived, ...(!archived && { done: false }) } : t);
+    setTasks((prev) => {
+      const next = prev.map((t) =>
+        t.id === id ? { ...t, archived, ...(!archived && { done: false }) } : t,
+      );
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
   }
 
   function pinTask(id: string, pinned: boolean) {
-    setTasks(prev => {
-      const next = prev.map(t => t.id === id ? { ...t, pinned } : t);
+    setTasks((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, pinned } : t));
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });

@@ -3,5 +3,5 @@ import { useStore } from '@/providers/StoreProvider';
 
 export function useActiveNotes() {
   const { notes } = useStore();
-  return useMemo(() => notes.filter(n => !n.archived), [notes]);
+  return useMemo(() => notes.filter((n) => !n.archived), [notes]);
 }

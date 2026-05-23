@@ -14,13 +14,31 @@ type SectionTitleProps = {
   style?: TextStyle;
 };
 
-export function SectionTitle({ children, underlineWidth = 52, showUnderline = true, size = 22, lineHeight, color, style }: SectionTitleProps) {
+export function SectionTitle({
+  children,
+  underlineWidth = 52,
+  showUnderline = true,
+  size = 22,
+  lineHeight,
+  color,
+  style,
+}: SectionTitleProps) {
   const { colors } = useTheme();
   const resolvedColor = resolveColor(color, colors) ?? colors.cream;
 
   return (
     <View>
-      <Text style={[{ fontFamily: FONT.kalam, fontSize: size, color: resolvedColor, ...(lineHeight ? { lineHeight } : {}) }, style]}>
+      <Text
+        style={[
+          {
+            fontFamily: FONT.kalam,
+            fontSize: size,
+            color: resolvedColor,
+            ...(lineHeight ? { lineHeight } : {}),
+          },
+          style,
+        ]}
+      >
         {children}
       </Text>
       {showUnderline && <Underline width={underlineWidth} />}

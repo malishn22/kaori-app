@@ -17,8 +17,18 @@ type CalendarPickerProps = {
 };
 
 const MONTH_NAMES = [
-  'january', 'february', 'march', 'april', 'may', 'june',
-  'july', 'august', 'september', 'october', 'november', 'december',
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -35,7 +45,9 @@ function buildGrid(year: number, month: number, value: Date | null, minimumDate?
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const minDay = minimumDate ? new Date(minimumDate.getFullYear(), minimumDate.getMonth(), minimumDate.getDate()) : null;
+  const minDay = minimumDate
+    ? new Date(minimumDate.getFullYear(), minimumDate.getMonth(), minimumDate.getDate())
+    : null;
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -44,7 +56,14 @@ function buildGrid(year: number, month: number, value: Date | null, minimumDate?
 
   // Leading empties
   for (let i = 0; i < firstDay; i++) {
-    cells.push({ key: `e-${i}`, day: null, date: null, isToday: false, isSelected: false, isDisabled: true });
+    cells.push({
+      key: `e-${i}`,
+      day: null,
+      date: null,
+      isToday: false,
+      isSelected: false,
+      isDisabled: true,
+    });
   }
 
   // Day cells
@@ -63,13 +82,26 @@ function buildGrid(year: number, month: number, value: Date | null, minimumDate?
 
   // Trailing empties to fill 6 rows
   while (cells.length < 42) {
-    cells.push({ key: `t-${cells.length}`, day: null, date: null, isToday: false, isSelected: false, isDisabled: true });
+    cells.push({
+      key: `t-${cells.length}`,
+      day: null,
+      date: null,
+      isToday: false,
+      isSelected: false,
+      isDisabled: true,
+    });
   }
 
   return cells;
 }
 
-export function CalendarPicker({ value, onChange, minimumDate, visible, onClose }: CalendarPickerProps) {
+export function CalendarPicker({
+  value,
+  onChange,
+  minimumDate,
+  visible,
+  onClose,
+}: CalendarPickerProps) {
   const { colors } = useTheme();
   const { anim, opacity, open, close } = useAnimatedPopup();
 
@@ -80,7 +112,7 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
 
   useEffect(() => {
     if (visible) open();
-  }, [visible]);
+  }, [visible, open]);
 
   useEffect(() => {
     if (value) {
@@ -91,7 +123,10 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
   const year = displayMonth.getFullYear();
   const month = displayMonth.getMonth();
 
-  const cells = useMemo(() => buildGrid(year, month, value, minimumDate), [year, month, value, minimumDate]);
+  const cells = useMemo(
+    () => buildGrid(year, month, value, minimumDate),
+    [year, month, value, minimumDate],
+  );
 
   // Split into rows of 7
   const rows: Cell[][] = [];
@@ -100,16 +135,16 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
   }
 
   // Trim trailing rows that are entirely empty
-  while (rows.length > 0 && rows[rows.length - 1].every(c => c.day === null)) {
+  while (rows.length > 0 && rows[rows.length - 1].every((c) => c.day === null)) {
     rows.pop();
   }
 
   function goToPrevMonth() {
-    setDisplayMonth(d => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+    setDisplayMonth((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
   }
 
   function goToNextMonth() {
-    setDisplayMonth(d => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+    setDisplayMonth((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
   }
 
   const handleDismiss = useCallback(() => {
@@ -166,9 +201,11 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
 
             {/* Weekday header */}
             <View className="flex-row mb-2">
-              {WEEKDAYS.map(day => (
+              {WEEKDAYS.map((day) => (
                 <View key={day} className="flex-1 items-center">
-                  <ThemeText variant="meta" size={10} color="ink4" uppercase>{day}</ThemeText>
+                  <ThemeText variant="meta" size={10} color="ink4" uppercase>
+                    {day}
+                  </ThemeText>
                 </View>
               ))}
             </View>
@@ -176,7 +213,7 @@ export function CalendarPicker({ value, onChange, minimumDate, visible, onClose 
             {/* Day grid */}
             {rows.map((row, ri) => (
               <View key={ri} className="flex-row mb-1">
-                {row.map(cell => {
+                {row.map((cell) => {
                   if (cell.day === null) {
                     return <View key={cell.key} className="flex-1" style={{ aspectRatio: 1 }} />;
                   }

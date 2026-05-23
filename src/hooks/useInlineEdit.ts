@@ -9,10 +9,13 @@ export function useInlineEdit({ initialValue, onSave }: UseInlineEditOptions) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(initialValue);
 
-  const startEditing = useCallback((overrideValue?: string) => {
-    setDraft(overrideValue ?? initialValue);
-    setEditing(true);
-  }, [initialValue]);
+  const startEditing = useCallback(
+    (overrideValue?: string) => {
+      setDraft(overrideValue ?? initialValue);
+      setEditing(true);
+    },
+    [initialValue],
+  );
 
   const commitEdit = useCallback(() => {
     const trimmed = draft.trim();

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Tone, Accent, Settings } from '@/theme';
+import type { Settings } from '@/theme';
 
 const STORAGE_KEY = '@kaori_settings';
 
@@ -45,9 +45,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SettingsContext.Provider value={{ settings, setSetting }}>
-      {children}
-    </SettingsContext.Provider>
+    <SettingsContext.Provider value={{ settings, setSetting }}>{children}</SettingsContext.Provider>
   );
 }
 

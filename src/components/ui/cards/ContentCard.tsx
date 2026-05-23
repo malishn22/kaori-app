@@ -12,7 +12,10 @@ import { SHADOW_CARD, CARD_TILTS, DELETE_COLOR, ARCHIVED_OPACITY } from '@/const
 import { formatDueDate, isOverdue, isDueSoon } from '@/utils';
 
 /** Matches TaskCard title treatment for done / archived-note rows. */
-function hiddenPrimaryExtras(hiddenLine: boolean, ink4: string): { style?: TextStyle; linkStyle?: TextStyle } {
+function hiddenPrimaryExtras(
+  hiddenLine: boolean,
+  ink4: string,
+): { style?: TextStyle; linkStyle?: TextStyle } {
   if (!hiddenLine) return {};
   return {
     style: { textDecorationLine: 'line-through', opacity: 0.5 },
@@ -75,7 +78,7 @@ export function ContentCard(props: ContentCardProps) {
                 {...primaryExtras}
               />
             </View>
-            {(note.pinned || onRestore) ? (
+            {note.pinned || onRestore ? (
               <View className="shrink-0 flex-row items-center gap-1.5">
                 {note.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
                 {onRestore ? <RestoreChip onRestore={onRestore} /> : null}

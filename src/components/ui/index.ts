@@ -11,6 +11,8 @@ export { GrainOverlay } from './primitives/GrainOverlay';
 export { FormattedText } from './primitives/FormattedText';
 export { FormatToolbar } from './primitives/FormatToolbar';
 export { ConfirmationDialog } from './primitives/ConfirmationDialog';
+export { TextContent } from './primitives/TextContent';
+export type { TextContentHandle } from './primitives/TextContent';
 export { Divider } from './primitives/Divider';
 export { GreetingTitle } from './primitives/GreetingTitle';
 export { RestoreChip } from './primitives/RestoreChip';
@@ -28,7 +30,11 @@ export { EditorScreen } from './layout/EditorScreen';
 
 // cards
 export { ContentCard } from './cards/ContentCard';
-export type { ContentCardProps, ContentCardNoteProps, ContentCardTaskProps } from './cards/ContentCard';
+export type {
+  ContentCardProps,
+  ContentCardNoteProps,
+  ContentCardTaskProps,
+} from './cards/ContentCard';
 export { NoteCard } from './cards/NoteCard';
 export { FolderAvatar } from './cards/FolderAvatar';
 export { ProfileCard } from './cards/ProfileCard';

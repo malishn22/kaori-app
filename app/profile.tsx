@@ -1,18 +1,26 @@
 import React from 'react';
 import { View, ScrollView, Share } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/theme';
+import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useInlineEdit, useActiveFolders } from '@/hooks';
-import { GrainOverlay, ThemeText, HeaderText, PageHeader, CustomSwitch, ProfileCard, SectionTitle, MenuRow } from '@/components/ui';
-import { FONT } from '@/theme';
+import {
+  GrainOverlay,
+  ThemeText,
+  HeaderText,
+  PageHeader,
+  CustomSwitch,
+  ProfileCard,
+  SectionTitle,
+  MenuRow,
+} from '@/components/ui';
 import { CloudIcon, ArrowIcon, FolderIcon } from '@/assets/icons';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { profile, notes: allNotes, tasks: allTasks, updateProfile } = useStore();
-  const notes = allNotes.filter(n => !n.archived);
+  const notes = allNotes.filter((n) => !n.archived);
   const folders = useActiveFolders();
 
   const { editing, draft, setDraft, startEditing, commitEdit } = useInlineEdit({
@@ -21,16 +29,21 @@ export default function ProfileScreen() {
   });
 
   async function handleExport() {
-    const exportText = notes.map(i => {
-      const folder = folders.find(f => f.id === i.folder)?.name ?? i.folder;
-      return `[${folder}] ${i.text}`;
-    }).join('\n\n');
+    const exportText = notes
+      .map((i) => {
+        const folder = folders.find((f) => f.id === i.folder)?.name ?? i.folder;
+        return `[${folder}] ${i.text}`;
+      })
+      .join('\n\n');
     await Share.share({ message: exportText });
   }
 
   const daysActive = (() => {
     if (!notes.length) return 0;
-    const oldest = notes.reduce((min, i) => (i.createdAt < min ? i.createdAt : min), notes[0].createdAt);
+    const oldest = notes.reduce(
+      (min, i) => (i.createdAt < min ? i.createdAt : min),
+      notes[0].createdAt,
+    );
     return Math.floor((Date.now() - new Date(oldest).getTime()) / 86_400_000);
   })();
 
@@ -38,8 +51,10 @@ export default function ProfileScreen() {
     <View className="flex-1 bg-theme-bg">
       <PageHeader onBack={() => router.back()} />
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
-
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 60 }}
+        showsVerticalScrollIndicator={false}
+      >
         <ProfileCard
           initial={profile.initial}
           name={profile.name}
@@ -58,9 +73,16 @@ export default function ProfileScreen() {
             { val: folders.length, label: 'folders' },
             { val: daysActive, label: 'days' },
           ].map(({ val, label }) => (
-            <View key={label} className="flex-1 bg-theme-paper rounded-[14px] border border-theme-line py-4 items-center gap-1">
-              <HeaderText size={28} lineHeight={32}>{val}</HeaderText>
-              <ThemeText variant="meta" color="ink3">{label}</ThemeText>
+            <View
+              key={label}
+              className="flex-1 bg-theme-paper rounded-[14px] border border-theme-line py-4 items-center gap-1"
+            >
+              <HeaderText size={28} lineHeight={32}>
+                {val}
+              </HeaderText>
+              <ThemeText variant="meta" color="ink3">
+                {label}
+              </ThemeText>
             </View>
           ))}
         </View>
@@ -106,11 +128,14 @@ export default function ProfileScreen() {
 
         {/* Tagline */}
         <View className="items-center pt-9">
-          <ThemeText variant="meta" color="ink4" style={{ fontStyle: 'normal', fontFamily: FONT.kalam, fontSize: 16 }}>
+          <ThemeText
+            variant="meta"
+            color="ink4"
+            style={{ fontStyle: 'normal', fontFamily: FONT.kalam, fontSize: 16 }}
+          >
             rest well, {profile.initial}.
           </ThemeText>
         </View>
-
       </ScrollView>
     </View>
   );

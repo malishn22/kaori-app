@@ -26,11 +26,22 @@ export function EditorScreen({ children, toolbar, toolbarVisible = true }: Props
 
       {toolbarVisible && (
         <View>
-          <View style={{ marginBottom: keyboardHeight, paddingBottom: Math.min(insets.bottom, 50) }}>
+          <View
+            style={{ marginBottom: keyboardHeight, paddingBottom: Math.min(insets.bottom, 50) }}
+          >
             {toolbar}
           </View>
           {/* Covers the gap behind the toolbar during keyboard open/close animation */}
-          <View style={{ position: 'absolute', bottom: -keyboardHeight, left: 0, right: 0, height: keyboardHeight }} className="bg-theme-bg" />
+          <View
+            style={{
+              position: 'absolute',
+              bottom: -keyboardHeight,
+              left: 0,
+              right: 0,
+              height: keyboardHeight,
+            }}
+            className="bg-theme-bg"
+          />
         </View>
       )}
     </View>

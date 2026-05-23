@@ -4,16 +4,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
 import { getTimeOfDay, getDayName } from '@/utils/time';
-import { NoteCard, FAB, SectionTitle, PageHeader, GreetingTitle, EmptyState, SwipeablePinWrapper } from '@/components/ui';
+import {
+  NoteCard,
+  FAB,
+  SectionTitle,
+  PageHeader,
+  GreetingTitle,
+  EmptyState,
+  SwipeablePinWrapper,
+} from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { notes: allNotes, folders, profile, updateNote } = useStore();
   const insets = useSafeAreaInsets();
-  const notes = useMemo(() => allNotes.filter(n => !n.archived), [allNotes]);
-  const pinnedNotes = useMemo(() => notes.filter(n => n.pinned), [notes]);
-  const unpinnedNotes = useMemo(() => notes.filter(n => !n.pinned), [notes]);
+  const notes = useMemo(() => allNotes.filter((n) => !n.archived), [allNotes]);
+  const pinnedNotes = useMemo(() => notes.filter((n) => n.pinned), [notes]);
+  const unpinnedNotes = useMemo(() => notes.filter((n) => !n.pinned), [notes]);
 
   const timeOfDay = getTimeOfDay();
   const dayName = getDayName();
@@ -42,10 +50,19 @@ export default function HomeScreen() {
 
             <View className="px-[18px] gap-3">
               {pinnedNotes.map((note, i) => {
-                const folder = folders.find(f => f.id === note.folder);
+                const folder = folders.find((f) => f.id === note.folder);
                 return (
-                  <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                    <NoteCard note={note} folder={folder} index={i} onPress={() => router.push(`/note/${note.id}`)} />
+                  <SwipeablePinWrapper
+                    key={note.id}
+                    isPinned={note.pinned}
+                    onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}
+                  >
+                    <NoteCard
+                      note={note}
+                      folder={folder}
+                      index={i}
+                      onPress={() => router.push(`/note/${note.id}`)}
+                    />
                   </SwipeablePinWrapper>
                 );
               })}
@@ -61,10 +78,19 @@ export default function HomeScreen() {
 
           <View className="px-[18px] gap-3">
             {unpinnedNotes.map((note, i) => {
-              const folder = folders.find(f => f.id === note.folder);
+              const folder = folders.find((f) => f.id === note.folder);
               return (
-                <SwipeablePinWrapper key={note.id} isPinned={note.pinned} onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}>
-                  <NoteCard note={note} folder={folder} index={i} onPress={() => router.push(`/note/${note.id}`)} />
+                <SwipeablePinWrapper
+                  key={note.id}
+                  isPinned={note.pinned}
+                  onTogglePin={() => updateNote(note.id, { pinned: !note.pinned })}
+                >
+                  <NoteCard
+                    note={note}
+                    folder={folder}
+                    index={i}
+                    onPress={() => router.push(`/note/${note.id}`)}
+                  />
                 </SwipeablePinWrapper>
               );
             })}
@@ -72,7 +98,7 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <FAB onPress={() => router.push('/note/new')}  />
+      <FAB onPress={() => router.push('/note/new')} />
     </View>
   );
 }
