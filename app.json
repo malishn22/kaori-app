@@ -25,7 +25,12 @@
       },
       "predictiveBackGestureEnabled": false,
       "softInputMode": "adjustResize",
-      "package": "com.kaori.app"
+      "package": "com.kaori.app",
+      "permissions": [
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
