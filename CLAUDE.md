@@ -38,6 +38,19 @@ expo run:android
 expo run:android --variant release      # production build
 ```
 
+### Android release APK via Gradle
+
+When you need a standalone release APK (e.g. for sideloading or sharing a build), use the wrapper script:
+
+```bash
+./scripts/build-android-release.sh
+# output: android/app/build/outputs/apk/release/app-release.apk
+```
+
+The script runs three steps with labeled section headers: `expo prebuild --platform android --clean`, an in-place patch of `android/gradle.properties` to `-Xmx4096m -XX:MaxMetaspaceSize=1024m`, then `./gradlew assembleRelease`. The patch step is mandatory — prebuild resets the file to the default `-Xmx2048m -XX:MaxMetaspaceSize=512m`, which crashes the Gradle daemon with `OutOfMemoryError: Metaspace` partway through compiling RN modules.
+
+If a previous daemon is hung, run `cd android && ./gradlew --stop` before retrying.
+
 ### Cloud builds via EAS (recommended for distribution)
 
 ```bash

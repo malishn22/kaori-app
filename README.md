@@ -77,6 +77,19 @@ expo run:ios --configuration Release
 expo run:android --variant release
 ```
 
+### Android release APK via Gradle
+
+For a standalone release APK without EAS, use the wrapper script:
+
+```bash
+./scripts/build-android-release.sh
+# APK output: android/app/build/outputs/apk/release/app-release.apk
+```
+
+It runs `expo prebuild --platform android --clean`, patches `android/gradle.properties` to `-Xmx4096m -XX:MaxMetaspaceSize=1024m` (the Expo default is too small for this project and the daemon crashes with `OutOfMemoryError: Metaspace`), then runs `./gradlew assembleRelease`. Output is streamed with labeled section headers and ends with the APK path and size.
+
+If a previous Gradle daemon is wedged, run `cd android && ./gradlew --stop` before retrying.
+
 ### EAS Build (recommended)
 
 [EAS Build](https://docs.expo.dev/build/introduction/) handles signing, certificates, and CI/CD without needing Xcode or Android Studio locally.
