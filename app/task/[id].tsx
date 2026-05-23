@@ -1,13 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Share } from 'react-native';
+import { View, ScrollView, TextInput, TouchableOpacity, Share, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, FONT } from '@/theme';
 import { useStore } from '@/providers/StoreProvider';
 import { useSettings } from '@/providers/SettingsProvider';
-import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders } from '@/hooks';
-import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
+import { useHapticFeedback, useAnimatedPopup, useConfirmAction, useActiveFolders, useInlineEdit } from '@/hooks';
+import { ThemeText, ColorDot, Chip, PageHeader, MenuRow, FormattedText, CalendarPicker, ReminderPicker, PopupMenu, FolderChipSelector, FormatToolbar, EditorScreen, ConfirmationDialog } from '@/components/ui';
 import { insertCheckboxAtCursor, wrapStrikethrough, toggleCheckboxLine } from '@/utils/noteFormat';
+import { toEditableText, fromEditableText, getDomain } from '@/utils/links';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
 import { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from '@/utils';
 import { computeDisplayStrings } from '@/utils/time';
@@ -42,12 +43,15 @@ export default function TaskDetailScreen() {
 
   const selectionRef = useRef({ start: 0, end: 0 });
 
-  const [editing, setEditing] = useState(false);
-  const [draftTitle, setDraftTitle] = useState('');
+  const { editing, draft: draftTitle, setDraft: setDraftTitle, startEditing: startTitleEditing, cancelEdit: cancelTitleEdit } = useInlineEdit({
+    initialValue: task?.title ?? '',
+    onSave: async () => {},
+  });
   const [draftDueDate, setDraftDueDate] = useState<Date | null>(null);
   const [draftReminderAt, setDraftReminderAt] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showReminderPicker, setShowReminderPicker] = useState(false);
+  const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
   const isCustomDraftDate = draftDueDate !== null && !getDateChipOptions().some(opt => isSameDay(draftDueDate, opt.date));
 
   const confirmDelete = useConfirmAction({
@@ -76,31 +80,36 @@ export default function TaskDetailScreen() {
     : undefined;
 
   function startEditing() {
-    setDraftTitle(task!.title);
     setDraftDueDate(task!.dueDate ? new Date(task!.dueDate) : null);
     setDraftReminderAt(task!.reminderAt ? new Date(task!.reminderAt) : null);
     setShowDatePicker(false);
     setShowReminderPicker(false);
-    setEditing(true);
+    startTitleEditing(toEditableText(task!.title, task!.links ?? {}));
   }
 
   function cancelEdit() {
-    setEditing(false);
+    cancelTitleEdit();
     setShowDatePicker(false);
     setShowReminderPicker(false);
   }
 
   async function handleSave() {
     if (!draftTitle.trim()) return;
+    const { text, links } = fromEditableText(draftTitle.trim());
     await updateTask(task!.id, {
-      title: draftTitle.trim(),
+      title: text,
+      links,
       dueDate: draftDueDate ? draftDueDate.toISOString() : null,
       reminderAt: draftReminderAt ? draftReminderAt.toISOString() : null,
     });
     impactOnSave();
-    setEditing(false);
+    cancelTitleEdit();
     setShowDatePicker(false);
     setShowReminderPicker(false);
+  }
+
+  function handleLinkPress(url: string, label: string) {
+    setLinkAction({ url, label });
   }
 
   function openMenu() {
@@ -228,6 +237,7 @@ export default function TaskDetailScreen() {
               lineHeight={28}
               letterSpacing={0.1}
               style={task.done ? { textDecorationLine: 'line-through', opacity: 0.5 } : undefined}
+              onLinkPress={handleLinkPress}
               onCheckboxToggle={handleCheckboxToggle}
             />
           )}
@@ -403,6 +413,23 @@ export default function TaskDetailScreen() {
           baseDate={draftDueDate}
         />
       )}
+
+      <ConfirmationDialog
+        visible={!!linkAction}
+        title={linkAction?.label ?? ''}
+        subtitle={linkAction ? getDomain(linkAction.url) : undefined}
+        actions={[
+          {
+            label: 'open link',
+            color: 'amber',
+            onPress: () => {
+              if (linkAction) Linking.openURL(linkAction.url);
+              setLinkAction(null);
+            },
+          },
+        ]}
+        onClose={() => setLinkAction(null)}
+      />
     </View>
   );
 }

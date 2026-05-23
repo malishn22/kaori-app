@@ -6,6 +6,7 @@ import { useStore } from '@/providers/StoreProvider';
 import { useHapticFeedback, useActiveFolders } from '@/hooks';
 import { PageHeader, ThemeText, Chip, CalendarPicker, ReminderPicker, FolderChipSelector, FormatToolbar, EditorScreen } from '@/components/ui';
 import { insertCheckboxAtCursor, wrapStrikethrough } from '@/utils/noteFormat';
+import { fromEditableText } from '@/utils/links';
 import { BUTTON_TEXT_ON_ACCENT } from '@/constants';
 import { getDateChipOptions, isSameDay, formatDueDate } from '@/utils';
 
@@ -42,11 +43,13 @@ export default function NewTaskScreen() {
 
   async function handleSave() {
     if (!title.trim()) return;
+    const { text, links } = fromEditableText(title.trim());
     await addTask(
-      title.trim(),
+      text,
       dueDate ? dueDate.toISOString() : null,
       selectedFolder,
       draftReminderAt ? draftReminderAt.toISOString() : null,
+      links,
     );
     impactOnSave();
     router.back();

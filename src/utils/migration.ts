@@ -55,7 +55,7 @@ export async function loadInitialData(): Promise<{
     const notes = rawNotes ? JSON.parse(rawNotes).map((n: Note) => ({ ...n, links: n.links ?? {} })) : SEED_NOTES;
     const folders: Folder[] = rawFolders ? JSON.parse(rawFolders) : SEED_FOLDERS;
     const profile = rawProfile ? { ...DEFAULT_PROFILE, ...JSON.parse(rawProfile) } : DEFAULT_PROFILE;
-    const tasks = rawTasks ? JSON.parse(rawTasks) : SEED_TASKS;
+    const tasks = rawTasks ? JSON.parse(rawTasks).map((t: Task) => ({ ...t, links: t.links ?? {} })) : SEED_TASKS;
 
     // Migration: assign order values to folders that don't have one yet.
     // Respects existing pinned-first order so the visual order matches what users already see.

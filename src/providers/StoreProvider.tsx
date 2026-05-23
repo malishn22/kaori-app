@@ -34,8 +34,8 @@ type StoreContextValue = {
   archiveNote: (id: string, archived: boolean) => void;
   archiveFolder: (id: string, archived: boolean) => void;
   reorderFolders: (orderedIds: string[]) => void;
-  addTask: (title: string, dueDate: string | null, folderId: string | null) => void;
-  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) => void;
+  addTask: (title: string, dueDate: string | null, folderId: string | null, reminderAt?: string | null, links?: Record<string, string>) => void;
+  updateTask: (id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done' | 'links'>>) => void;
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
   archiveTask: (id: string, archived: boolean) => void;
@@ -112,10 +112,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   // Notification-aware task action wrappers
   const taskActions = {
-    addTask(title: string, dueDate: string | null, folderId: string | null) {
-      rawTaskActions.addTask(title, dueDate, folderId);
+    addTask(title: string, dueDate: string | null, folderId: string | null, reminderAt?: string | null, links?: Record<string, string>) {
+      rawTaskActions.addTask(title, dueDate, folderId, reminderAt, links);
     },
-    updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done'>>) {
+    updateTask(id: string, patch: Partial<Pick<Task, 'title' | 'dueDate' | 'reminderAt' | 'folder' | 'pinned' | 'done' | 'links'>>) {
       rawTaskActions.updateTask(id, patch);
       if (settings.notificationsEnabled && 'reminderAt' in patch) {
         const task = tasksRef.current.find(t => t.id === id);
@@ -167,7 +167,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       createdAt,
       tags: [],
       pinned: task.pinned,
-      links: {},
+      links: { ...(task.links ?? {}) },
     };
 
     setNotes(prev => {
@@ -211,6 +211,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       done: false,
       createdAt,
       pinned: note.pinned,
+      links: { ...(note.links ?? {}) },
     };
 
     setTasks(prev => {
