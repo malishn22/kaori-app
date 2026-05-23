@@ -29,16 +29,11 @@ export default function FoldersScreen() {
         }, {}),
     [allTasks],
   );
-  const sortedFolders = useMemo(
-    () => [...folders].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [folders],
-  );
-
   return (
     <View className="flex-1 bg-theme-bg">
       <PageHeader caption="your folders" title="folders" underlineWidth={92} settingsButton />
       <DraggableFolderList
-        folders={sortedFolders}
+        folders={folders}
         noteCounts={noteCounts}
         taskCounts={taskCounts}
         onReorder={reorderFolders}

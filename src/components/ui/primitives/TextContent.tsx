@@ -20,21 +20,10 @@ type Props = {
   onCheckboxToggle: (nextText: string) => void;
   textStyle?: TextStyle;
   placeholder?: string;
-  minHeight?: number;
 };
 
 export const TextContent = forwardRef<TextContentHandle, Props>(function TextContent(
-  {
-    text,
-    links,
-    editing,
-    draft,
-    onDraftChange,
-    onCheckboxToggle,
-    textStyle,
-    placeholder,
-    minHeight,
-  },
+  { text, links, editing, draft, onDraftChange, onCheckboxToggle, textStyle, placeholder },
   ref,
 ) {
   const { colors } = useTheme();
@@ -71,7 +60,6 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
           lineHeight: 28,
           letterSpacing: 0.1,
           textAlignVertical: 'top',
-          ...(minHeight != null ? { minHeight } : {}),
         }}
         value={draft}
         onChangeText={onDraftChange}

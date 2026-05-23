@@ -53,7 +53,6 @@ export default function NewNoteScreen() {
             onDraftChange={setText}
             onCheckboxToggle={() => {}}
             placeholder="what's on your mind..."
-            minHeight={160}
           />
 
           <FolderChipSelector
