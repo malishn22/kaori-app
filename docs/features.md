@@ -52,6 +52,10 @@ preset). The reminder fires a local notification at that time.
 - On startup `StoreProvider` calls `rescheduleAllReminders` for active
   (non-done, non-archived) tasks.
 - Time picker: [ReminderPicker.tsx](../src/components/ui/pickers/ReminderPicker.tsx).
+  When a task has no reminder yet, the picker opens on a **1:00 AM** default
+  (`DEFAULT_HOUR`/`DEFAULT_MINUTE`) on the due date so the hour wheel starts at the
+  top (01) rather than midnight (12); editing an existing reminder opens on its
+  saved time.
 
 ## Folders
 
