@@ -27,7 +27,19 @@ const HOURS = Array.from({ length: 12 }, (_, i) => i + 1); // 1–12
 const MINUTES = Array.from({ length: 12 }, (_, i) => i * 5); // 0, 5, 10 … 55
 const PERIODS = ['AM', 'PM'] as const;
 
+const DEFAULT_HOUR = 1; // 1:00 AM — opens the hour wheel on 01 (top) when no time is set
+const DEFAULT_MINUTE = 0;
+
 const ITEM_HEIGHT = 44;
+
+// The date the wheels initialize from: the existing reminder if set, otherwise
+// the base date's day at the default time (so the wheel doesn't open on midnight/12).
+function initialDateFrom(value: Date | null, baseDate: Date): Date {
+  if (value) return value;
+  const d = new Date(baseDate);
+  d.setHours(DEFAULT_HOUR, DEFAULT_MINUTE, 0, 0);
+  return d;
+}
 
 type WheelProps = {
   items: string[];
@@ -121,7 +133,7 @@ export function ReminderPicker({ visible, onClose, value, onChange, baseDate }: 
   const { colors } = useTheme();
   const { opacity, open, close } = useAnimatedPopup();
 
-  const initial = value ?? baseDate;
+  const initial = initialDateFrom(value, baseDate);
   const initHours = initial.getHours();
   const [hourIdx, setHourIdx] = useState(() => {
     const h = initHours % 12;
@@ -137,7 +149,7 @@ export function ReminderPicker({ visible, onClose, value, onChange, baseDate }: 
   const wasVisible = useRef(false);
   useEffect(() => {
     if (visible && !wasVisible.current) {
-      const d = value ?? baseDate;
+      const d = initialDateFrom(value, baseDate);
       const h = d.getHours();
       const hMod = h % 12;
       setHourIdx(HOURS.indexOf(hMod === 0 ? 12 : hMod));
