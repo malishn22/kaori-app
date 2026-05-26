@@ -18,7 +18,7 @@ else
 fi
 
 step() {
-  printf '\n%s==> Step %s/3: %s%s\n' "${C_BOLD}${C_BLUE}" "$1" "$2" "$C_RESET"
+  printf '\n%s==> Step %s/4: %s%s\n' "${C_BOLD}${C_BLUE}" "$1" "$2" "$C_RESET"
 }
 
 fail() {
@@ -59,14 +59,30 @@ APK_DIR="$REPO_ROOT/android/app/build/outputs/apk/release"
 APK="$APK_DIR/app-release.apk"
 
 printf '\n%sBUILD SUCCESSFUL%s\n' "${C_BOLD}${C_GREEN}" "$C_RESET"
+shopt -s nullglob
+found=("$APK_DIR"/app-release*.apk)
 if [ -f "$APK" ]; then
   ls -lh "$APK" | awk '{printf "  %s  (%s)\n", $NF, $5}'
+elif [ ${#found[@]} -gt 0 ]; then
+  for f in "${found[@]}"; do ls -lh "$f" | awk '{printf "  %s  (%s)\n", $NF, $5}'; done
 else
-  shopt -s nullglob
-  found=("$APK_DIR"/app-release*.apk)
-  if [ ${#found[@]} -gt 0 ]; then
-    for f in "${found[@]}"; do ls -lh "$f" | awk '{printf "  %s  (%s)\n", $NF, $5}'; done
+  printf '  %s(no APK found under %s)%s\n' "$C_DIM" "$APK_DIR" "$C_RESET"
+fi
+
+# --- Step 4: reveal output in Finder (macOS) ---
+step 4 "reveal output in Finder"
+if command -v open >/dev/null 2>&1; then
+  if [ -f "$APK" ]; then
+    open -R "$APK"
+    printf '  %sok%s — revealed in Finder\n' "$C_GREEN" "$C_RESET"
+  elif [ ${#found[@]} -gt 0 ]; then
+    open -R "${found[0]}"
+    printf '  %sok%s — revealed in Finder\n' "$C_GREEN" "$C_RESET"
+  elif open "$APK_DIR" 2>/dev/null; then
+    printf '  %sok%s — opened %s\n' "$C_GREEN" "$C_RESET" "$APK_DIR"
   else
-    printf '  %s(no APK found under %s)%s\n' "$C_DIM" "$APK_DIR" "$C_RESET"
+    printf '  %s(nothing to reveal)%s\n' "$C_DIM" "$C_RESET"
   fi
+else
+  printf '  %sskip%s — `open` not available (non-macOS)\n' "$C_DIM" "$C_RESET"
 fi
