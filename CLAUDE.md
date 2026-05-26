@@ -134,3 +134,14 @@ NativeWind v4 (Tailwind for React Native). Theme colors are injected as CSS vari
 - Hooks in `src/hooks/` derive filtered/computed data from the store; prefer these over inline `useMemo` in screens
 - Spacing and layout constants in `src/constants/layout.ts` and `src/constants/styles.ts` — use these rather than hardcoded numbers
 - No test suite exists currently
+
+## Documentation
+
+Reference docs live in [`docs/`](docs/) (architecture, data model, features,
+conventions). They describe **current behavior**, not change history.
+
+After completing a feature or behavior change, **remind the user** that the
+relevant `docs/` file(s) may need updating and name which ones. **Do not edit
+any file under `docs/` unless the user explicitly confirms and tells you to
+update them.** When they confirm, update the affected file(s) and keep
+`docs/README.md`'s index in sync.

@@ -145,3 +145,7 @@ assets/
 ## Data & Privacy
 
 All data is stored locally on-device using AsyncStorage. There is no backend, no sync, and no data leaves the device.
+
+## Documentation
+
+In-depth reference docs for contributors live in [`docs/`](docs/) — architecture, data model, features, and conventions.
