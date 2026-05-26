@@ -127,24 +127,27 @@ export function ReminderPicker({ visible, onClose, value, onChange, baseDate }: 
     const h = initHours % 12;
     return HOURS.indexOf(h === 0 ? 12 : h);
   });
-  const [minuteIdx, setMinuteIdx] = useState(() => {
-    const nearestFive = Math.round(initial.getMinutes() / 5) % 12;
-    return nearestFive;
-  });
+  const [minuteIdx, setMinuteIdx] = useState(() =>
+    Math.min(MINUTES.length - 1, Math.round(initial.getMinutes() / 5)),
+  );
   const [periodIdx, setPeriodIdx] = useState(() => (initHours >= 12 ? 1 : 0));
 
+  // Initialize the wheels once per open (rising edge of `visible`). Re-running on
+  // every render would reset the wheels mid-edit and restart the fade-in (blink).
+  const wasVisible = useRef(false);
   useEffect(() => {
-    if (visible) {
+    if (visible && !wasVisible.current) {
       const d = value ?? baseDate;
       const h = d.getHours();
       const hMod = h % 12;
       setHourIdx(HOURS.indexOf(hMod === 0 ? 12 : hMod));
-      const nearestFive = Math.round(d.getMinutes() / 5) % 12;
-      setMinuteIdx(nearestFive);
+      setMinuteIdx(Math.min(MINUTES.length - 1, Math.round(d.getMinutes() / 5)));
       setPeriodIdx(h >= 12 ? 1 : 0);
       open();
     }
-  }, [visible, value, baseDate, open]);
+    wasVisible.current = visible;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
 
   const handleDismiss = useCallback(() => {
     close(() => onClose());
