@@ -19,7 +19,13 @@ import { CloudIcon, ArrowIcon, FolderIcon } from '@/assets/icons';
 export default function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { profile, notes: allNotes, tasks: allTasks, updateProfile } = useStore();
+  const {
+    profile,
+    notes: allNotes,
+    tasks: allTasks,
+    folders: allFolders,
+    updateProfile,
+  } = useStore();
   const notes = allNotes.filter((n) => !n.archived);
   const folders = useActiveFolders();
 
@@ -29,13 +35,49 @@ export default function ProfileScreen() {
   });
 
   async function handleExport() {
-    const exportText = notes
-      .map((i) => {
-        const folder = folders.find((f) => f.id === i.folder)?.name ?? i.folder;
-        return `[${folder}] ${i.text}`;
-      })
-      .join('\n\n');
-    await Share.share({ message: exportText });
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      folders: allFolders.map(({ id, name, color, note, createdAt, pinned, archived, order }) => ({
+        id,
+        name,
+        color,
+        note,
+        createdAt,
+        pinned,
+        archived,
+        order,
+      })),
+      notes: allNotes.map(
+        ({ id, folder, text, time, date, createdAt, tags, pinned, links, archived }) => ({
+          id,
+          folder,
+          text,
+          time,
+          date,
+          createdAt,
+          tags,
+          pinned,
+          links,
+          archived,
+        }),
+      ),
+      tasks: allTasks.map(
+        ({ id, folder, title, dueDate, reminderAt, done, createdAt, pinned, links, archived }) => ({
+          id,
+          folder,
+          title,
+          dueDate,
+          reminderAt,
+          done,
+          createdAt,
+          pinned,
+          links,
+          archived,
+        }),
+      ),
+      profile,
+    };
+    await Share.share({ message: JSON.stringify(exportData, null, 2) });
   }
 
   const daysActive = (() => {
@@ -117,7 +159,7 @@ export default function ProfileScreen() {
 
           <MenuRow
             icon={<ArrowIcon size={18} color={colors.ink3} strokeWidth={1.4} />}
-            label="export notes"
+            label="export data"
             onPress={handleExport}
             borderBottom={false}
             showChevron
