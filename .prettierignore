@@ -6,3 +6,4 @@ dist
 build
 web-build
 package-lock.json
+src-tauri
