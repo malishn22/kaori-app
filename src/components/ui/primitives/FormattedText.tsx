@@ -17,6 +17,21 @@ type Props = {
   onCheckboxToggle?: (lineIndex: number) => void;
 };
 
+const INDICATOR_SLOT = 18;
+const ROW_GAP = 8;
+const ROW_MARGIN_BOTTOM = 2;
+const ROW_FALLBACK_MARGIN_TOP = 2;
+const BULLET_INDENT_STEP = 20;
+
+const DOT_SIZE_FILLED = 6;
+const DOT_SIZE_SQUARE = 4;
+const DOT_BORDER_WIDTH = 1.5;
+
+const CHECKBOX_BORDER_WIDTH = 1.5;
+const CHECKBOX_HIT_SLOP = 6;
+const CHECK_ICON_SIZE = 10;
+const CHECK_ICON_STROKE = 2.5;
+
 function renderSegments(
   segments: FormattedSegment[],
   baseStyle: TextStyle,
@@ -90,7 +105,18 @@ export function FormattedText({
       <Text style={baseStyle} numberOfLines={numberOfLines}>
         {lines.map((line, lineIdx) => {
           const separator = lineIdx > 0 ? '\n' : '';
-          const prefix = line.type === 'checkbox' ? (line.checked ? '☑ ' : '☐ ') : '';
+          const prefix =
+            line.type === 'checkbox'
+              ? line.checked
+                ? '☑ '
+                : '☐ '
+              : line.type === 'dotted'
+                ? line.level === 1
+                  ? '• '
+                  : line.level === 2
+                    ? '◦ '
+                    : '▪ '
+                : '';
 
           return (
             <Text key={lineIdx}>
@@ -137,6 +163,32 @@ type LineRowProps = {
   colors: Record<string, string>;
 };
 
+function getDotStyle(level: number, colors: Record<string, string>): object {
+  if (level === 2) {
+    return {
+      width: DOT_SIZE_FILLED,
+      height: DOT_SIZE_FILLED,
+      borderRadius: DOT_SIZE_FILLED / 2,
+      borderWidth: DOT_BORDER_WIDTH,
+      borderColor: colors.ink3,
+    };
+  }
+  if (level >= 3) {
+    return {
+      width: DOT_SIZE_SQUARE,
+      height: DOT_SIZE_SQUARE,
+      borderRadius: 0,
+      backgroundColor: colors.ink3,
+    };
+  }
+  return {
+    width: DOT_SIZE_FILLED,
+    height: DOT_SIZE_FILLED,
+    borderRadius: DOT_SIZE_FILLED / 2,
+    backgroundColor: colors.ink3,
+  };
+}
+
 function LineRow({
   line,
   lineIdx,
@@ -149,7 +201,6 @@ function LineRow({
   colors,
 }: LineRowProps) {
   const lineHeight = baseStyle.lineHeight as number | undefined;
-  const circleSize = 18;
 
   if (line.type === 'checkbox') {
     const textStyle: TextStyle = {
@@ -166,27 +217,38 @@ function LineRow({
         style={{
           flexDirection: 'row',
           alignItems: 'flex-start',
-          marginBottom: 2,
+          marginBottom: ROW_MARGIN_BOTTOM,
           minHeight: lineHeight,
         }}
       >
         <TouchableOpacity
           onPress={() => onCheckboxToggle?.(lineIdx)}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          hitSlop={{
+            top: CHECKBOX_HIT_SLOP,
+            bottom: CHECKBOX_HIT_SLOP,
+            left: CHECKBOX_HIT_SLOP,
+            right: CHECKBOX_HIT_SLOP,
+          }}
           style={{
-            width: circleSize,
-            height: circleSize,
-            borderRadius: circleSize / 2,
-            borderWidth: 1.5,
+            width: INDICATOR_SLOT,
+            height: INDICATOR_SLOT,
+            borderRadius: INDICATOR_SLOT / 2,
+            borderWidth: CHECKBOX_BORDER_WIDTH,
             borderColor: line.checked ? colors.amber : colors.line2,
             backgroundColor: line.checked ? colors.amber : 'transparent',
             alignItems: 'center',
             justifyContent: 'center',
-            marginRight: 8,
-            marginTop: lineHeight ? (lineHeight - circleSize) / 2 : 2,
+            marginRight: ROW_GAP,
+            marginTop: lineHeight ? (lineHeight - INDICATOR_SLOT) / 2 : ROW_FALLBACK_MARGIN_TOP,
           }}
         >
-          {line.checked && <CheckIcon size={10} color={colors.paper} strokeWidth={2.5} />}
+          {line.checked && (
+            <CheckIcon
+              size={CHECK_ICON_SIZE}
+              color={colors.paper}
+              strokeWidth={CHECK_ICON_STROKE}
+            />
+          )}
         </TouchableOpacity>
         <Text style={[textStyle, { flex: 1 }]}>
           {renderSegments(
@@ -197,6 +259,37 @@ function LineRow({
             links,
             onLinkPress,
           )}
+        </Text>
+      </View>
+    );
+  }
+
+  if (line.type === 'dotted') {
+    const indent = (line.level - 1) * BULLET_INDENT_STEP;
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          marginBottom: ROW_MARGIN_BOTTOM,
+          minHeight: lineHeight,
+          marginLeft: indent,
+        }}
+      >
+        <View
+          style={{
+            width: INDICATOR_SLOT,
+            height: INDICATOR_SLOT,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: ROW_GAP,
+            marginTop: lineHeight ? (lineHeight - INDICATOR_SLOT) / 2 : ROW_FALLBACK_MARGIN_TOP,
+          }}
+        >
+          <View style={getDotStyle(line.level, colors)} />
+        </View>
+        <Text style={[baseStyle, { flex: 1 }]}>
+          {renderSegments(line.segments, baseStyle, strikeStyle, linkStyle, links, onLinkPress)}
         </Text>
       </View>
     );

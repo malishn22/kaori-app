@@ -7,9 +7,11 @@ export type FormattedSegment =
 
 export type FormattedLine =
   | { type: 'plain'; segments: FormattedSegment[] }
-  | { type: 'checkbox'; checked: boolean; segments: FormattedSegment[] };
+  | { type: 'checkbox'; checked: boolean; segments: FormattedSegment[] }
+  | { type: 'dotted'; level: number; segments: FormattedSegment[] };
 
 const CHECKBOX_LINE = /^\[([ x])\] (.*)$/s;
+const DOTTED_LINE = /^( *)- (.*)$/s;
 const STRIKETHROUGH = /~~(.+?)~~/gs;
 
 export function parseLineSegments(content: string): FormattedSegment[] {
@@ -60,6 +62,8 @@ function parseStrikethrough(text: string): FormattedSegment[] {
 
 export function parseNoteText(text: string): FormattedLine[] {
   const lines = text.split('\n');
+  const indentStack: number[] = [0];
+
   return lines.map((line) => {
     const m = CHECKBOX_LINE.exec(line);
     if (m) {
@@ -68,6 +72,18 @@ export function parseNoteText(text: string): FormattedLine[] {
         checked: m[1] === 'x',
         segments: parseLineSegments(m[2]),
       };
+    }
+    const dm = DOTTED_LINE.exec(line);
+    if (dm) {
+      const spaces = dm[1].length;
+      while (indentStack.length > 1 && indentStack[indentStack.length - 1] > spaces) {
+        indentStack.pop();
+      }
+      if (spaces > indentStack[indentStack.length - 1]) {
+        indentStack.push(spaces);
+      }
+      const level = indentStack.length;
+      return { type: 'dotted', level, segments: parseLineSegments(dm[2]) };
     }
     return { type: 'plain', segments: parseLineSegments(line) };
   });
@@ -91,6 +107,16 @@ export function insertCheckboxAtCursor(
 ): { newText: string; newCursorPos: number } {
   const prefix = '[ ] ';
   // Find start of the current line
+  const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+  const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
+  return { newText, newCursorPos: cursorPos + prefix.length };
+}
+
+export function insertDottedAtCursor(
+  text: string,
+  cursorPos: number,
+): { newText: string; newCursorPos: number } {
+  const prefix = '- ';
   const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
   const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
   return { newText, newCursorPos: cursorPos + prefix.length };

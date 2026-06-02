@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
-import { CircleIcon, StrikethroughIcon } from '@/assets/icons';
+import { CircleIcon, DotLineIcon, StrikethroughIcon } from '@/assets/icons';
 
 type Props = {
   onCheckbox: () => void;
+  onDotted: () => void;
   onStrikethrough: () => void;
 };
 
-export function FormatToolbar({ onCheckbox, onStrikethrough }: Props) {
+export function FormatToolbar({ onCheckbox, onDotted, onStrikethrough }: Props) {
   const { colors } = useTheme();
 
   return (
@@ -30,6 +31,15 @@ export function FormatToolbar({ onCheckbox, onStrikethrough }: Props) {
         activeOpacity={0.6}
       >
         <CircleIcon size={22} color={colors.amber} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={onDotted}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+        activeOpacity={0.6}
+      >
+        <DotLineIcon size={20} color={colors.amber} />
       </TouchableOpacity>
 
       <TouchableOpacity

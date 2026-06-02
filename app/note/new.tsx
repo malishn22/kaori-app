@@ -39,6 +39,7 @@ export default function NewNoteScreen() {
         toolbar={
           <FormatToolbar
             onCheckbox={() => editorRef.current?.insertCheckbox()}
+            onDotted={() => editorRef.current?.insertDotted()}
             onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
           />
         }

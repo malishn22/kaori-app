@@ -3,11 +3,17 @@ import { TextInput, Linking, type TextStyle } from 'react-native';
 import { useTheme, FONT } from '@/theme';
 import { FormattedText } from './FormattedText';
 import { ConfirmationDialog } from './ConfirmationDialog';
-import { insertCheckboxAtCursor, wrapStrikethrough, toggleCheckboxLine } from '@/utils/noteFormat';
+import {
+  insertCheckboxAtCursor,
+  insertDottedAtCursor,
+  wrapStrikethrough,
+  toggleCheckboxLine,
+} from '@/utils/noteFormat';
 import { getDomain } from '@/utils/links';
 
 export type TextContentHandle = {
   insertCheckbox: () => void;
+  insertDotted: () => void;
   wrapStrikethrough: () => void;
 };
 
@@ -35,6 +41,10 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
     () => ({
       insertCheckbox: () => {
         const { newText } = insertCheckboxAtCursor(draft, selectionRef.current.start);
+        onDraftChange(newText);
+      },
+      insertDotted: () => {
+        const { newText } = insertDottedAtCursor(draft, selectionRef.current.start);
         onDraftChange(newText);
       },
       wrapStrikethrough: () => {
