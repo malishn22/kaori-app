@@ -83,7 +83,18 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
     }
     const inserted = next.slice(prefixLen, next.length - suffixLen);
     if (inserted.endsWith('\n')) {
-      const newlinePos = prefixLen + inserted.length;
+      // Detect newline position without assuming onSelectionChange/onChangeText ordering:
+      // if cursor is right after a \n it's the post-change cursor (newlinePos = cursor);
+      // if cursor is sitting on a \n it's the pre-change cursor (newlinePos = cursor + 1).
+      let newlinePos = prefixLen + inserted.length;
+      if (inserted === '\n') {
+        const cursor = selectionRef.current.start;
+        if (cursor > 0 && next[cursor - 1] === '\n') {
+          newlinePos = cursor;
+        } else if (cursor < next.length && next[cursor] === '\n') {
+          newlinePos = cursor + 1;
+        }
+      }
       const result = continueFormattingOnEnter(next, newlinePos);
       if (result) {
         onDraftChange(result.newText);
