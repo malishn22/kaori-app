@@ -8,10 +8,12 @@ export type FormattedSegment =
 export type FormattedLine =
   | { type: 'plain'; segments: FormattedSegment[] }
   | { type: 'checkbox'; checked: boolean; segments: FormattedSegment[] }
-  | { type: 'dotted'; level: number; segments: FormattedSegment[] };
+  | { type: 'dotted'; level: number; segments: FormattedSegment[] }
+  | { type: 'numbered'; segments: FormattedSegment[] };
 
 const CHECKBOX_LINE = /^\[([ x])\] (.*)$/s;
 const DOTTED_LINE = /^( *)- (.*)$/s;
+const NUMBERED_LINE = /^\d+\. (.*)$/s;
 const STRIKETHROUGH = /~~(.+?)~~/gs;
 
 export function parseLineSegments(content: string): FormattedSegment[] {
@@ -85,6 +87,10 @@ export function parseNoteText(text: string): FormattedLine[] {
       const level = indentStack.length;
       return { type: 'dotted', level, segments: parseLineSegments(dm[2]) };
     }
+    const nm = NUMBERED_LINE.exec(line);
+    if (nm) {
+      return { type: 'numbered', segments: parseLineSegments(nm[1]) };
+    }
     return { type: 'plain', segments: parseLineSegments(line) };
   });
 }
@@ -120,6 +126,65 @@ export function insertDottedAtCursor(
   const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
   const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
   return { newText, newCursorPos: cursorPos + prefix.length };
+}
+
+export function insertNumberedAtCursor(
+  text: string,
+  cursorPos: number,
+): { newText: string; newCursorPos: number } {
+  const prefix = '1. ';
+  const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+  const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
+  return { newText, newCursorPos: cursorPos + prefix.length };
+}
+
+export function continueFormattingOnEnter(
+  text: string,
+  cursorPos: number,
+): { newText: string; newCursorPos: number } | null {
+  const lineEnd = cursorPos - 1; // index of the '\n' that was just inserted
+  const lineStart = text.lastIndexOf('\n', lineEnd - 1) + 1;
+  const prevLine = text.slice(lineStart, lineEnd);
+
+  const cm = CHECKBOX_LINE.exec(prevLine);
+  if (cm) {
+    if (cm[2] === '') {
+      // Escape hatch: blank checkbox line → remove the prefix
+      const newText = text.slice(0, lineStart) + text.slice(lineEnd);
+      return { newText, newCursorPos: lineStart };
+    }
+    const prefix = '[ ] ';
+    const newText = text.slice(0, cursorPos) + prefix + text.slice(cursorPos);
+    return { newText, newCursorPos: cursorPos + prefix.length };
+  }
+
+  const dm = DOTTED_LINE.exec(prevLine);
+  if (dm) {
+    const indent = dm[1];
+    if (dm[2] === '') {
+      // Escape hatch: blank dotted line → remove the prefix
+      const newText = text.slice(0, lineStart) + text.slice(lineEnd);
+      return { newText, newCursorPos: lineStart };
+    }
+    const prefix = `${indent}- `;
+    const newText = text.slice(0, cursorPos) + prefix + text.slice(cursorPos);
+    return { newText, newCursorPos: cursorPos + prefix.length };
+  }
+
+  const nm = /^(\d+)\. (.*)$/s.exec(prevLine);
+  if (nm) {
+    if (nm[2] === '') {
+      // Escape hatch: blank numbered line → remove the prefix
+      const newText = text.slice(0, lineStart) + text.slice(lineEnd);
+      return { newText, newCursorPos: lineStart };
+    }
+    const next = parseInt(nm[1], 10) + 1;
+    const prefix = `${next}. `;
+    const newText = text.slice(0, cursorPos) + prefix + text.slice(cursorPos);
+    return { newText, newCursorPos: cursorPos + prefix.length };
+  }
+
+  return null;
 }
 
 export function wrapStrikethrough(

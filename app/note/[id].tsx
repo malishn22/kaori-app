@@ -144,6 +144,7 @@ export default function NoteDetailScreen() {
           <FormatToolbar
             onCheckbox={() => editorRef.current?.insertCheckbox()}
             onDotted={() => editorRef.current?.insertDotted()}
+            onNumbered={() => editorRef.current?.insertNumbered()}
             onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
           />
         }

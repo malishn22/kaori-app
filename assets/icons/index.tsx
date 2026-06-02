@@ -19,6 +19,8 @@ import PenSvg from './pen.svg';
 import TrashSvg from './trash.svg';
 import TaskSvg from './task.svg';
 import StrikethroughSvg from './strikethrough.svg';
+import NumberedListSvg from './numberedlist.svg';
+import DotLineSvg from './dotline.svg';
 
 export type IconProps = { size?: number; color?: string; strokeWidth?: number };
 
@@ -48,15 +50,8 @@ export const EditIcon = icon(PenSvg, 18);
 export const TrashIcon = icon(TrashSvg, 18);
 export const TaskIcon = icon(TaskSvg, 20);
 export const StrikethroughIcon = icon(StrikethroughSvg, 20);
-
-export function DotLineIcon({ size = 20, color = 'currentColor' }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path d="M5 12 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" fill={color} />
-      <Path d="M10 12 L20 12" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
-    </Svg>
-  );
-}
+export const NumberedListIcon = icon(NumberedListSvg, 20);
+export const DotLineIcon = icon(DotLineSvg, 20);
 
 export function BookmarkIcon({
   size = 20,

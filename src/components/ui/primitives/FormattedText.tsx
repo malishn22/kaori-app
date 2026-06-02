@@ -99,9 +99,15 @@ export function FormattedText({
 
   // Preview mode: flat single <Text> tree so numberOfLines truncation works
   if (numberOfLines != null) {
+    let numberedCounter = 0;
     return (
       <Text style={baseStyle} numberOfLines={numberOfLines}>
         {lines.map((line, lineIdx) => {
+          if (line.type === 'numbered') {
+            numberedCounter++;
+          } else {
+            numberedCounter = 0;
+          }
           const separator = lineIdx > 0 ? '\n' : '';
           const prefix =
             line.type === 'checkbox'
@@ -114,7 +120,9 @@ export function FormattedText({
                   : line.level === 2
                     ? '◦ '
                     : '▪ '
-                : '';
+                : line.type === 'numbered'
+                  ? `${numberedCounter}. `
+                  : '';
 
           return (
             <Text key={lineIdx}>
@@ -129,22 +137,31 @@ export function FormattedText({
   }
 
   // Detail mode: per-line View rows, checkboxes are interactive
+  let seq = 0;
   return (
     <View>
-      {lines.map((line, lineIdx) => (
-        <LineRow
-          key={lineIdx}
-          line={line}
-          lineIdx={lineIdx}
-          baseStyle={baseStyle}
-          strikeStyle={strikeStyle}
-          linkStyle={linkStyle}
-          links={links}
-          onLinkPress={onLinkPress}
-          onCheckboxToggle={onCheckboxToggle}
-          colors={colors}
-        />
-      ))}
+      {lines.map((line, lineIdx) => {
+        if (line.type === 'numbered') {
+          seq++;
+        } else {
+          seq = 0;
+        }
+        return (
+          <LineRow
+            key={lineIdx}
+            line={line}
+            lineIdx={lineIdx}
+            sequentialNumber={seq}
+            baseStyle={baseStyle}
+            strikeStyle={strikeStyle}
+            linkStyle={linkStyle}
+            links={links}
+            onLinkPress={onLinkPress}
+            onCheckboxToggle={onCheckboxToggle}
+            colors={colors}
+          />
+        );
+      })}
     </View>
   );
 }
@@ -152,6 +169,7 @@ export function FormattedText({
 type LineRowProps = {
   line: FormattedLine;
   lineIdx: number;
+  sequentialNumber: number;
   baseStyle: TextStyle;
   strikeStyle: TextStyle;
   linkStyle: TextStyle;
@@ -190,6 +208,7 @@ function getDotStyle(level: number, colors: Record<string, string>): object {
 function LineRow({
   line,
   lineIdx,
+  sequentialNumber,
   baseStyle,
   strikeStyle,
   linkStyle,
@@ -271,6 +290,36 @@ function LineRow({
           }}
         >
           <View style={getDotStyle(line.level, colors)} />
+        </View>
+        <Text className="flex-1" style={baseStyle}>
+          {renderSegments(line.segments, baseStyle, strikeStyle, linkStyle, links, onLinkPress)}
+        </Text>
+      </View>
+    );
+  }
+
+  if (line.type === 'numbered') {
+    return (
+      <View className="flex-row items-start mb-0.5" style={{ minHeight: lineHeight }}>
+        <View
+          className="items-center justify-center"
+          style={{
+            width: INDICATOR_SLOT,
+            height: INDICATOR_SLOT,
+            marginRight: 8,
+            marginTop: lineHeight ? (lineHeight - INDICATOR_SLOT) / 2 : ROW_FALLBACK_MARGIN_TOP,
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: baseStyle.fontFamily,
+              fontSize: (baseStyle.fontSize ?? 15) * 0.72,
+              color: colors.ink3,
+              lineHeight: INDICATOR_SLOT,
+            }}
+          >
+            {sequentialNumber}.
+          </Text>
         </View>
         <Text className="flex-1" style={baseStyle}>
           {renderSegments(line.segments, baseStyle, strikeStyle, linkStyle, links, onLinkPress)}

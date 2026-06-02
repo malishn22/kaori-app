@@ -6,14 +6,17 @@ import { ConfirmationDialog } from './ConfirmationDialog';
 import {
   insertCheckboxAtCursor,
   insertDottedAtCursor,
+  insertNumberedAtCursor,
   wrapStrikethrough,
   toggleCheckboxLine,
+  continueFormattingOnEnter,
 } from '@/utils/noteFormat';
 import { getDomain } from '@/utils/links';
 
 export type TextContentHandle = {
   insertCheckbox: () => void;
   insertDotted: () => void;
+  insertNumbered: () => void;
   wrapStrikethrough: () => void;
 };
 
@@ -47,6 +50,10 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
         const { newText } = insertDottedAtCursor(draft, selectionRef.current.start);
         onDraftChange(newText);
       },
+      insertNumbered: () => {
+        const { newText } = insertNumberedAtCursor(draft, selectionRef.current.start);
+        onDraftChange(newText);
+      },
       wrapStrikethrough: () => {
         const { start, end } = selectionRef.current;
         const { newText } = wrapStrikethrough(draft, start, end);
@@ -58,6 +65,32 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
 
   function handleCheckboxToggle(lineIndex: number) {
     onCheckboxToggle(toggleCheckboxLine(text, lineIndex));
+  }
+
+  function handleDraftChange(next: string) {
+    let prefixLen = 0;
+    const minLen = Math.min(draft.length, next.length);
+    while (prefixLen < minLen && next[prefixLen] === draft[prefixLen]) {
+      prefixLen++;
+    }
+    let suffixLen = 0;
+    while (
+      suffixLen < draft.length - prefixLen &&
+      suffixLen < next.length - prefixLen &&
+      next[next.length - 1 - suffixLen] === draft[draft.length - 1 - suffixLen]
+    ) {
+      suffixLen++;
+    }
+    const inserted = next.slice(prefixLen, next.length - suffixLen);
+    if (inserted.endsWith('\n')) {
+      const newlinePos = prefixLen + inserted.length;
+      const result = continueFormattingOnEnter(next, newlinePos);
+      if (result) {
+        onDraftChange(result.newText);
+        return;
+      }
+    }
+    onDraftChange(next);
   }
 
   if (editing) {
@@ -72,7 +105,7 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
           textAlignVertical: 'top',
         }}
         value={draft}
-        onChangeText={onDraftChange}
+        onChangeText={handleDraftChange}
         onSelectionChange={(e) => {
           selectionRef.current = e.nativeEvent.selection;
         }}
