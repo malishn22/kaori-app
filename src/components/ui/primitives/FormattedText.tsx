@@ -18,8 +18,6 @@ type Props = {
 };
 
 const INDICATOR_SLOT = 18;
-const ROW_GAP = 8;
-const ROW_MARGIN_BOTTOM = 2;
 const ROW_FALLBACK_MARGIN_TOP = 2;
 const BULLET_INDENT_STEP = 20;
 
@@ -213,16 +211,10 @@ function LineRow({
     };
 
     return (
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          marginBottom: ROW_MARGIN_BOTTOM,
-          minHeight: lineHeight,
-        }}
-      >
+      <View className="flex-row items-start mb-0.5" style={{ minHeight: lineHeight }}>
         <TouchableOpacity
           onPress={() => onCheckboxToggle?.(lineIdx)}
+          className="items-center justify-center"
           hitSlop={{
             top: CHECKBOX_HIT_SLOP,
             bottom: CHECKBOX_HIT_SLOP,
@@ -236,9 +228,7 @@ function LineRow({
             borderWidth: CHECKBOX_BORDER_WIDTH,
             borderColor: line.checked ? colors.amber : colors.line2,
             backgroundColor: line.checked ? colors.amber : 'transparent',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: ROW_GAP,
+            marginRight: 8,
             marginTop: lineHeight ? (lineHeight - INDICATOR_SLOT) / 2 : ROW_FALLBACK_MARGIN_TOP,
           }}
         >
@@ -250,7 +240,7 @@ function LineRow({
             />
           )}
         </TouchableOpacity>
-        <Text style={[textStyle, { flex: 1 }]}>
+        <Text className="flex-1" style={textStyle}>
           {renderSegments(
             line.segments,
             textStyle,
@@ -268,27 +258,21 @@ function LineRow({
     const indent = (line.level - 1) * BULLET_INDENT_STEP;
     return (
       <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          marginBottom: ROW_MARGIN_BOTTOM,
-          minHeight: lineHeight,
-          marginLeft: indent,
-        }}
+        className="flex-row items-start mb-0.5"
+        style={{ minHeight: lineHeight, marginLeft: indent }}
       >
         <View
+          className="items-center justify-center"
           style={{
             width: INDICATOR_SLOT,
             height: INDICATOR_SLOT,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: ROW_GAP,
+            marginRight: 8,
             marginTop: lineHeight ? (lineHeight - INDICATOR_SLOT) / 2 : ROW_FALLBACK_MARGIN_TOP,
           }}
         >
           <View style={getDotStyle(line.level, colors)} />
         </View>
-        <Text style={[baseStyle, { flex: 1 }]}>
+        <Text className="flex-1" style={baseStyle}>
           {renderSegments(line.segments, baseStyle, strikeStyle, linkStyle, links, onLinkPress)}
         </Text>
       </View>
