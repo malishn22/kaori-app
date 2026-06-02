@@ -107,13 +107,22 @@ export function toggleCheckboxLine(text: string, lineIndex: number): string {
   return lines.join('\n');
 }
 
+function getLineStart(text: string, cursorPos: number): number {
+  return text.lastIndexOf('\n', cursorPos - 1) + 1;
+}
+
+function getPrevLine(text: string, lineStart: number): string {
+  const prevEnd = lineStart - 1;
+  if (prevEnd < 0) return '';
+  return text.slice(text.lastIndexOf('\n', prevEnd - 1) + 1, prevEnd);
+}
+
 export function insertCheckboxAtCursor(
   text: string,
   cursorPos: number,
 ): { newText: string; newCursorPos: number } {
   const prefix = '[ ] ';
-  // Find start of the current line
-  const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+  const lineStart = getLineStart(text, cursorPos);
   const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
   return { newText, newCursorPos: cursorPos + prefix.length };
 }
@@ -123,7 +132,7 @@ export function insertDottedAtCursor(
   cursorPos: number,
 ): { newText: string; newCursorPos: number } {
   const prefix = '- ';
-  const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+  const lineStart = getLineStart(text, cursorPos);
   const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
   return { newText, newCursorPos: cursorPos + prefix.length };
 }
@@ -132,8 +141,11 @@ export function insertNumberedAtCursor(
   text: string,
   cursorPos: number,
 ): { newText: string; newCursorPos: number } {
-  const prefix = '1. ';
-  const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+  const lineStart = getLineStart(text, cursorPos);
+  const prevLine = getPrevLine(text, lineStart);
+  const m = /^(\d+)\./.exec(prevLine);
+  const n = m ? parseInt(m[1], 10) + 1 : 1;
+  const prefix = `${n}. `;
   const newText = text.slice(0, lineStart) + prefix + text.slice(lineStart);
   return { newText, newCursorPos: cursorPos + prefix.length };
 }

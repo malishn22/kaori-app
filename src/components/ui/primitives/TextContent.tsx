@@ -9,7 +9,6 @@ import {
   insertNumberedAtCursor,
   wrapStrikethrough,
   toggleCheckboxLine,
-  continueFormattingOnEnter,
 } from '@/utils/noteFormat';
 import { getDomain } from '@/utils/links';
 
@@ -67,43 +66,6 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
     onCheckboxToggle(toggleCheckboxLine(text, lineIndex));
   }
 
-  function handleDraftChange(next: string) {
-    let prefixLen = 0;
-    const minLen = Math.min(draft.length, next.length);
-    while (prefixLen < minLen && next[prefixLen] === draft[prefixLen]) {
-      prefixLen++;
-    }
-    let suffixLen = 0;
-    while (
-      suffixLen < draft.length - prefixLen &&
-      suffixLen < next.length - prefixLen &&
-      next[next.length - 1 - suffixLen] === draft[draft.length - 1 - suffixLen]
-    ) {
-      suffixLen++;
-    }
-    const inserted = next.slice(prefixLen, next.length - suffixLen);
-    if (inserted.endsWith('\n')) {
-      // Detect newline position without assuming onSelectionChange/onChangeText ordering:
-      // if cursor is right after a \n it's the post-change cursor (newlinePos = cursor);
-      // if cursor is sitting on a \n it's the pre-change cursor (newlinePos = cursor + 1).
-      let newlinePos = prefixLen + inserted.length;
-      if (inserted === '\n') {
-        const cursor = selectionRef.current.start;
-        if (cursor > 0 && next[cursor - 1] === '\n') {
-          newlinePos = cursor;
-        } else if (cursor < next.length && next[cursor] === '\n') {
-          newlinePos = cursor + 1;
-        }
-      }
-      const result = continueFormattingOnEnter(next, newlinePos);
-      if (result) {
-        onDraftChange(result.newText);
-        return;
-      }
-    }
-    onDraftChange(next);
-  }
-
   if (editing) {
     return (
       <TextInput
@@ -116,7 +78,7 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
           textAlignVertical: 'top',
         }}
         value={draft}
-        onChangeText={handleDraftChange}
+        onChangeText={onDraftChange}
         onSelectionChange={(e) => {
           selectionRef.current = e.nativeEvent.selection;
         }}
