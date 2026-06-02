@@ -12,15 +12,11 @@ interface CountedInputProps extends RNTextInputProps {
 export const CountedInput = React.forwardRef<RNTextInput, CountedInputProps>(
   ({ style, value = '', maxLength, ...props }, ref) => {
     return (
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
+      <View className="flex-row items-center">
         <Input
           ref={ref}
-          style={[{ flex: 1 }, style]}
+          className="flex-1"
+          style={style}
           value={value}
           maxLength={maxLength}
           {...props}

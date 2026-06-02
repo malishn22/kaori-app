@@ -25,9 +25,9 @@ type Props = {
 
 function PinWing({ isPinned, amberColor }: { isPinned: boolean; amberColor: string }) {
   return (
-    <View style={{ width: WING_WIDTH, justifyContent: 'center', alignItems: 'center' }}>
+    <View className="w-9 justify-center items-center">
       <BookmarkIcon size={16} color={amberColor} fill={isPinned ? 'transparent' : amberColor} />
-      <ThemeText variant="chip" size={9} color={amberColor} style={{ marginTop: 2 }}>
+      <ThemeText variant="chip" size={9} color={amberColor} className="mt-0.5">
         {isPinned ? 'unpin' : 'pin'}
       </ThemeText>
     </View>
@@ -61,16 +61,14 @@ export function SwipeablePinWrapper({ children, isPinned, onTogglePin }: Props) 
   }));
 
   return (
-    <View style={{ overflow: 'hidden' }}>
+    <View className="overflow-hidden">
       <GestureDetector gesture={pan}>
         <Animated.View
-          style={[
-            { flexDirection: 'row', marginLeft: -WING_WIDTH, marginRight: -WING_WIDTH },
-            rowStyle,
-          ]}
+          className="flex-row"
+          style={[{ marginLeft: -WING_WIDTH, marginRight: -WING_WIDTH }, rowStyle]}
         >
           <PinWing isPinned={isPinned} amberColor={colors.amber} />
-          <View style={{ flex: 1 }}>{children}</View>
+          <View className="flex-1">{children}</View>
           <PinWing isPinned={isPinned} amberColor={colors.amber} />
         </Animated.View>
       </GestureDetector>

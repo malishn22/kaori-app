@@ -69,7 +69,7 @@ function Wheel({ items, selectedIndex, onIndexChange }: WheelProps) {
   }
 
   return (
-    <View style={{ height: ITEM_HEIGHT * 3, overflow: 'hidden', flex: 1 }}>
+    <View className="overflow-hidden flex-1" style={{ height: ITEM_HEIGHT * 3 }}>
       {/* selection highlight */}
       <View
         pointerEvents="none"
@@ -110,7 +110,8 @@ function Wheel({ items, selectedIndex, onIndexChange }: WheelProps) {
               scrollRef.current?.scrollTo({ y: i * ITEM_HEIGHT, animated: true });
               onIndexChange(i);
             }}
-            style={{ height: ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center' }}
+            className="items-center justify-center"
+            style={{ height: ITEM_HEIGHT }}
           >
             <ThemeText
               variant="chip"

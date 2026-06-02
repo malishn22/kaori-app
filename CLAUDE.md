@@ -126,6 +126,8 @@ Expo Router (file-based). Tabs defined in `app/(tabs)/_layout.tsx` using a custo
 
 NativeWind v4 (Tailwind for React Native). Theme colors are injected as CSS variables (e.g. `--color-bg`, `--color-ink`) in `src/theme/themeVars.ts` and consumed via `className="bg-theme-bg"` etc. The `useTheme()` hook provides typed color values for imperative styling.
 
+**Styling rule:** Use `className` for all static layout — flexbox, alignment, fixed spacing, overflow, fixed sizing expressible in Tailwind. Reserve `style={{}}` for dynamic/computed values only: theme colors via `useTheme()`, calculated dimensions, animated values, and conditional styling. Never write static layout as an inline `style` object.
+
 ## Key Conventions
 
 - Path alias `@/*` resolves to both the project root and `src/` — prefer `@/components/ui`, `@/providers/StoreProvider`, etc.
