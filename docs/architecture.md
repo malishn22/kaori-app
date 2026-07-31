@@ -48,27 +48,34 @@ Three Context providers, each persisting independently to AsyncStorage.
 [src/providers/StoreProvider.tsx](../src/providers/StoreProvider.tsx) holds all
 app data and exposes the CRUD action surface.
 
-**State:** `notes`, `folders`, `tasks`, `profile`, `dataLoaded`.
+**State:** `notes`, `folders`, `tasks`, `routines`, `profile`, `dataLoaded`.
 
 **Actions** cover notes (`addNote`, `updateNote`, `updateNoteLink`,
 `deleteNote`, `archiveNote`), folders (`addFolder`, `pinFolder`, `deleteFolder`,
 `updateFolderColor`, `renameFolder`, `archiveFolder`, `reorderFolders`), tasks
 (`addTask`, `updateTask`, `toggleTask`, `deleteTask`, `archiveTask`, `pinTask`),
-conversion between the two (`convertTaskToNote`, `convertNoteToTask`), and
-`updateProfile`. See [features.md](features.md) for what each does behaviorally.
+routines (`addRoutine`, `updateRoutine`, `toggleRoutineDone`, `deleteRoutine`,
+`archiveRoutine`, `pinRoutine`), conversion between notes and tasks
+(`convertTaskToNote`, `convertNoteToTask`), and `updateProfile`. See
+[features.md](features.md) for what each does behaviorally.
 
 **Action-factory pattern:** the actions are not written inline. They are
 produced by factory functions in
 [src/providers/actions/](../src/providers/actions/) —
 [noteActions.ts](../src/providers/actions/noteActions.ts),
-[taskActions.ts](../src/providers/actions/taskActions.ts), and
+[taskActions.ts](../src/providers/actions/taskActions.ts),
+[routineActions.ts](../src/providers/actions/routineActions.ts), and
 [folderActions.ts](../src/providers/actions/folderActions.ts). Each factory
 receives the relevant state setters and returns a set of action functions, which
-`StoreProvider` wires together. Link metadata is resolved through the shared
+`StoreProvider` wires together. `createFolderActions` takes all four
+collection setters (`setFolders`, `setNotes`, `setTasks`, `setRoutines`) since
+deleting/archiving a folder cascades to notes, tasks, _and_ routines. Link
+metadata is resolved through the shared
 [resolveLinksFor.ts](../src/providers/actions/resolveLinksFor.ts) helper.
 
 On startup, `StoreProvider` loads data via `loadInitialData()` and reschedules
-any active task reminders (see [features.md → Reminders](features.md#reminders--notifications)).
+any active task reminders followed by active routine reminders (see
+[features.md → Reminders](features.md#reminders--notifications)).
 
 ### SettingsProvider
 
@@ -89,9 +96,9 @@ Expo Router file-based routing under [app/](../app/). Screens include the
 `archived.tsx`, and `profile.tsx`.
 
 The bottom tabs use a **custom** [TabBar.tsx](../src/components/ui/layout/TabBar.tsx)
-(replacing the default Expo Router tab bar): three tabs — Today, Tasks,
-Projects. The settings screen is registered but hidden from the bar via
-`href: null`.
+(replacing the default Expo Router tab bar): four tabs — Today, Tasks,
+Routines, Projects. The settings screen is registered but hidden from the bar
+via `href: null`.
 
 > **Gotcha:** the tab list is hardcoded in `TabBar.tsx`, so adding a tab
 > requires updating **both** the `app/(tabs)/_layout.tsx` registration and the

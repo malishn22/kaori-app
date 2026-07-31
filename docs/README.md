@@ -9,10 +9,10 @@ see [CLAUDE.md](../CLAUDE.md).
 
 - **[architecture.md](architecture.md)** — the big picture: provider
   composition, state management, navigation, and the theming/styling system.
-- **[data-model.md](data-model.md)** — the `Note` / `Task` / `Folder` /
-  `Profile` types, the storage layer, and the migration/load logic.
+- **[data-model.md](data-model.md)** — the `Note` / `Task` / `Routine` /
+  `Folder` / `Profile` types, the storage layer, and the migration/load logic.
 - **[features.md](features.md)** — each user-facing feature (notes, tasks,
-  reminders, folders, theming) and where its code lives.
+  routines, reminders, folders, theming) and where its code lives.
 - **[conventions.md](conventions.md)** — coding conventions, the quality gate,
   and build/release workflows.
 

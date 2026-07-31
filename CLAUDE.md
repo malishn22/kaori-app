@@ -71,11 +71,13 @@ EAS handles signing, certificates, and provisioning. Add `eas.json` to configure
 
 ```
 app/                    # Expo Router screens (file-based routing)
-  (tabs)/               # Tab group: index, tasks, projects, settings
+  (tabs)/               # Tab group: index, tasks, routines, projects, settings
   note/[id].tsx         # Note detail/editor
   note/new.tsx          # New note
   task/[id].tsx         # Task detail/editor
   task/new.tsx          # New task
+  routine/[id].tsx      # Routine detail/editor
+  routine/new.tsx       # New routine
   folder/[id].tsx       # Folder detail
   folder/new.tsx        # New folder
   archived.tsx          # Archived items
@@ -83,21 +85,21 @@ app/                    # Expo Router screens (file-based routing)
 
 src/
   components/ui/        # All UI components
-    cards/              # NoteCard, TaskCard, FolderCard, SwipeablePinWrapper
+    cards/              # NoteCard, TaskCard, RoutineCard, FolderCard, SwipeablePinWrapper
     layout/             # TabBar, PageHeader, FAB, EmptyState, PopupMenu
     primitives/         # ThemeText, Input, Chip, FormattedText, Divider
-    pickers/            # CalendarPicker, FolderChipSelector, ReminderPicker
+    pickers/            # CalendarPicker, FolderChipSelector, ReminderPicker, WeekdaySelector
     sheets/             # BottomSheet, ColorSwatchPicker
     settings/           # SettingSheet
   providers/            # Context API state management
-    StoreProvider.tsx   # Main store: notes, tasks, folders, profile
+    StoreProvider.tsx   # Main store: notes, tasks, routines, folders, profile
     SettingsProvider.tsx  # Theme tone & accent color
     SettingSheetProvider.tsx  # Bottom sheet open/close state
-    actions/            # Action creators: noteActions, taskActions, folderActions
+    actions/            # Action creators: noteActions, taskActions, routineActions, folderActions
   hooks/                # Custom hooks (useActiveNotes, useHapticFeedback, etc.)
   constants/            # Layout, style, color, and option constants
   theme/                # Design tokens, CSS variable injection, useTheme hook
-  types/                # TypeScript types (Folder, Note, Task, Profile)
+  types/                # TypeScript types (Folder, Note, Task, Routine, Profile)
   utils/                # storage, time, noteFormat, links, notifications, migration
 
 assets/
@@ -112,7 +114,7 @@ assets/
 
 Three React Context providers, composed in `app/_layout.tsx`:
 
-- **StoreProvider** — all app data (notes, tasks, folders, profile); persists via AsyncStorage
+- **StoreProvider** — all app data (notes, tasks, routines, folders, profile); persists via AsyncStorage
 - **SettingsProvider** — theme tone and accent; persists via AsyncStorage
 - **SettingSheetProvider** — ephemeral UI state for the settings bottom sheet
 

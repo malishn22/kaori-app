@@ -109,9 +109,10 @@ App identifiers:
 
 ```
 app/                    # Screens (Expo Router file-based routing)
-  (tabs)/               # Tab screens: today, tasks, projects
+  (tabs)/               # Tab screens: today, tasks, routines, projects
   note/                 # Note create & edit screens
   task/                 # Task create & edit screens
+  routine/              # Routine create & edit screens
   folder/               # Folder create & edit screens
   archived.tsx          # Archived items
   profile.tsx           # User profile
@@ -135,9 +136,11 @@ assets/
 
 - **Notes** — Create, edit, pin, archive, and organize notes into folders
 - **Tasks** — Task list with due dates, reminders, pin, and archive
-- **Folders** — Color-coded folders for organizing notes and tasks
+- **Routines** — Recurring weekday reminders with daily "done today" tracking
+- **Folders** — Color-coded folders for organizing notes, tasks, and routines
 - **Theming** — Multiple tone and accent color combinations (dark UI)
-- **Notifications** — Per-task reminder scheduling via Expo Notifications
+- **Notifications** — Per-task and per-routine reminder scheduling via Expo
+  Notifications and notifee
 - **Drag to reorder** — Reorder folders with drag-and-drop
 - **Swipe to pin** — Swipe note/task cards to toggle pin status
 - **Offline-first** — All data stored locally via AsyncStorage; no account or network required

@@ -35,6 +35,22 @@ stored locally via AsyncStorage; there is no backend or remote schema.
 | `archived?`   | `boolean`                | Present when archived                      |
 | `links`       | `Record<string, string>` | Resolved link metadata, keyed by URL       |
 
+### Routine
+
+| Field          | Type                      | Notes                                          |
+| -------------- | ------------------------- | ---------------------------------------------- |
+| `id`           | `string`                  | Unique identifier                              |
+| `folder`       | `string \| null`          | Owning folder id, or `null`                    |
+| `title`        | `string`                  | Routine title                                  |
+| `daysOfWeek`   | `number[]`                | Recurring weekdays, `0`=Sun..`6`=Sat           |
+| `reminderTime` | `string`                  | `'HH:mm'` 24h, date-independent                |
+| `active`       | `boolean`                 | Pause/resume; `false` disables notifications   |
+| `createdAt`    | `string`                  | ISO timestamp                                  |
+| `pinned`       | `boolean`                 | Pinned to top                                  |
+| `archived?`    | `boolean`                 | Present when archived                          |
+| `completions`  | `Record<string, boolean>` | Per-day "done today" state, keyed `YYYY-MM-DD` |
+| `links`        | `Record<string, string>`  | Resolved link metadata, keyed by URL           |
+
 ### Folder
 
 | Field       | Type      | Notes                                            |
@@ -63,7 +79,7 @@ stored locally via AsyncStorage; there is no backend or remote schema.
 Type alias: `'morning' | 'afternoon' | 'evening' | 'night'`.
 
 `src/types/data.ts` also exports empty seed arrays (`SEED_FOLDERS`,
-`SEED_NOTES`, `SEED_TASKS`) used on first launch.
+`SEED_NOTES`, `SEED_TASKS`, `SEED_ROUTINES`) used on first launch.
 
 ## Storage layer
 
@@ -74,14 +90,16 @@ AsyncStorage directly.
 
 ### AsyncStorage keys
 
-| Key                     | Contents                                 | Defined in         |
-| ----------------------- | ---------------------------------------- | ------------------ |
-| `@kaori_notes`          | JSON `Note[]`                            | `migration.ts`     |
-| `@kaori_folders`        | JSON `Folder[]`                          | `migration.ts`     |
-| `@kaori_tasks`          | JSON `Task[]`                            | `migration.ts`     |
-| `@kaori_profile`        | JSON `Profile`                           | `migration.ts`     |
-| `@kaori_reset_v2`       | Migration flag (`'1'` once run)          | `migration.ts`     |
-| `@kaori_notif_registry` | Map of `taskId → { notifId }` for cancel | `notifications.ts` |
+| Key                             | Contents                                  | Defined in         |
+| ------------------------------- | ----------------------------------------- | ------------------ |
+| `@kaori_notes`                  | JSON `Note[]`                             | `migration.ts`     |
+| `@kaori_folders`                | JSON `Folder[]`                           | `migration.ts`     |
+| `@kaori_tasks`                  | JSON `Task[]`                             | `migration.ts`     |
+| `@kaori_routines`               | JSON `Routine[]`                          | `migration.ts`     |
+| `@kaori_profile`                | JSON `Profile`                            | `migration.ts`     |
+| `@kaori_reset_v2`               | Migration flag (`'1'` once run)           | `migration.ts`     |
+| `@kaori_notif_registry`         | Map of `taskId → { notifId }` for cancel  | `notifications.ts` |
+| `@kaori_routine_notif_registry` | Map of `routineId → notifId[]` for cancel | `notifications.ts` |
 
 ## Loading & migration
 
@@ -93,13 +111,19 @@ AsyncStorage directly.
 2. **First launch** — if no stored notes exist, it seeds with the empty
    `SEED_*` arrays + `DEFAULT_PROFILE`, persists them, and returns.
 3. **Subsequent launches** — parses stored JSON and **backfills `links: {}`**
-   on any note/task missing it (older records predate the `links` field). The
+   on any note/task/routine missing it (older records predate the `links`
+   field), and **backfills `completions: {}`** on any routine missing it. The
    profile is merged over `DEFAULT_PROFILE` so new profile fields get defaults.
 4. **Folder order backfill** — if any folder lacks `order`, it sorts
    pinned-first (preserving the order users already see) and assigns sequential
    `order` values, then persists.
 5. **Parse-error fallback** — on any JSON parse failure it logs a warning and
    returns the seed data rather than crashing.
+
+`@kaori_routines` was added as a purely-additive key — an absent key just
+falls back to `SEED_ROUTINES` — so it required no reset-migration step or
+version bump, unlike the one-time `@kaori_reset_v2` clear that notes/folders/
+profile went through.
 
 `DEFAULT_PROFILE` and the `KEYS` map are exported from this module for reuse by
 the action creators.
