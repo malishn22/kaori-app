@@ -1,11 +1,16 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import type { Note, Folder, Profile, Task } from '@/types';
-import { SEED_NOTES, SEED_FOLDERS, SEED_TASKS } from '@/types';
+import type { Note, Folder, Profile, Task, Routine } from '@/types';
+import { SEED_NOTES, SEED_FOLDERS, SEED_TASKS, SEED_ROUTINES } from '@/types';
 import { loadInitialData, DEFAULT_PROFILE, KEYS } from '@/utils/migration';
 import { safeSet } from '@/utils/storage';
 import { computeDisplayStrings } from '@/utils/time';
 import { resolveNoteLinks, extractUrls } from '@/utils/links';
-import { createNoteActions, createTaskActions, createFolderActions } from './actions';
+import {
+  createNoteActions,
+  createTaskActions,
+  createFolderActions,
+  createRoutineActions,
+} from './actions';
 import { useSettings } from './SettingsProvider';
 import {
   configureNotifications,
@@ -13,6 +18,9 @@ import {
   scheduleTaskReminder,
   cancelTaskReminder,
   rescheduleAllReminders,
+  scheduleRoutineReminders,
+  cancelRoutineReminders,
+  rescheduleAllRoutineReminders,
 } from '@/utils/notifications';
 
 type StoreContextValue = {
@@ -20,6 +28,7 @@ type StoreContextValue = {
   folders: Folder[];
   profile: Profile;
   tasks: Task[];
+  routines: Routine[];
   dataLoaded: boolean;
   addNote: (text: string, folderId: string | null) => void;
   addFolder: (name: string, color: string, note: string) => void;
@@ -56,6 +65,26 @@ type StoreContextValue = {
   pinTask: (id: string, pinned: boolean) => void;
   convertTaskToNote: (taskId: string) => string;
   convertNoteToTask: (noteId: string) => string;
+  addRoutine: (
+    title: string,
+    daysOfWeek: number[],
+    reminderTime: string,
+    folderId: string | null,
+    links?: Record<string, string>,
+  ) => void;
+  updateRoutine: (
+    id: string,
+    patch: Partial<
+      Pick<
+        Routine,
+        'title' | 'daysOfWeek' | 'reminderTime' | 'folder' | 'pinned' | 'active' | 'links'
+      >
+    >,
+  ) => void;
+  toggleRoutineDone: (id: string, date?: Date) => void;
+  deleteRoutine: (id: string) => void;
+  archiveRoutine: (id: string, archived: boolean) => void;
+  pinRoutine: (id: string, pinned: boolean) => void;
 };
 
 const StoreContext = createContext<StoreContextValue>({
@@ -63,6 +92,7 @@ const StoreContext = createContext<StoreContextValue>({
   folders: SEED_FOLDERS,
   profile: DEFAULT_PROFILE,
   tasks: SEED_TASKS,
+  routines: SEED_ROUTINES,
   dataLoaded: false,
   addNote: () => {},
   addFolder: () => {},
@@ -85,6 +115,12 @@ const StoreContext = createContext<StoreContextValue>({
   pinTask: () => {},
   convertTaskToNote: () => '',
   convertNoteToTask: () => '',
+  addRoutine: () => {},
+  updateRoutine: () => {},
+  toggleRoutineDone: () => {},
+  deleteRoutine: () => {},
+  archiveRoutine: () => {},
+  pinRoutine: () => {},
 });
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -92,10 +128,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [folders, setFolders] = useState<Folder[]>(SEED_FOLDERS);
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [tasks, setTasks] = useState<Task[]>(SEED_TASKS);
+  const [routines, setRoutines] = useState<Routine[]>(SEED_ROUTINES);
   const [dataLoaded, setDataLoaded] = useState(false);
   const { settings } = useSettings();
   const tasksRef = useRef<Task[]>(tasks);
   tasksRef.current = tasks;
+  const routinesRef = useRef<Routine[]>(routines);
+  routinesRef.current = routines;
 
   useEffect(() => {
     configureNotifications();
@@ -108,22 +147,30 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setFolders(data.folders);
       setProfile(data.profile);
       setTasks(data.tasks);
+      setRoutines(data.routines);
       setDataLoaded(true);
     });
   }, []);
 
   // Non-critical: notification permissions run after data is ready, decoupled from splash.
-  // Read tasks via ref so this doesn't re-run on every task edit.
+  // Read tasks/routines via ref so this doesn't re-run on every edit.
+  // rescheduleAllReminders wipes every OS-level notification (tasks + routines), so
+  // rescheduleAllRoutineReminders must run immediately after to re-derive routines.
   useEffect(() => {
     if (!dataLoaded || !settings.notificationsEnabled) return;
     requestPermissions().then((granted) => {
-      if (granted) rescheduleAllReminders(tasksRef.current);
+      if (granted) {
+        rescheduleAllReminders(tasksRef.current).then(() =>
+          rescheduleAllRoutineReminders(routinesRef.current),
+        );
+      }
     });
   }, [dataLoaded, settings.notificationsEnabled]);
 
   const noteActions = createNoteActions(setNotes, setFolders);
   const rawTaskActions = createTaskActions(setTasks, setFolders);
   const folderActions = createFolderActions(setFolders, setNotes, setTasks);
+  const rawRoutineActions = createRoutineActions(setRoutines, setFolders);
 
   // Notification-aware task action wrappers
   const taskActions = {
@@ -175,6 +222,76 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
     },
     pinTask: rawTaskActions.pinTask,
+  };
+
+  // Notification-aware routine action wrappers
+  const routineActions = {
+    addRoutine(
+      title: string,
+      daysOfWeek: number[],
+      reminderTime: string,
+      folderId: string | null,
+      links?: Record<string, string>,
+    ) {
+      const id = Date.now().toString();
+      rawRoutineActions.addRoutine(id, title, daysOfWeek, reminderTime, folderId, links);
+      if (settings.notificationsEnabled) {
+        scheduleRoutineReminders({
+          id,
+          folder: folderId,
+          title,
+          daysOfWeek,
+          reminderTime,
+          active: true,
+          createdAt: new Date().toISOString(),
+          pinned: false,
+          completions: {},
+          links: links ?? {},
+        });
+      }
+    },
+    updateRoutine(
+      id: string,
+      patch: Partial<
+        Pick<
+          Routine,
+          'title' | 'daysOfWeek' | 'reminderTime' | 'folder' | 'pinned' | 'active' | 'links'
+        >
+      >,
+    ) {
+      rawRoutineActions.updateRoutine(id, patch);
+      if (
+        settings.notificationsEnabled &&
+        ('title' in patch || 'daysOfWeek' in patch || 'reminderTime' in patch || 'active' in patch)
+      ) {
+        const routine = routinesRef.current.find((r) => r.id === id);
+        if (routine) {
+          const updated = { ...routine, ...patch };
+          if (updated.active && updated.daysOfWeek.length > 0) {
+            scheduleRoutineReminders(updated);
+          } else {
+            cancelRoutineReminders(id);
+          }
+        }
+      }
+    },
+    toggleRoutineDone: rawRoutineActions.toggleRoutineDone,
+    deleteRoutine(id: string) {
+      rawRoutineActions.deleteRoutine(id);
+      cancelRoutineReminders(id);
+    },
+    archiveRoutine(id: string, archived: boolean) {
+      rawRoutineActions.archiveRoutine(id, archived);
+      if (archived) {
+        cancelRoutineReminders(id);
+      } else if (settings.notificationsEnabled) {
+        const routine = routinesRef.current.find((r) => r.id === id);
+        if (routine?.active && routine.daysOfWeek.length > 0) {
+          scheduleRoutineReminders({ ...routine, archived: false });
+        }
+      }
+    },
+    pinRoutine: rawRoutineActions.pinRoutine,
   };
 
   function convertTaskToNote(taskId: string): string {
@@ -277,10 +394,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         folders,
         profile,
         tasks,
+        routines,
         dataLoaded,
         ...noteActions,
         ...taskActions,
         ...folderActions,
+        ...routineActions,
         updateProfile,
         convertTaskToNote,
         convertNoteToTask,

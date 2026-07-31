@@ -1,4 +1,13 @@
-export { getTimeOfDay, getDayName, computeDisplayStrings, timeAgo } from './time';
+export {
+  getTimeOfDay,
+  getDayName,
+  computeDisplayStrings,
+  timeAgo,
+  DAY_LABELS,
+  dateKey,
+  nextOccurrence,
+  formatTimeOfDay,
+} from './time';
 export { formatDueDate, isOverdue, isDueSoon, getDateChipOptions, isSameDay } from './dueDate';
 export {
   extractUrls,

@@ -7,12 +7,24 @@ import { FAB } from './FAB';
 import { SHADOW_EMPTY } from '@/constants';
 
 type Props = {
-  variant: 'notes' | 'tasks';
+  variant: 'notes' | 'tasks' | 'routines';
   onFAB: () => void;
 };
 
 const NOTE_LINES = [0.6, 0.85, 0.4, 0.7, 0.55];
 const TASK_LINES = [0.6, 0.75, 0.5, 0.65, 0.45];
+
+const VARIANT_LABEL: Record<Props['variant'], string> = {
+  notes: 'notebook',
+  tasks: 'tasks',
+  routines: 'routines',
+};
+
+const VARIANT_FAB_LABEL: Record<Props['variant'], string> = {
+  notes: 'first note',
+  tasks: 'first task',
+  routines: 'first routine',
+};
 
 export function EmptyState({ variant, onFAB }: Props) {
   const isNotes = variant === 'notes';
@@ -72,13 +84,13 @@ export function EmptyState({ variant, onFAB }: Props) {
         </View>
 
         <HeaderText size={32} lineHeight={38} style={{ textAlign: 'center' }}>
-          {isNotes ? 'notebook' : 'tasks'}
+          {VARIANT_LABEL[variant]}
         </HeaderText>
         <HeaderText size={32} lineHeight={38} color="amber" style={{ textAlign: 'center' }}>
           empty
         </HeaderText>
       </View>
-      <FAB onPress={onFAB} wide label={isNotes ? 'first note' : 'first task'} />
+      <FAB onPress={onFAB} wide label={VARIANT_FAB_LABEL[variant]} />
     </View>
   );
 }

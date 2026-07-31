@@ -39,6 +39,7 @@ export { NoteCard } from './cards/NoteCard';
 export { FolderAvatar } from './cards/FolderAvatar';
 export { ProfileCard } from './cards/ProfileCard';
 export { TaskCard } from './cards/TaskCard';
+export { RoutineCard } from './cards/RoutineCard';
 export { FolderCard } from './cards/FolderCard';
 export { DraggableFolderList } from './cards/DraggableFolderList';
 export { SwipeablePinWrapper } from './cards/SwipeablePinWrapper';
@@ -47,6 +48,7 @@ export { SwipeablePinWrapper } from './cards/SwipeablePinWrapper';
 export { CalendarPicker } from './pickers/CalendarPicker';
 export { ReminderPicker } from './pickers/ReminderPicker';
 export { FolderChipSelector } from './pickers/FolderChipSelector';
+export { WeekdaySelector } from './pickers/WeekdaySelector';
 
 // sheets
 export { BottomSheet } from './sheets/BottomSheet';

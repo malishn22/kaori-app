@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform, View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
-import { CircleIcon, TaskIcon, FolderIcon } from '@/assets/icons';
+import { CircleIcon, TaskIcon, FolderIcon, RoutineIcon } from '@/assets/icons';
 import { ThemeText } from '../primitives/ThemeText';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +20,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const tabs = [
     { key: 'index', label: 'today', Icon: CircleIcon },
     { key: 'tasks', label: 'tasks', Icon: TaskIcon },
+    { key: 'routines', label: 'routines', Icon: RoutineIcon },
     { key: 'projects', label: 'projects', Icon: FolderIcon },
   ];
 

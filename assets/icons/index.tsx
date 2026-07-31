@@ -21,6 +21,7 @@ import TaskSvg from './task.svg';
 import StrikethroughSvg from './strikethrough.svg';
 import NumberedListSvg from './numberedlist.svg';
 import DotLineSvg from './dotline.svg';
+import RepeatSvg from './repeat.svg';
 
 export type IconProps = { size?: number; color?: string; strokeWidth?: number };
 
@@ -52,6 +53,7 @@ export const TaskIcon = icon(TaskSvg, 20);
 export const StrikethroughIcon = icon(StrikethroughSvg, 20);
 export const NumberedListIcon = icon(NumberedListSvg, 20);
 export const DotLineIcon = icon(DotLineSvg, 20);
+export const RoutineIcon = icon(RepeatSvg, 20);
 
 export function BookmarkIcon({
   size = 20,
