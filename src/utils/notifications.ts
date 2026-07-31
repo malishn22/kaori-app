@@ -1,14 +1,20 @@
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import type { Task, Routine } from '@/types/data';
 import { nextOccurrence } from './time';
 
 const NOTIF_REGISTRY_KEY = '@kaori_notif_registry';
 const ROUTINE_NOTIF_REGISTRY_KEY = '@kaori_routine_notif_registry';
 const ANDROID_CHANNEL_ID = 'task-reminders';
-export const IS_EXPO_GO = Constants.appOwnership === 'expo';
+// appOwnership is deprecated and has been observed returning null inside real
+// Expo Go clients on newer SDKs — executionEnvironment is the non-deprecated
+// replacement (StoreClient covers Expo Go; Kaori has no dev-client build, so
+// there's no other StoreClient case to conflate it with).
+export const IS_EXPO_GO =
+  Constants.appOwnership === 'expo' ||
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 type NotifRegistry = Record<string, { notifId: string }>;
 type RoutineNotifRegistry = Record<string, string[]>;
