@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Chip } from '../primitives/Chip';
 import { ThemeText } from '../primitives/ThemeText';
-import { DAY_LABELS } from '@/utils/time';
+import { DAY_LABELS, WEEK_ORDER } from '@/utils/time';
 
 type Props = {
   selected: number[];
@@ -10,8 +10,6 @@ type Props = {
   onSetAll: (days: number[]) => void;
   label?: string;
 };
-
-const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
 export function WeekdaySelector({ selected, onToggle, onSetAll, label }: Props) {
   const isDaily = selected.length === 7;
@@ -24,12 +22,12 @@ export function WeekdaySelector({ selected, onToggle, onSetAll, label }: Props) 
         </ThemeText>
       )}
       <View className="flex-row gap-1.5">
-        <Chip active={isDaily} onPress={() => onSetAll(isDaily ? [] : ALL_DAYS)}>
+        <Chip active={isDaily} onPress={() => onSetAll(isDaily ? [] : WEEK_ORDER)}>
           <ThemeText variant="chip" size={13} color={isDaily ? 'ink' : 'ink2'}>
             daily
           </ThemeText>
         </Chip>
-        {ALL_DAYS.map((day) => {
+        {WEEK_ORDER.map((day) => {
           const active = selected.includes(day);
           return (
             <Chip key={day} active={active} onPress={() => onToggle(day)}>

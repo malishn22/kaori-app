@@ -68,7 +68,7 @@ type StoreContextValue = {
   addRoutine: (
     title: string,
     daysOfWeek: number[],
-    reminderTime: string,
+    reminderTime: string | null,
     folderId: string | null,
     links?: Record<string, string>,
   ) => void;
@@ -229,13 +229,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     addRoutine(
       title: string,
       daysOfWeek: number[],
-      reminderTime: string,
+      reminderTime: string | null,
       folderId: string | null,
       links?: Record<string, string>,
     ) {
       const id = Date.now().toString();
       rawRoutineActions.addRoutine(id, title, daysOfWeek, reminderTime, folderId, links);
-      if (settings.notificationsEnabled) {
+      if (settings.notificationsEnabled && reminderTime) {
         scheduleRoutineReminders({
           id,
           folder: folderId,
@@ -267,7 +267,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const routine = routinesRef.current.find((r) => r.id === id);
         if (routine) {
           const updated = { ...routine, ...patch };
-          if (updated.active && updated.daysOfWeek.length > 0) {
+          if (updated.active && updated.daysOfWeek.length > 0 && updated.reminderTime) {
             scheduleRoutineReminders(updated);
           } else {
             cancelRoutineReminders(id);
@@ -286,7 +286,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         cancelRoutineReminders(id);
       } else if (settings.notificationsEnabled) {
         const routine = routinesRef.current.find((r) => r.id === id);
-        if (routine?.active && routine.daysOfWeek.length > 0) {
+        if (routine?.active && routine.daysOfWeek.length > 0 && routine.reminderTime) {
           scheduleRoutineReminders({ ...routine, archived: false });
         }
       }

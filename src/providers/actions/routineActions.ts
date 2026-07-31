@@ -14,7 +14,7 @@ export function createRoutineActions(
     id: string,
     title: string,
     daysOfWeek: number[],
-    reminderTime: string,
+    reminderTime: string | null,
     folderId: string | null,
     links: Record<string, string> = {},
   ) {

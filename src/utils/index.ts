@@ -4,6 +4,7 @@ export {
   computeDisplayStrings,
   timeAgo,
   DAY_LABELS,
+  WEEK_ORDER,
   dateKey,
   nextOccurrence,
   formatTimeOfDay,

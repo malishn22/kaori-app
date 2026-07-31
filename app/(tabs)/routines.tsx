@@ -8,8 +8,8 @@ import { RoutineCard, FAB, PageHeader, SectionTitle, EmptyState } from '@/compon
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { nextOccurrence } from '@/utils/time';
 
-function nextFireMs(daysOfWeek: number[], reminderTime: string): number {
-  if (daysOfWeek.length === 0) return Infinity;
+function nextFireMs(daysOfWeek: number[], reminderTime: string | null): number {
+  if (daysOfWeek.length === 0 || !reminderTime) return Infinity;
   const [hour, minute] = reminderTime.split(':').map(Number);
   return Math.min(...daysOfWeek.map((d) => nextOccurrence(d, hour, minute).getTime()));
 }
@@ -27,7 +27,7 @@ export default function RoutinesScreen() {
     () =>
       activeRoutines
         .filter((r) => !r.pinned && r.active && r.daysOfWeek.includes(today))
-        .sort((a, b) => a.reminderTime.localeCompare(b.reminderTime)),
+        .sort((a, b) => (a.reminderTime ?? '99:99').localeCompare(b.reminderTime ?? '99:99')),
     [activeRoutines, today],
   );
 

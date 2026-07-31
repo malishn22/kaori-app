@@ -48,7 +48,7 @@ export type Routine = {
   folder: string | null;
   title: string;
   daysOfWeek: number[]; // 0=Sun..6=Sat, matches Date.getDay()
-  reminderTime: string; // 'HH:mm' 24h, date-independent
+  reminderTime: string | null; // 'HH:mm' 24h, date-independent; null = no notification
   active: boolean;
   createdAt: string;
   pinned: boolean;

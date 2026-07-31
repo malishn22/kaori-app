@@ -16,6 +16,9 @@ export function getDayName(): string {
 
 export const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
+/** Display order for weekday UI (Monday..Sunday) — daysOfWeek values stay Date.getDay()-based. */
+export const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
 export function dateKey(date: Date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');

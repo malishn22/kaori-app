@@ -29,8 +29,7 @@ import {
 } from '@/components/ui';
 import { toEditableText, fromEditableText } from '@/utils/links';
 import { BUTTON_TEXT_ON_ACCENT, DELETE_COLOR } from '@/constants';
-import { computeDisplayStrings } from '@/utils/time';
-import { formatTimeOfDay, dateKey } from '@/utils/time';
+import { computeDisplayStrings, formatTimeOfDay, dateKey } from '@/utils/time';
 import { cancelRoutineReminders } from '@/utils/notifications';
 
 function pad(n: number): string {
@@ -97,8 +96,7 @@ export default function RoutineDetailScreen() {
 
   const { date, time } = computeDisplayStrings(routine.createdAt);
   const doneToday = !!routine.completions[dateKey()];
-  const canSave =
-    draftTitle.trim().length > 0 && draftDays.length > 0 && draftReminderTime !== null;
+  const canSave = draftTitle.trim().length > 0 && draftDays.length > 0;
 
   function startEditing() {
     setDraftDays(routine!.daysOfWeek);
@@ -125,7 +123,7 @@ export default function RoutineDetailScreen() {
       title: text,
       links,
       daysOfWeek: draftDays,
-      reminderTime: draftReminderTime!,
+      reminderTime: draftReminderTime,
     });
     impactOnSave();
     cancelTitleEdit();
@@ -282,12 +280,16 @@ export default function RoutineDetailScreen() {
           {/* Meta (display mode) */}
           {!editing && (
             <View className="flex-row flex-wrap gap-3 mt-[18px] items-center">
-              <ThemeText variant="meta" color="amber">
-                {formatTimeOfDay(routine.reminderTime)}
-              </ThemeText>
-              <ThemeText variant="meta" style={{ opacity: 0.4 }}>
-                ·
-              </ThemeText>
+              {routine.reminderTime && (
+                <>
+                  <ThemeText variant="meta" color="amber">
+                    {formatTimeOfDay(routine.reminderTime)}
+                  </ThemeText>
+                  <ThemeText variant="meta" style={{ opacity: 0.4 }}>
+                    ·
+                  </ThemeText>
+                </>
+              )}
               <ThemeText variant="meta">
                 {date === 'today' ? 'today' : date}, {time}
               </ThemeText>

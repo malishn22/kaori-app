@@ -51,12 +51,12 @@ export default function NewRoutineScreen() {
     );
   }
 
-  const canSave = title.trim().length > 0 && daysOfWeek.length > 0 && reminderTime !== null;
+  const canSave = title.trim().length > 0 && daysOfWeek.length > 0;
 
   async function handleSave() {
     if (!canSave) return;
     const { text, links } = fromEditableText(title.trim());
-    await addRoutine(text, daysOfWeek, reminderTime!, selectedFolder, links);
+    await addRoutine(text, daysOfWeek, reminderTime, selectedFolder, links);
     impactOnSave();
     router.back();
   }

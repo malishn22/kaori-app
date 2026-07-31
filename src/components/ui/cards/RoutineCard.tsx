@@ -9,7 +9,7 @@ import { ColorDot } from '../primitives/ColorDot';
 import { RestoreChip } from '../primitives/RestoreChip';
 import { BookmarkIcon, CheckIcon } from '@/assets/icons';
 import { SHADOW_CARD, CARD_TILTS, ARCHIVED_OPACITY } from '@/constants';
-import { DAY_LABELS, formatTimeOfDay, dateKey } from '@/utils/time';
+import { DAY_LABELS, WEEK_ORDER, formatTimeOfDay, dateKey } from '@/utils/time';
 
 type Props = {
   routine: Routine;
@@ -57,9 +57,11 @@ export function RoutineCard({
             />
           </View>
           <View className="shrink-0 flex-row items-center gap-1.5">
-            <ThemeText variant="chip" size={11} color="ink4">
-              {formatTimeOfDay(routine.reminderTime)}
-            </ThemeText>
+            {routine.reminderTime && (
+              <ThemeText variant="chip" size={11} color="ink4">
+                {formatTimeOfDay(routine.reminderTime)}
+              </ThemeText>
+            )}
             {routine.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
             {onRestore ? (
               <RestoreChip onRestore={onRestore} />
@@ -80,7 +82,7 @@ export function RoutineCard({
         </View>
         <View className="mt-2.5 flex-row items-center gap-3">
           <View className="flex-row gap-1">
-            {DAY_LABELS.map((label, day) => {
+            {WEEK_ORDER.map((day) => {
               const active = routine.daysOfWeek.includes(day);
               return (
                 <View
@@ -94,7 +96,7 @@ export function RoutineCard({
                     color={active ? 'amber' : 'ink4'}
                     style={{ lineHeight: 11 }}
                   >
-                    {label}
+                    {DAY_LABELS[day]}
                   </ThemeText>
                 </View>
               );

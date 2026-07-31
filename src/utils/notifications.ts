@@ -195,7 +195,14 @@ async function saveRegistry(registry: NotifRegistry): Promise<void> {
 // the next fire itself with no app-side renewal needed.
 
 export async function scheduleRoutineReminders(routine: Routine): Promise<void> {
-  if (IS_EXPO_GO || !routine.active || routine.archived || routine.daysOfWeek.length === 0) return;
+  if (
+    IS_EXPO_GO ||
+    !routine.active ||
+    routine.archived ||
+    routine.daysOfWeek.length === 0 ||
+    !routine.reminderTime
+  )
+    return;
 
   await cancelRoutineReminders(routine.id);
 
@@ -212,7 +219,7 @@ export async function scheduleRoutineReminders(routine: Routine): Promise<void> 
 }
 
 async function scheduleOneRoutineDay(routine: Routine, dayOfWeek: number): Promise<string> {
-  const [hour, minute] = routine.reminderTime.split(':').map(Number);
+  const [hour, minute] = routine.reminderTime!.split(':').map(Number);
 
   if (Platform.OS === 'android') {
     const notifee = Notifee().default;
@@ -282,7 +289,13 @@ export async function rescheduleAllRoutineReminders(routines: Routine[]): Promis
   const newRegistry: RoutineNotifRegistry = {};
 
   for (const routine of routines) {
-    if (!routine.active || routine.archived || routine.daysOfWeek.length === 0) continue;
+    if (
+      !routine.active ||
+      routine.archived ||
+      routine.daysOfWeek.length === 0 ||
+      !routine.reminderTime
+    )
+      continue;
 
     const notifIds: string[] = [];
     for (const day of routine.daysOfWeek) {
