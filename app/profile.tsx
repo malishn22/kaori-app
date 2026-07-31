@@ -23,6 +23,7 @@ export default function ProfileScreen() {
     profile,
     notes: allNotes,
     tasks: allTasks,
+    routines: allRoutines,
     folders: allFolders,
     updateProfile,
   } = useStore();
@@ -75,6 +76,33 @@ export default function ProfileScreen() {
           archived,
         }),
       ),
+      routines: allRoutines.map(
+        ({
+          id,
+          folder,
+          title,
+          daysOfWeek,
+          reminderTime,
+          active,
+          createdAt,
+          pinned,
+          archived,
+          completions,
+          links,
+        }) => ({
+          id,
+          folder,
+          title,
+          daysOfWeek,
+          reminderTime,
+          active,
+          createdAt,
+          pinned,
+          archived,
+          completions,
+          links,
+        }),
+      ),
       profile,
     };
     await Share.share({ message: JSON.stringify(exportData, null, 2) });
@@ -108,25 +136,44 @@ export default function ProfileScreen() {
         />
 
         {/* Stats row */}
-        <View className="flex-row gap-2.5 mb-7">
-          {[
-            { val: allNotes.length, label: 'notes' },
-            { val: allTasks.length, label: 'tasks' },
-            { val: folders.length, label: 'folders' },
-            { val: daysActive, label: 'days' },
-          ].map(({ val, label }) => (
-            <View
-              key={label}
-              className="flex-1 bg-theme-paper rounded-[14px] border border-theme-line py-4 items-center gap-1"
-            >
-              <HeaderText size={28} lineHeight={32}>
-                {val}
-              </HeaderText>
-              <ThemeText variant="meta" color="ink3">
-                {label}
-              </ThemeText>
-            </View>
-          ))}
+        <View className="gap-2.5 mb-7">
+          <View className="flex-row gap-2.5">
+            {[
+              { val: allNotes.length, label: 'notes' },
+              { val: allTasks.length, label: 'tasks' },
+              { val: allRoutines.length, label: 'routines' },
+            ].map(({ val, label }) => (
+              <View
+                key={label}
+                className="flex-1 bg-theme-paper rounded-[14px] border border-theme-line py-4 items-center gap-1"
+              >
+                <HeaderText size={28} lineHeight={32}>
+                  {val}
+                </HeaderText>
+                <ThemeText variant="meta" color="ink3">
+                  {label}
+                </ThemeText>
+              </View>
+            ))}
+          </View>
+          <View className="flex-row gap-2.5">
+            {[
+              { val: folders.length, label: 'folders' },
+              { val: daysActive, label: 'days' },
+            ].map(({ val, label }) => (
+              <View
+                key={label}
+                className="flex-1 bg-theme-paper rounded-[14px] border border-theme-line py-4 items-center gap-1"
+              >
+                <HeaderText size={28} lineHeight={32}>
+                  {val}
+                </HeaderText>
+                <ThemeText variant="meta" color="ink3">
+                  {label}
+                </ThemeText>
+              </View>
+            ))}
+          </View>
         </View>
 
         {/* Archived section */}

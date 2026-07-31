@@ -6,6 +6,7 @@ import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { FormattedText } from '../primitives/FormattedText';
 import { ColorDot } from '../primitives/ColorDot';
+import { RestoreChip } from '../primitives/RestoreChip';
 import { BookmarkIcon, CheckIcon } from '@/assets/icons';
 import { SHADOW_CARD, CARD_TILTS, ARCHIVED_OPACITY } from '@/constants';
 import { DAY_LABELS, formatTimeOfDay, dateKey } from '@/utils/time';
@@ -16,11 +17,20 @@ type Props = {
   index?: number;
   onPress: () => void;
   onToggleDone: () => void;
+  onRestore?: () => void;
 };
 
-export function RoutineCard({ routine, folder, index = 0, onPress, onToggleDone }: Props) {
+export function RoutineCard({
+  routine,
+  folder,
+  index = 0,
+  onPress,
+  onToggleDone,
+  onRestore,
+}: Props) {
   const { colors } = useTheme();
   const tilt = CARD_TILTS[index % CARD_TILTS.length];
+  const isArchived = !!routine.archived;
   const isPaused = !routine.active;
   const doneToday = !!routine.completions[dateKey()];
 
@@ -31,7 +41,7 @@ export function RoutineCard({ routine, folder, index = 0, onPress, onToggleDone 
         style={{
           transform: [{ rotate: `${tilt}deg` }],
           ...SHADOW_CARD,
-          opacity: isPaused ? ARCHIVED_OPACITY : 1,
+          opacity: isArchived || isPaused ? ARCHIVED_OPACITY : 1,
         }}
       >
         <GrainOverlay />
@@ -51,17 +61,21 @@ export function RoutineCard({ routine, folder, index = 0, onPress, onToggleDone 
               {formatTimeOfDay(routine.reminderTime)}
             </ThemeText>
             {routine.pinned && <BookmarkIcon size={11} color={colors.amber} fill={colors.amber} />}
-            <TouchableOpacity
-              onPress={onToggleDone}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              className="size-5 items-center justify-center rounded-full border-[1.5px]"
-              style={{
-                borderColor: doneToday ? colors.amber : colors.line2,
-                backgroundColor: doneToday ? colors.amber : 'transparent',
-              }}
-            >
-              {doneToday && <CheckIcon size={11} color={colors.paper} strokeWidth={2.5} />}
-            </TouchableOpacity>
+            {onRestore ? (
+              <RestoreChip onRestore={onRestore} />
+            ) : (
+              <TouchableOpacity
+                onPress={onToggleDone}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                className="size-5 items-center justify-center rounded-full border-[1.5px]"
+                style={{
+                  borderColor: doneToday ? colors.amber : colors.line2,
+                  backgroundColor: doneToday ? colors.amber : 'transparent',
+                }}
+              >
+                {doneToday && <CheckIcon size={11} color={colors.paper} strokeWidth={2.5} />}
+              </TouchableOpacity>
+            )}
           </View>
         </View>
         <View className="mt-2.5 flex-row items-center gap-3">

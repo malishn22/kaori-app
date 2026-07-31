@@ -169,7 +169,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const noteActions = createNoteActions(setNotes, setFolders);
   const rawTaskActions = createTaskActions(setTasks, setFolders);
-  const folderActions = createFolderActions(setFolders, setNotes, setTasks);
+  const folderActions = createFolderActions(setFolders, setNotes, setTasks, setRoutines);
   const rawRoutineActions = createRoutineActions(setRoutines, setFolders);
 
   // Notification-aware task action wrappers

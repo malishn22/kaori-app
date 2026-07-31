@@ -3,6 +3,7 @@ import { View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
+import { useActiveRoutines } from '@/hooks';
 import { RoutineCard, FAB, PageHeader, SectionTitle, EmptyState } from '@/components/ui';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
 import { nextOccurrence } from '@/utils/time';
@@ -15,10 +16,10 @@ function nextFireMs(daysOfWeek: number[], reminderTime: string): number {
 
 export default function RoutinesScreen() {
   const router = useRouter();
-  const { routines: allRoutines, folders, toggleRoutineDone } = useStore();
+  const { folders, toggleRoutineDone } = useStore();
   const insets = useSafeAreaInsets();
 
-  const activeRoutines = useMemo(() => allRoutines.filter((r) => !r.archived), [allRoutines]);
+  const activeRoutines = useActiveRoutines();
   const pinnedRoutines = useMemo(() => activeRoutines.filter((r) => r.pinned), [activeRoutines]);
 
   const today = new Date().getDay();

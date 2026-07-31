@@ -1,4 +1,4 @@
-import type { Note, Task, Folder } from '@/types';
+import type { Note, Task, Folder, Routine } from '@/types';
 import { safeSet } from '@/utils/storage';
 import { KEYS } from '@/utils/migration';
 
@@ -8,6 +8,7 @@ export function createFolderActions(
   setFolders: SetState<Folder[]>,
   setNotes: SetState<Note[]>,
   setTasks: SetState<Task[]>,
+  setRoutines: SetState<Routine[]>,
 ) {
   function addFolder(name: string, color: string, note: string) {
     const createdAt = new Date().toISOString();
@@ -52,6 +53,11 @@ export function createFolderActions(
       safeSet(KEYS.tasks, JSON.stringify(next));
       return next;
     });
+    setRoutines((prev) => {
+      const next = prev.map((r) => (r.folder === id ? { ...r, folder: null } : r));
+      safeSet(KEYS.routines, JSON.stringify(next));
+      return next;
+    });
   }
 
   function updateFolderColor(id: string, color: string) {
@@ -84,6 +90,11 @@ export function createFolderActions(
     setTasks((prev) => {
       const next = prev.map((t) => (t.folder === id ? { ...t, archived } : t));
       safeSet(KEYS.tasks, JSON.stringify(next));
+      return next;
+    });
+    setRoutines((prev) => {
+      const next = prev.map((r) => (r.folder === id ? { ...r, archived } : r));
+      safeSet(KEYS.routines, JSON.stringify(next));
       return next;
     });
   }

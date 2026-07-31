@@ -7,6 +7,7 @@ import {
   ThemeText,
   NoteCard,
   TaskCard,
+  RoutineCard,
   FolderCard,
   SectionTitle,
   PageHeader,
@@ -15,12 +16,24 @@ import {
 
 export default function ArchivedScreen() {
   const router = useRouter();
-  const { notes, folders, tasks, archiveNote, archiveFolder, archiveTask, toggleTask } = useStore();
+  const {
+    notes,
+    folders,
+    tasks,
+    routines,
+    archiveNote,
+    archiveFolder,
+    archiveTask,
+    toggleTask,
+    archiveRoutine,
+    toggleRoutineDone,
+  } = useStore();
   const { impact } = useHapticFeedback();
 
   const archivedFolders = folders.filter((f) => f.archived);
   const archivedNotes = notes.filter((n) => n.archived);
   const archivedTasks = tasks.filter((t) => t.archived);
+  const archivedRoutines = routines.filter((r) => r.archived);
 
   async function handleUnarchiveFolder(id: string) {
     await archiveFolder(id, false);
@@ -34,6 +47,11 @@ export default function ArchivedScreen() {
 
   async function handleUnarchiveTask(id: string) {
     await archiveTask(id, false);
+    impact();
+  }
+
+  async function handleUnarchiveRoutine(id: string) {
+    await archiveRoutine(id, false);
     impact();
   }
 
@@ -129,7 +147,48 @@ export default function ArchivedScreen() {
           )}
         </ScrollView>
 
-        {/* Page 3: Folders */}
+        {/* Page 3: Routines */}
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 8, paddingBottom: 60 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {archivedRoutines.length === 0 && (
+            <View className="items-center pt-[60px]">
+              <ThemeText variant="meta" color="ink4">
+                no archived routines
+              </ThemeText>
+            </View>
+          )}
+
+          {archivedRoutines.length > 0 && (
+            <View>
+              <View className="px-1.5 mb-3">
+                <SectionTitle underlineWidth={38}>routines</SectionTitle>
+              </View>
+
+              <View className="gap-3">
+                {archivedRoutines.map((routine, i) => {
+                  const folder = routine.folder
+                    ? folders.find((f) => f.id === routine.folder)
+                    : undefined;
+                  return (
+                    <RoutineCard
+                      key={routine.id}
+                      routine={routine}
+                      folder={folder}
+                      index={i}
+                      onToggleDone={() => toggleRoutineDone(routine.id)}
+                      onPress={() => router.push(`/routine/${routine.id}`)}
+                      onRestore={() => handleUnarchiveRoutine(routine.id)}
+                    />
+                  );
+                })}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Page 4: Folders */}
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 8, paddingBottom: 60 }}
           showsVerticalScrollIndicator={false}
@@ -152,6 +211,7 @@ export default function ArchivedScreen() {
                 {archivedFolders.map((f, i) => {
                   const noteCount = notes.filter((n) => n.folder === f.id).length;
                   const taskCount = tasks.filter((t) => t.folder === f.id && !t.done).length;
+                  const routineCount = routines.filter((r) => r.folder === f.id && r.active).length;
                   return (
                     <FolderCard
                       key={f.id}
@@ -159,6 +219,7 @@ export default function ArchivedScreen() {
                       index={i}
                       noteCount={noteCount}
                       taskCount={taskCount}
+                      routineCount={routineCount}
                       onRestore={() => handleUnarchiveFolder(f.id)}
                     />
                   );

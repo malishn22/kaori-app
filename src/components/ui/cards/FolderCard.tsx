@@ -14,6 +14,7 @@ type FolderCardProps = {
   index: number;
   noteCount: number;
   taskCount: number;
+  routineCount: number;
   onRestore?: () => void;
   isDragging?: boolean;
   onPress?: () => void;
@@ -25,6 +26,7 @@ export function FolderCard({
   index: _index,
   noteCount,
   taskCount,
+  routineCount,
   onRestore,
   isDragging,
   onPress,
@@ -55,7 +57,7 @@ export function FolderCard({
         <View className="flex-1 min-w-0">
           <ThemeText variant="title">{folder.name}</ThemeText>
           <ThemeText variant="chip" color="ink3" style={{ marginTop: 4 }}>
-            {noteCount} notes · {taskCount} tasks
+            {noteCount} notes · {taskCount} tasks · {routineCount} routines
           </ThemeText>
         </View>
         {folder.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}

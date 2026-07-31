@@ -7,7 +7,7 @@ import { FAB, DraggableFolderList, PageHeader } from '@/components/ui';
 
 export default function FoldersScreen() {
   const router = useRouter();
-  const { notes: allNotes, tasks: allTasks, reorderFolders } = useStore();
+  const { notes: allNotes, tasks: allTasks, routines: allRoutines, reorderFolders } = useStore();
   const folders = useActiveFolders();
   const noteCounts = useMemo(
     () =>
@@ -29,6 +29,16 @@ export default function FoldersScreen() {
         }, {}),
     [allTasks],
   );
+  const routineCounts = useMemo(
+    () =>
+      allRoutines
+        .filter((r) => !r.archived && r.active)
+        .reduce<Record<string, number>>((acc, routine) => {
+          if (routine.folder) acc[routine.folder] = (acc[routine.folder] ?? 0) + 1;
+          return acc;
+        }, {}),
+    [allRoutines],
+  );
   return (
     <View className="flex-1 bg-theme-bg">
       <PageHeader caption="your folders" title="folders" underlineWidth={92} settingsButton />
@@ -36,6 +46,7 @@ export default function FoldersScreen() {
         folders={folders}
         noteCounts={noteCounts}
         taskCounts={taskCounts}
+        routineCounts={routineCounts}
         onReorder={reorderFolders}
         onFolderPress={(id) => router.push(`/folder/${id}`)}
       />

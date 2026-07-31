@@ -17,12 +17,16 @@ import {
 } from '@/components/ui';
 import { MoonIcon, SparkleIcon, BellIcon, ChevronIcon } from '@/assets/icons';
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/layout';
-import { cancelAllReminders, rescheduleAllReminders } from '@/utils/notifications';
+import {
+  cancelAllReminders,
+  rescheduleAllReminders,
+  rescheduleAllRoutineReminders,
+} from '@/utils/notifications';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors, settings, setSetting } = useTheme();
-  const { notes, folders, tasks, profile } = useStore();
+  const { notes, folders, tasks, routines, profile } = useStore();
   const { setOpenSheet } = useSettingSheet();
   const insets = useSafeAreaInsets();
 
@@ -56,7 +60,8 @@ export default function SettingsScreen() {
                   {profile.name}
                 </ThemeText>
                 <ThemeText variant="meta" style={{ marginTop: 4 }}>
-                  {notes.length} notes · {tasks.length} tasks · {folders.length} folders
+                  {notes.length} notes · {tasks.length} tasks · {routines.length} routines ·{' '}
+                  {folders.length} folders
                 </ThemeText>
               </View>
             </View>
@@ -125,7 +130,7 @@ export default function SettingsScreen() {
           <View className="mt-3">
             <SettingRow
               icon={<BellIcon size={17} color={colors.ink3} strokeWidth={1.4} />}
-              label="task reminders"
+              label="reminders"
               right={
                 <CustomSwitch
                   value={settings.notificationsEnabled}
@@ -134,7 +139,9 @@ export default function SettingsScreen() {
                     if (!v) {
                       cancelAllReminders();
                     } else {
-                      rescheduleAllReminders(tasks);
+                      rescheduleAllReminders(tasks).then(() =>
+                        rescheduleAllRoutineReminders(routines),
+                      );
                     }
                   }}
                 />
