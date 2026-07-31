@@ -40,8 +40,10 @@ TARGET_LINE='org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m'
 
 [ -f "$GRADLE_PROPS" ] || fail "missing $GRADLE_PROPS after prebuild"
 
-# BSD sed (darwin) — replace the jvmargs line in place
-sed -i '' -E "s|^org\\.gradle\\.jvmargs=.*|${TARGET_LINE}|" "$GRADLE_PROPS"
+# Portable in-place edit (BSD sed on macOS, GNU sed on Linux/Windows Git Bash both
+# accept an attached backup suffix; a bare `-i ''` only works on BSD sed).
+sed -i.bak -E "s|^org\\.gradle\\.jvmargs=.*|${TARGET_LINE}|" "$GRADLE_PROPS"
+rm -f "$GRADLE_PROPS.bak"
 
 if ! grep -qF "$TARGET_LINE" "$GRADLE_PROPS"; then
   fail "gradle.properties patch did not apply — expected line not found after sed"
@@ -69,20 +71,35 @@ else
   printf '  %s(no APK found under %s)%s\n' "$C_DIM" "$APK_DIR" "$C_RESET"
 fi
 
-# --- Step 4: reveal output in Finder (macOS) ---
-step 4 "reveal output in Finder"
+# --- Step 4: reveal output in Finder/Explorer ---
+step 4 "reveal output"
+REVEAL_TARGET=""
+if [ -f "$APK" ]; then
+  REVEAL_TARGET="$APK"
+elif [ ${#found[@]} -gt 0 ]; then
+  REVEAL_TARGET="${found[0]}"
+fi
+
 if command -v open >/dev/null 2>&1; then
-  if [ -f "$APK" ]; then
-    open -R "$APK"
-    printf '  %sok%s — revealed in Finder\n' "$C_GREEN" "$C_RESET"
-  elif [ ${#found[@]} -gt 0 ]; then
-    open -R "${found[0]}"
+  # macOS
+  if [ -n "$REVEAL_TARGET" ]; then
+    open -R "$REVEAL_TARGET"
     printf '  %sok%s — revealed in Finder\n' "$C_GREEN" "$C_RESET"
   elif open "$APK_DIR" 2>/dev/null; then
     printf '  %sok%s — opened %s\n' "$C_GREEN" "$C_RESET" "$APK_DIR"
   else
     printf '  %s(nothing to reveal)%s\n' "$C_DIM" "$C_RESET"
   fi
+elif command -v explorer.exe >/dev/null 2>&1; then
+  # Windows (Git Bash / MSYS) — `explorer.exe /select,<path>` wants a Windows-style
+  # path; use `//select,` so Git Bash doesn't mangle the leading slash into a path.
+  if [ -n "$REVEAL_TARGET" ]; then
+    explorer.exe "//select,$(cygpath -w "$REVEAL_TARGET")" || true
+    printf '  %sok%s — revealed in Explorer\n' "$C_GREEN" "$C_RESET"
+  else
+    explorer.exe "$(cygpath -w "$APK_DIR")" || true
+    printf '  %sok%s — opened %s\n' "$C_GREEN" "$C_RESET" "$APK_DIR"
+  fi
 else
-  printf '  %sskip%s — `open` not available (non-macOS)\n' "$C_DIM" "$C_RESET"
+  printf '  %sskip%s — no `open`/`explorer.exe` available\n' "$C_DIM" "$C_RESET"
 fi

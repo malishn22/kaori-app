@@ -1,0 +1,4 @@
+# Shell scripts must always check out with LF endings, even on Windows where
+# core.autocrlf=true would otherwise convert them to CRLF and break execution
+# under Git Bash (e.g. shebang lines, `sed`, here-docs).
+*.sh text eol=lf
