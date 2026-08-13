@@ -9,7 +9,7 @@ set -euo pipefail
 # exp:// deep link correctly; hand-building that link ourselves is what
 # produced Expo Go's "Something went wrong" screen.
 #
-# Run from Git Bash:  ./scripts/run-device.sh          (or  npm run device )
+# Run from Git Bash:  ./scripts/run-device-windows.sh   (or  npm run device:windows )
 #
 # Requirements: phone plugged in via USB with Developer Options → USB
 # debugging ON (tap "Allow" on the phone the first time), Expo Go installed,
