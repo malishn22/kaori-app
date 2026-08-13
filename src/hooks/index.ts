@@ -11,3 +11,4 @@ export { useActiveTasks } from './useActiveTasks';
 export { useActiveRoutines } from './useActiveRoutines';
 export { useFolderRoutines } from './useFolderRoutines';
 export { useKeyboardHeight } from './useKeyboardHeight';
+export { useSpeechToText } from './useSpeechToText';

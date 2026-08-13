@@ -199,6 +199,16 @@ export function continueFormattingOnEnter(
   return null;
 }
 
+export function replaceRange(
+  text: string,
+  start: number,
+  end: number,
+  insertion: string,
+): { newText: string; newCursorPos: number } {
+  const newText = text.slice(0, start) + insertion + text.slice(end);
+  return { newText, newCursorPos: start + insertion.length };
+}
+
 export function wrapStrikethrough(
   text: string,
   start: number,

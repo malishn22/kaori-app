@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
-import { useHapticFeedback, useActiveFolders } from '@/hooks';
+import { useHapticFeedback, useActiveFolders, useSpeechToText } from '@/hooks';
 import {
   PageHeader,
   ThemeText,
@@ -45,6 +45,19 @@ export default function NewRoutineScreen() {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const editorRef = useRef<TextContentHandle>(null);
 
+  const { isListening, isAvailable, start, stop } = useSpeechToText({
+    onTranscript: (transcript) => editorRef.current?.updateDictation(transcript),
+  });
+
+  function handleMic() {
+    if (isListening) {
+      stop();
+    } else {
+      editorRef.current?.beginDictation();
+      start();
+    }
+  }
+
   function toggleDay(day: number) {
     setDaysOfWeek((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort(),
@@ -71,6 +84,9 @@ export default function NewRoutineScreen() {
             onDotted={() => editorRef.current?.insertDotted()}
             onNumbered={() => editorRef.current?.insertNumbered()}
             onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
+            onMic={handleMic}
+            isListening={isListening}
+            isMicAvailable={isAvailable}
           />
         }
       >

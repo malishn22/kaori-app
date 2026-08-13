@@ -9,6 +9,7 @@ import {
   insertNumberedAtCursor,
   wrapStrikethrough,
   toggleCheckboxLine,
+  replaceRange,
 } from '@/utils/noteFormat';
 import { getDomain } from '@/utils/links';
 
@@ -17,6 +18,8 @@ export type TextContentHandle = {
   insertDotted: () => void;
   insertNumbered: () => void;
   wrapStrikethrough: () => void;
+  beginDictation: () => void;
+  updateDictation: (transcript: string) => void;
 };
 
 type Props = {
@@ -36,6 +39,7 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
 ) {
   const { colors } = useTheme();
   const selectionRef = useRef({ start: 0, end: 0 });
+  const dictationRef = useRef<{ start: number; length: number } | null>(null);
   const [linkAction, setLinkAction] = useState<{ url: string; label: string } | null>(null);
 
   useImperativeHandle(
@@ -56,6 +60,22 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
       wrapStrikethrough: () => {
         const { start, end } = selectionRef.current;
         const { newText } = wrapStrikethrough(draft, start, end);
+        onDraftChange(newText);
+      },
+      beginDictation: () => {
+        dictationRef.current = { start: selectionRef.current.start, length: 0 };
+      },
+      updateDictation: (transcript: string) => {
+        const anchor = dictationRef.current;
+        if (!anchor) return;
+        const { newText, newCursorPos } = replaceRange(
+          draft,
+          anchor.start,
+          anchor.start + anchor.length,
+          transcript,
+        );
+        dictationRef.current = { start: anchor.start, length: transcript.length };
+        selectionRef.current = { start: newCursorPos, end: newCursorPos };
         onDraftChange(newText);
       },
     }),

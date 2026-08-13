@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
-import { useHapticFeedback, useActiveFolders } from '@/hooks';
+import { useHapticFeedback, useActiveFolders, useSpeechToText } from '@/hooks';
 import {
   PageHeader,
   ThemeText,
@@ -60,6 +60,19 @@ export default function NewTaskScreen() {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const editorRef = useRef<TextContentHandle>(null);
 
+  const { isListening, isAvailable, start, stop } = useSpeechToText({
+    onTranscript: (transcript) => editorRef.current?.updateDictation(transcript),
+  });
+
+  function handleMic() {
+    if (isListening) {
+      stop();
+    } else {
+      editorRef.current?.beginDictation();
+      start();
+    }
+  }
+
   const isCustomDate =
     dueDate !== null && !getDateChipOptions().some((opt) => isSameDay(dueDate, opt.date));
 
@@ -93,6 +106,9 @@ export default function NewTaskScreen() {
             onDotted={() => editorRef.current?.insertDotted()}
             onNumbered={() => editorRef.current?.insertNumbered()}
             onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
+            onMic={handleMic}
+            isListening={isListening}
+            isMicAvailable={isAvailable}
           />
         }
       >

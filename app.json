@@ -53,6 +53,14 @@
           "icon": "./assets/icon.png",
           "color": "#1A1510"
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Kaori needs microphone access to turn your voice into notes and tasks.",
+          "speechRecognitionPermission": "Kaori needs speech recognition access to transcribe what you say.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
       ]
     ]
   }

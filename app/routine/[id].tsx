@@ -11,6 +11,7 @@ import {
   useConfirmAction,
   useActiveFolders,
   useInlineEdit,
+  useSpeechToText,
 } from '@/hooks';
 import {
   ThemeText,
@@ -72,6 +73,19 @@ export default function RoutineDetailScreen() {
   const [draftDays, setDraftDays] = useState<number[]>([]);
   const [draftReminderTime, setDraftReminderTime] = useState<string | null>(null);
   const [showReminderPicker, setShowReminderPicker] = useState(false);
+
+  const { isListening, isAvailable, start, stop } = useSpeechToText({
+    onTranscript: (transcript) => editorRef.current?.updateDictation(transcript),
+  });
+
+  function handleMic() {
+    if (isListening) {
+      stop();
+    } else {
+      editorRef.current?.beginDictation();
+      start();
+    }
+  }
 
   const confirmDelete = useConfirmAction({
     onConfirm: async () => {
@@ -204,6 +218,9 @@ export default function RoutineDetailScreen() {
             onDotted={() => editorRef.current?.insertDotted()}
             onNumbered={() => editorRef.current?.insertNumbered()}
             onStrikethrough={() => editorRef.current?.wrapStrikethrough()}
+            onMic={handleMic}
+            isListening={isListening}
+            isMicAvailable={isAvailable}
           />
         }
       >
