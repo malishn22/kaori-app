@@ -14,7 +14,6 @@ type FolderCardProps = {
   index: number;
   noteCount: number;
   taskCount: number;
-  routineCount: number;
   onRestore?: () => void;
   isDragging?: boolean;
   onPress?: () => void;
@@ -26,7 +25,6 @@ export function FolderCard({
   index: _index,
   noteCount,
   taskCount,
-  routineCount,
   onRestore,
   isDragging,
   onPress,
@@ -37,6 +35,10 @@ export function FolderCard({
     ? { ...SHADOW_CARD, shadowOpacity: 0.4, elevation: 12 }
     : SHADOW_CARD;
   const isArchived = !!folder.archived;
+  const counts = [
+    noteCount > 0 && `${noteCount} notes`,
+    taskCount > 0 && `${taskCount} tasks`,
+  ].filter(Boolean);
 
   return (
     <TouchableOpacity
@@ -56,9 +58,11 @@ export function FolderCard({
         <FolderAvatar name={folder.name} color={folder.color} />
         <View className="flex-1 min-w-0">
           <ThemeText variant="title">{folder.name}</ThemeText>
-          <ThemeText variant="chip" color="ink3" style={{ marginTop: 4 }}>
-            {noteCount} notes · {taskCount} tasks · {routineCount} routines
-          </ThemeText>
+          {counts.length > 0 && (
+            <ThemeText variant="chip" color="ink3" style={{ marginTop: 4 }}>
+              {counts.join(' · ')}
+            </ThemeText>
+          )}
         </View>
         {folder.pinned && <BookmarkIcon size={13} color={colors.amber} fill={colors.amber} />}
         {onRestore && <RestoreChip onRestore={onRestore} />}

@@ -1,4 +1,4 @@
-import type { Routine, Folder } from '@/types';
+import type { Routine } from '@/types';
 import { safeSet } from '@/utils/storage';
 import { KEYS } from '@/utils/migration';
 import { dateKey } from '@/utils/time';
@@ -6,22 +6,17 @@ import { resolveLinksFor } from './resolveLinksFor';
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
-export function createRoutineActions(
-  setRoutines: SetState<Routine[]>,
-  setFolders: SetState<Folder[]>,
-) {
+export function createRoutineActions(setRoutines: SetState<Routine[]>) {
   function addRoutine(
     id: string,
     title: string,
     daysOfWeek: number[],
     reminderTime: string | null,
-    folderId: string | null,
     links: Record<string, string> = {},
   ) {
     const createdAt = new Date().toISOString();
     const newRoutine: Routine = {
       id,
-      folder: folderId,
       title,
       daysOfWeek,
       reminderTime,
@@ -38,26 +33,13 @@ export function createRoutineActions(
       return next;
     });
 
-    if (folderId) {
-      setFolders((prev) => {
-        const next = prev.map((f) =>
-          f.id !== folderId ? f : { ...f, updated: new Date().toISOString() },
-        );
-        safeSet(KEYS.folders, JSON.stringify(next));
-        return next;
-      });
-    }
-
     resolveLinksFor(setRoutines, KEYS.routines, id, title, links);
   }
 
   function updateRoutine(
     id: string,
     patch: Partial<
-      Pick<
-        Routine,
-        'title' | 'daysOfWeek' | 'reminderTime' | 'folder' | 'pinned' | 'active' | 'links'
-      >
+      Pick<Routine, 'title' | 'daysOfWeek' | 'reminderTime' | 'pinned' | 'active' | 'links'>
     >,
   ) {
     setRoutines((prev) => {

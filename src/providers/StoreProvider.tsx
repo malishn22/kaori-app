@@ -69,16 +69,12 @@ type StoreContextValue = {
     title: string,
     daysOfWeek: number[],
     reminderTime: string | null,
-    folderId: string | null,
     links?: Record<string, string>,
   ) => void;
   updateRoutine: (
     id: string,
     patch: Partial<
-      Pick<
-        Routine,
-        'title' | 'daysOfWeek' | 'reminderTime' | 'folder' | 'pinned' | 'active' | 'links'
-      >
+      Pick<Routine, 'title' | 'daysOfWeek' | 'reminderTime' | 'pinned' | 'active' | 'links'>
     >,
   ) => void;
   toggleRoutineDone: (id: string, date?: Date) => void;
@@ -169,8 +165,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const noteActions = createNoteActions(setNotes, setFolders);
   const rawTaskActions = createTaskActions(setTasks, setFolders);
-  const folderActions = createFolderActions(setFolders, setNotes, setTasks, setRoutines);
-  const rawRoutineActions = createRoutineActions(setRoutines, setFolders);
+  const folderActions = createFolderActions(setFolders, setNotes, setTasks);
+  const rawRoutineActions = createRoutineActions(setRoutines);
 
   // Notification-aware task action wrappers
   const taskActions = {
@@ -230,15 +226,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       title: string,
       daysOfWeek: number[],
       reminderTime: string | null,
-      folderId: string | null,
       links?: Record<string, string>,
     ) {
       const id = Date.now().toString();
-      rawRoutineActions.addRoutine(id, title, daysOfWeek, reminderTime, folderId, links);
+      rawRoutineActions.addRoutine(id, title, daysOfWeek, reminderTime, links);
       if (settings.notificationsEnabled && reminderTime) {
         scheduleRoutineReminders({
           id,
-          folder: folderId,
           title,
           daysOfWeek,
           reminderTime,
@@ -253,10 +247,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     updateRoutine(
       id: string,
       patch: Partial<
-        Pick<
-          Routine,
-          'title' | 'daysOfWeek' | 'reminderTime' | 'folder' | 'pinned' | 'active' | 'links'
-        >
+        Pick<Routine, 'title' | 'daysOfWeek' | 'reminderTime' | 'pinned' | 'active' | 'links'>
       >,
     ) {
       rawRoutineActions.updateRoutine(id, patch);

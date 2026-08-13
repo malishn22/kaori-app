@@ -16,7 +16,7 @@ function nextFireMs(daysOfWeek: number[], reminderTime: string | null): number {
 
 export default function RoutinesScreen() {
   const router = useRouter();
-  const { folders, toggleRoutineDone } = useStore();
+  const { toggleRoutineDone } = useStore();
   const insets = useSafeAreaInsets();
 
   const activeRoutines = useActiveRoutines();
@@ -61,19 +61,15 @@ export default function RoutinesScreen() {
               <SectionTitle underlineWidth={52}>pinned</SectionTitle>
             </View>
             <View className="px-[18px] gap-3">
-              {pinnedRoutines.map((routine, i) => {
-                const folder = folders.find((f) => f.id === routine.folder);
-                return (
-                  <RoutineCard
-                    key={routine.id}
-                    routine={routine}
-                    folder={folder}
-                    index={i}
-                    onToggleDone={() => toggleRoutineDone(routine.id)}
-                    onPress={() => router.push(`/routine/${routine.id}`)}
-                  />
-                );
-              })}
+              {pinnedRoutines.map((routine, i) => (
+                <RoutineCard
+                  key={routine.id}
+                  routine={routine}
+                  index={i}
+                  onToggleDone={() => toggleRoutineDone(routine.id)}
+                  onPress={() => router.push(`/routine/${routine.id}`)}
+                />
+              ))}
             </View>
           </View>
         )}
@@ -85,19 +81,15 @@ export default function RoutinesScreen() {
               <SectionTitle underlineWidth={48}>today</SectionTitle>
             </View>
             <View className="px-[18px] gap-3">
-              {todayRoutines.map((routine, i) => {
-                const folder = folders.find((f) => f.id === routine.folder);
-                return (
-                  <RoutineCard
-                    key={routine.id}
-                    routine={routine}
-                    folder={folder}
-                    index={i + 1}
-                    onToggleDone={() => toggleRoutineDone(routine.id)}
-                    onPress={() => router.push(`/routine/${routine.id}`)}
-                  />
-                );
-              })}
+              {todayRoutines.map((routine, i) => (
+                <RoutineCard
+                  key={routine.id}
+                  routine={routine}
+                  index={i + 1}
+                  onToggleDone={() => toggleRoutineDone(routine.id)}
+                  onPress={() => router.push(`/routine/${routine.id}`)}
+                />
+              ))}
             </View>
           </View>
         )}
@@ -109,19 +101,15 @@ export default function RoutinesScreen() {
               <SectionTitle underlineWidth={64}>routines</SectionTitle>
             </View>
             <View className="px-[18px] gap-3">
-              {otherRoutines.map((routine, i) => {
-                const folder = folders.find((f) => f.id === routine.folder);
-                return (
-                  <RoutineCard
-                    key={routine.id}
-                    routine={routine}
-                    folder={folder}
-                    index={i + 2}
-                    onToggleDone={() => toggleRoutineDone(routine.id)}
-                    onPress={() => router.push(`/routine/${routine.id}`)}
-                  />
-                );
-              })}
+              {otherRoutines.map((routine, i) => (
+                <RoutineCard
+                  key={routine.id}
+                  routine={routine}
+                  index={i + 2}
+                  onToggleDone={() => toggleRoutineDone(routine.id)}
+                  onPress={() => router.push(`/routine/${routine.id}`)}
+                />
+              ))}
             </View>
           </View>
         )}

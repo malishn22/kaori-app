@@ -167,22 +167,16 @@ export default function ArchivedScreen() {
               </View>
 
               <View className="gap-3">
-                {archivedRoutines.map((routine, i) => {
-                  const folder = routine.folder
-                    ? folders.find((f) => f.id === routine.folder)
-                    : undefined;
-                  return (
-                    <RoutineCard
-                      key={routine.id}
-                      routine={routine}
-                      folder={folder}
-                      index={i}
-                      onToggleDone={() => toggleRoutineDone(routine.id)}
-                      onPress={() => router.push(`/routine/${routine.id}`)}
-                      onRestore={() => handleUnarchiveRoutine(routine.id)}
-                    />
-                  );
-                })}
+                {archivedRoutines.map((routine, i) => (
+                  <RoutineCard
+                    key={routine.id}
+                    routine={routine}
+                    index={i}
+                    onToggleDone={() => toggleRoutineDone(routine.id)}
+                    onPress={() => router.push(`/routine/${routine.id}`)}
+                    onRestore={() => handleUnarchiveRoutine(routine.id)}
+                  />
+                ))}
               </View>
             </View>
           )}
@@ -211,7 +205,6 @@ export default function ArchivedScreen() {
                 {archivedFolders.map((f, i) => {
                   const noteCount = notes.filter((n) => n.folder === f.id).length;
                   const taskCount = tasks.filter((t) => t.folder === f.id && !t.done).length;
-                  const routineCount = routines.filter((r) => r.folder === f.id && r.active).length;
                   return (
                     <FolderCard
                       key={f.id}
@@ -219,7 +212,6 @@ export default function ArchivedScreen() {
                       index={i}
                       noteCount={noteCount}
                       taskCount={taskCount}
-                      routineCount={routineCount}
                       onRestore={() => handleUnarchiveFolder(f.id)}
                     />
                   );

@@ -14,7 +14,6 @@ type Props = {
   folders: Folder[];
   noteCounts: Record<string, number>;
   taskCounts: Record<string, number>;
-  routineCounts: Record<string, number>;
   onReorder: (orderedIds: string[]) => void;
   onFolderPress: (id: string) => void;
 };
@@ -23,7 +22,6 @@ export function DraggableFolderList({
   folders,
   noteCounts,
   taskCounts,
-  routineCounts,
   onReorder,
   onFolderPress,
 }: Props) {
@@ -44,7 +42,6 @@ export function DraggableFolderList({
             index={index}
             noteCount={noteCounts[item.id] ?? 0}
             taskCount={taskCounts[item.id] ?? 0}
-            routineCount={routineCounts[item.id] ?? 0}
             isDragging={isActive}
             onLongPress={drag}
             onPress={() => onFolderPress(item.id)}

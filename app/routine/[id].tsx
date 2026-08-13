@@ -9,19 +9,16 @@ import {
   useHapticFeedback,
   useAnimatedPopup,
   useConfirmAction,
-  useActiveFolders,
   useInlineEdit,
   useSpeechToText,
 } from '@/hooks';
 import {
   ThemeText,
-  ColorDot,
   Chip,
   PageHeader,
   MenuRow,
   ReminderPicker,
   PopupMenu,
-  FolderChipSelector,
   WeekdaySelector,
   FormatToolbar,
   EditorScreen,
@@ -51,9 +48,7 @@ export default function RoutineDetailScreen() {
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { routines, updateRoutine, deleteRoutine, toggleRoutineDone } = useStore();
-  const folders = useActiveFolders();
   const routine = routines.find((r) => r.id === id);
-  const folder = routine?.folder ? folders.find((f) => f.id === routine.folder) : undefined;
 
   const { settings } = useSettings();
   const { impactOnSave, impact, notificationWarning } = useHapticFeedback();
@@ -97,7 +92,6 @@ export default function RoutineDetailScreen() {
   });
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [movingFolder, setMovingFolder] = useState(false);
 
   const {
     anim: menuAnim,
@@ -146,7 +140,6 @@ export default function RoutineDetailScreen() {
 
   function openMenu() {
     confirmDelete.reset();
-    setMovingFolder(false);
     setMenuOpen(true);
     openPopup();
   }
@@ -171,12 +164,6 @@ export default function RoutineDetailScreen() {
 
   async function handlePin() {
     await updateRoutine(routine!.id, { pinned: !routine!.pinned });
-    impact();
-    closeMenu();
-  }
-
-  async function handleMoveFolder(folderId: string | null) {
-    await updateRoutine(routine!.id, { folder: folderId });
     impact();
     closeMenu();
   }
@@ -225,17 +212,6 @@ export default function RoutineDetailScreen() {
         }
       >
         <View className="px-6 pt-6">
-          {/* Folder pill */}
-          {folder && (
-            <View className="self-start mb-4">
-              <Chip color={folder.color} dot dotSize={7}>
-                <ThemeText variant="chip" size={12} color="cream">
-                  {folder.name}
-                </ThemeText>
-              </Chip>
-            </View>
-          )}
-
           {/* Paused badge */}
           {!routine.active && !editing && (
             <View
@@ -376,33 +352,6 @@ export default function RoutineDetailScreen() {
           }
           onPress={handleTogglePause}
         />
-
-        <MenuRow
-          label="move to folder"
-          right={
-            folder ? (
-              <View className="flex-row items-center gap-[5px]">
-                <ColorDot color={folder.color} size={6} />
-                <ThemeText variant="meta">{folder.name}</ThemeText>
-              </View>
-            ) : (
-              <ThemeText variant="meta" size={13} color="ink4">
-                ›
-              </ThemeText>
-            )
-          }
-          onPress={() => setMovingFolder((v) => !v)}
-        />
-
-        {movingFolder && (
-          <View className="px-3 py-2.5 border-b border-theme-line">
-            <FolderChipSelector
-              folders={folders}
-              selected={routine.folder}
-              onSelect={handleMoveFolder}
-            />
-          </View>
-        )}
 
         <MenuRow
           label={routine.pinned ? 'unpin' : 'pin'}

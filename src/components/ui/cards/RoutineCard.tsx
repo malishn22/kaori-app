@@ -1,11 +1,10 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
-import type { Routine, Folder } from '@/types';
+import type { Routine } from '@/types';
 import { GrainOverlay } from '../primitives/GrainOverlay';
 import { ThemeText } from '../primitives/ThemeText';
 import { FormattedText } from '../primitives/FormattedText';
-import { ColorDot } from '../primitives/ColorDot';
 import { RestoreChip } from '../primitives/RestoreChip';
 import { BookmarkIcon, CheckIcon } from '@/assets/icons';
 import { SHADOW_CARD, CARD_TILTS, ARCHIVED_OPACITY } from '@/constants';
@@ -13,21 +12,13 @@ import { DAY_LABELS, WEEK_ORDER, formatTimeOfDay, dateKey } from '@/utils/time';
 
 type Props = {
   routine: Routine;
-  folder?: Folder;
   index?: number;
   onPress: () => void;
   onToggleDone: () => void;
   onRestore?: () => void;
 };
 
-export function RoutineCard({
-  routine,
-  folder,
-  index = 0,
-  onPress,
-  onToggleDone,
-  onRestore,
-}: Props) {
+export function RoutineCard({ routine, index = 0, onPress, onToggleDone, onRestore }: Props) {
   const { colors } = useTheme();
   const tilt = CARD_TILTS[index % CARD_TILTS.length];
   const isArchived = !!routine.archived;
@@ -102,14 +93,6 @@ export function RoutineCard({
               );
             })}
           </View>
-          {folder ? (
-            <View className="flex-row items-center gap-1.5">
-              <ColorDot color={folder.color} size={7} />
-              <ThemeText variant="chip" size={11.5} color="ink3" letterSpacing={0.3}>
-                {folder.name}
-              </ThemeText>
-            </View>
-          ) : null}
         </View>
       </View>
     </TouchableOpacity>

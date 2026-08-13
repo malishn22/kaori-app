@@ -1,14 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
-import { useHapticFeedback, useActiveFolders, useSpeechToText } from '@/hooks';
+import { useHapticFeedback, useSpeechToText } from '@/hooks';
 import {
   PageHeader,
   ThemeText,
   Chip,
   ReminderPicker,
-  FolderChipSelector,
   WeekdaySelector,
   FormatToolbar,
   EditorScreen,
@@ -33,15 +32,12 @@ function timeStringToDate(hhmm: string | null, baseDate: Date): Date | null {
 
 export default function NewRoutineScreen() {
   const router = useRouter();
-  const { folderId } = useLocalSearchParams<{ folderId?: string }>();
   const { addRoutine } = useStore();
-  const folders = useActiveFolders();
   const { impactOnSave } = useHapticFeedback();
 
   const [title, setTitle] = useState('');
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
   const [reminderTime, setReminderTime] = useState<string | null>(null);
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(folderId ?? null);
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const editorRef = useRef<TextContentHandle>(null);
 
@@ -69,7 +65,7 @@ export default function NewRoutineScreen() {
   async function handleSave() {
     if (!canSave) return;
     const { text, links } = fromEditableText(title.trim());
-    await addRoutine(text, daysOfWeek, reminderTime, selectedFolder, links);
+    await addRoutine(text, daysOfWeek, reminderTime, links);
     impactOnSave();
     router.back();
   }
@@ -128,13 +124,6 @@ export default function NewRoutineScreen() {
               )}
             </View>
           </View>
-
-          <FolderChipSelector
-            folders={folders}
-            selected={selectedFolder}
-            onSelect={setSelectedFolder}
-            label="folder"
-          />
         </View>
 
         <View className="px-4 pt-8">

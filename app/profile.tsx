@@ -79,7 +79,6 @@ export default function ProfileScreen() {
       routines: allRoutines.map(
         ({
           id,
-          folder,
           title,
           daysOfWeek,
           reminderTime,
@@ -91,7 +90,6 @@ export default function ProfileScreen() {
           links,
         }) => ({
           id,
-          folder,
           title,
           daysOfWeek,
           reminderTime,

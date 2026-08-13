@@ -5,7 +5,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   useFolderNotes,
   useFolderTasks,
-  useFolderRoutines,
   useHapticFeedback,
   useAnimatedPopup,
   useConfirmAction,
@@ -14,7 +13,6 @@ import { useStore } from '@/providers/StoreProvider';
 import {
   NoteCard,
   TaskCard,
-  RoutineCard,
   FAB,
   ThemeText,
   HeaderText,
@@ -37,7 +35,6 @@ export default function FolderDetailScreen() {
   const insets = useSafeAreaInsets();
   const { folder, notes, notesThisWeek, pinnedCount } = useFolderNotes(id);
   const { tasks, openCount } = useFolderTasks(id);
-  const { routines, activeCount: activeRoutineCount } = useFolderRoutines(id);
   const {
     toggleTask,
     pinFolder,
@@ -47,8 +44,6 @@ export default function FolderDetailScreen() {
     archiveFolder,
     updateNote,
     pinTask,
-    pinRoutine,
-    toggleRoutineDone,
   } = useStore();
   const { impact, notificationWarning } = useHapticFeedback();
 
@@ -191,17 +186,18 @@ export default function FolderDetailScreen() {
             {[
               { val: notes.length, label: 'notes' },
               { val: openCount, label: 'tasks' },
-              { val: activeRoutineCount, label: 'routines' },
               { val: notesThisWeek, label: 'this week' },
               { val: pinnedCount, label: 'pinned' },
-            ].map(({ val, label }) => (
-              <ThemeText key={label} variant="meta">
-                <ThemeText variant="chip" color="cream" size={16}>
-                  {val}{' '}
+            ]
+              .filter(({ val }) => val > 0)
+              .map(({ val, label }) => (
+                <ThemeText key={label} variant="meta">
+                  <ThemeText variant="chip" color="cream" size={16}>
+                    {val}{' '}
+                  </ThemeText>
+                  {label}
                 </ThemeText>
-                {label}
-              </ThemeText>
-            ))}
+              ))}
           </View>
         </View>
       </View>
@@ -277,33 +273,6 @@ export default function FolderDetailScreen() {
             ))}
           </View>
         </ScrollView>
-
-        {/* Routines page */}
-        <ScrollView
-          contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 180 }}
-          showsVerticalScrollIndicator={false}
-        >
-          <View className="px-6 pb-3">
-            <SectionTitle underlineWidth={58}>routines</SectionTitle>
-          </View>
-          <View className="px-[18px] gap-3">
-            {routines.map((routine, i) => (
-              <SwipeablePinWrapper
-                key={routine.id}
-                isPinned={routine.pinned}
-                onTogglePin={() => pinRoutine(routine.id, !routine.pinned)}
-              >
-                <RoutineCard
-                  routine={routine}
-                  folder={folder}
-                  index={i}
-                  onToggleDone={() => toggleRoutineDone(routine.id)}
-                  onPress={() => router.push(`/routine/${routine.id}`)}
-                />
-              </SwipeablePinWrapper>
-            ))}
-          </View>
-        </ScrollView>
       </PagedSections>
 
       <FAB
@@ -334,10 +303,6 @@ export default function FolderDetailScreen() {
         <MenuRow
           label="task"
           onPress={() => closeFabMenu(() => router.push(`/task/new?folderId=${folder.id}`))}
-        />
-        <MenuRow
-          label="routine"
-          onPress={() => closeFabMenu(() => router.push(`/routine/new?folderId=${folder.id}`))}
           borderBottom={false}
         />
       </PopupMenu>

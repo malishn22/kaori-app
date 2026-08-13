@@ -45,7 +45,6 @@ export type Task = {
 
 export type Routine = {
   id: string;
-  folder: string | null;
   title: string;
   daysOfWeek: number[]; // 0=Sun..6=Sat, matches Date.getDay()
   reminderTime: string | null; // 'HH:mm' 24h, date-independent; null = no notification
