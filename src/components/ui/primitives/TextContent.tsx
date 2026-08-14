@@ -19,7 +19,7 @@ export type TextContentHandle = {
   insertNumbered: () => void;
   wrapStrikethrough: () => void;
   beginDictation: () => void;
-  updateDictation: (transcript: string) => void;
+  updateDictation: (transcript: string, isFinal: boolean) => void;
 };
 
 type Props = {
@@ -65,16 +65,39 @@ export const TextContent = forwardRef<TextContentHandle, Props>(function TextCon
       beginDictation: () => {
         dictationRef.current = { start: selectionRef.current.start, length: 0 };
       },
-      updateDictation: (transcript: string) => {
+      updateDictation: (transcript: string, isFinal: boolean) => {
         const anchor = dictationRef.current;
         if (!anchor) return;
+
+        // Our own source of truth for boundary spacing — ignore whatever
+        // leading/trailing whitespace the recognizer's own transcript has.
+        const cleanTranscript = transcript.trim();
+
+        let { start } = anchor;
+        let text = draft;
+
+        // Starting a fresh utterance (nothing replaceable yet) — insert
+        // exactly one separating space if the text immediately before the
+        // cursor needs it, then treat that space as already-committed
+        // rather than part of the replaceable region.
+        if (anchor.length === 0 && cleanTranscript.length > 0) {
+          const prevChar = text[start - 1];
+          if (prevChar && !/\s/.test(prevChar)) {
+            text = text.slice(0, start) + ' ' + text.slice(start);
+            start += 1;
+          }
+        }
+
         const { newText, newCursorPos } = replaceRange(
-          draft,
-          anchor.start,
-          anchor.start + anchor.length,
-          transcript,
+          text,
+          start,
+          start + anchor.length,
+          cleanTranscript,
         );
-        dictationRef.current = { start: anchor.start, length: transcript.length };
+
+        dictationRef.current = isFinal
+          ? { start: newCursorPos, length: 0 }
+          : { start, length: cleanTranscript.length };
         selectionRef.current = { start: newCursorPos, end: newCursorPos };
         onDraftChange(newText);
       },

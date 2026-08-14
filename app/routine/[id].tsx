@@ -70,7 +70,7 @@ export default function RoutineDetailScreen() {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
 
   const { isListening, isAvailable, start, stop } = useSpeechToText({
-    onTranscript: (transcript) => editorRef.current?.updateDictation(transcript),
+    onTranscript: (transcript, isFinal) => editorRef.current?.updateDictation(transcript, isFinal),
   });
 
   function handleMic() {

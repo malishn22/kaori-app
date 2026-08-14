@@ -18,6 +18,9 @@ export function useSpeechToText({ onTranscript }: Options) {
   const [isListening, setIsListening] = useState(false);
   const onTranscriptRef = useRef(onTranscript);
   onTranscriptRef.current = onTranscript;
+  // Tracks whether stop() was called by the user, vs. the native session
+  // ending on its own (e.g. a silence timeout) — see the 'end' listener below.
+  const stoppedByUserRef = useRef(false);
 
   useEffect(() => {
     if (IS_EXPO_GO) return;
@@ -28,8 +31,17 @@ export function useSpeechToText({ onTranscript }: Options) {
         const transcript = event.results[0]?.transcript ?? '';
         onTranscriptRef.current(transcript, event.isFinal);
       }),
-      ExpoSpeechRecognitionModule.addListener('end', () => setIsListening(false)),
+      ExpoSpeechRecognitionModule.addListener('end', () => {
+        if (stoppedByUserRef.current) {
+          setIsListening(false);
+          return;
+        }
+        // The recognizer ended itself while the user was still dictating —
+        // resume immediately so a pause never drops them out of recording.
+        ExpoSpeechRecognitionModule.start({ interimResults: true, continuous: true });
+      }),
       ExpoSpeechRecognitionModule.addListener('error', () => {
+        stoppedByUserRef.current = true;
         setIsListening(false);
         notificationWarning();
       }),
@@ -48,12 +60,14 @@ export function useSpeechToText({ onTranscript }: Options) {
       return;
     }
 
+    stoppedByUserRef.current = false;
     setIsListening(true);
     ExpoSpeechRecognitionModule.start({ interimResults: true, continuous: true });
   }
 
   function stop() {
     if (IS_EXPO_GO) return;
+    stoppedByUserRef.current = true;
     Speech().ExpoSpeechRecognitionModule.stop();
   }
 

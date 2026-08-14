@@ -51,7 +51,7 @@ export default function NoteDetailScreen() {
   });
 
   const { isListening, isAvailable, start, stop } = useSpeechToText({
-    onTranscript: (transcript) => editorRef.current?.updateDictation(transcript),
+    onTranscript: (transcript, isFinal) => editorRef.current?.updateDictation(transcript, isFinal),
   });
 
   function handleMic() {

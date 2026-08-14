@@ -93,7 +93,7 @@ export default function TaskDetailScreen() {
     draftDueDate !== null && !getDateChipOptions().some((opt) => isSameDay(draftDueDate, opt.date));
 
   const { isListening, isAvailable, start, stop } = useSpeechToText({
-    onTranscript: (transcript) => editorRef.current?.updateDictation(transcript),
+    onTranscript: (transcript, isFinal) => editorRef.current?.updateDictation(transcript, isFinal),
   });
 
   function handleMic() {
