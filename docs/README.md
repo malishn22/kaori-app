@@ -15,6 +15,8 @@ see [CLAUDE.md](../CLAUDE.md).
   routines, reminders, folders, theming) and where its code lives.
 - **[conventions.md](conventions.md)** — coding conventions, the quality gate,
   and build/release workflows.
+- **[roadmap.md](roadmap.md)** — planned-but-unbuilt future work, shared with
+  kaori-desktop. Unlike the files above, this describes what's *not* built yet.
 
 ## Keeping these docs current
 
