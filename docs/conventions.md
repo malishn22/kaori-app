@@ -22,7 +22,10 @@ this file points to them rather than duplicating, to avoid drift.
 - **Theming** — style via `className="bg-theme-*"` (NativeWind CSS variables) or
   the [useTheme](../src/theme/useTheme.ts) hook; see
   [architecture.md](architecture.md#styling--theming).
-- No test suite currently exists.
+- kaori-app has no test suite. `kaori-core` has one: `npm test` builds and then runs
+  `node:test` files under `kaori-core/test/`, covering the canvas scene model (geometry,
+  transforms, bindings, frames, the reducer's gestures, and serialization). It is the
+  regression net for canvas work — see [canvas.md](canvas.md).
 
 ## Quality gate
 

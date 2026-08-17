@@ -137,7 +137,9 @@ NativeWind v4 (Tailwind for React Native). Theme colors are injected as CSS vari
 - Icons are in `assets/icons/index.tsx`; import named exports like `{ PenIcon, TaskIcon }`
 - Hooks in `src/hooks/` derive filtered/computed data from the store; prefer these over inline `useMemo` in screens
 - Spacing and layout constants in `src/constants/layout.ts` and `src/constants/styles.ts` — use these rather than hardcoded numbers
-- No test suite exists currently
+- kaori-app has no test suite. `kaori-core` does — `npm test` there runs the canvas
+  scene-model tests (`node:test`, no extra dependency), and `dev-mac.sh` runs them on
+  every desktop dev start
 
 ## Documentation
 
