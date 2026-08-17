@@ -98,8 +98,12 @@ and that same gesture is what attaches an arrow to a shape.
 positional aliases. Insert-image (`I`) is an _action_, not a mode — choosing a
 file is the whole gesture, so it never shows a pressed state.
 
-- **Select** drags from empty canvas to rubber-band; shift adds. Pressing on an
-  element moves it.
+- **Select** drags from empty canvas to rubber-band; shift adds. The band must
+  _fully enclose_ an element to catch it — brushing past a long line or a wide
+  text block shouldn't sweep it up, since picking those back off is worse than
+  having to enclose deliberately. Enclosure is measured on world bounds, so a
+  rotated element must be covered where it's actually drawn. Pressing on an
+  element moves it instead.
 - **Eraser** marks what the sweep touches (dimmed as a preview) and deletes it
   all on release, as one undo step.
 - **Images** arrive three ways: the toolbar button, drag-and-drop from Finder,
