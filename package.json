@@ -6,6 +6,7 @@
     "start": "expo start",
     "device:windows": "bash scripts/run-device-windows.sh",
     "device:mac": "bash scripts/run-device-mac.sh",
+    "apk": "bash scripts/build-android-release.sh",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",

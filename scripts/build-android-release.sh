@@ -29,6 +29,53 @@ fail() {
 printf '%sKaori Android release build%s %s(%s)%s\n' \
   "$C_BOLD" "$C_RESET" "$C_DIM" "$(date '+%Y-%m-%d %H:%M:%S')" "$C_RESET"
 
+# --- Preflight: locate the JDK and Android SDK ---
+# Gradle needs both, and on macOS neither is on PATH by default even with Android Studio
+# installed: it ships its own JDK *inside* the .app bundle and never exports ANDROID_HOME.
+# Resolving them here turns two opaque failures ("Unable to locate a Java Runtime", "SDK
+# location not found") into a build that just runs.
+printf '\n%s==> Preflight: toolchain%s\n' "${C_BOLD}${C_BLUE}" "$C_RESET"
+
+if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME:-}/bin/java" ]; then
+  for candidate in \
+    "/Applications/Android Studio.app/Contents/jbr/Contents/Home" \
+    "$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home"; do
+    if [ -x "$candidate/bin/java" ]; then
+      export JAVA_HOME="$candidate"
+      break
+    fi
+  done
+fi
+if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME:-}/bin/java" ]; then
+  if [ -x /usr/libexec/java_home ] && /usr/libexec/java_home >/dev/null 2>&1; then
+    export JAVA_HOME="$(/usr/libexec/java_home)"
+  fi
+fi
+if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+  export PATH="$JAVA_HOME/bin:$PATH"
+  printf '  %sok%s — JDK %s\n' "$C_GREEN" "$C_RESET" \
+    "$("$JAVA_HOME/bin/java" -version 2>&1 | head -1 | sed 's/.*version "\([^"]*\)".*/\1/')"
+elif command -v java >/dev/null 2>&1; then
+  # Already on PATH (typical on Windows/Linux) — Gradle will find it on its own.
+  printf '  %sok%s — java on PATH\n' "$C_GREEN" "$C_RESET"
+else
+  fail "no JDK found — install Android Studio (it bundles one), or set JAVA_HOME"
+fi
+
+if [ -z "${ANDROID_HOME:-}" ]; then
+  # Every one of these needs a :- default — the script runs under `set -u`, and
+  # LOCALAPPDATA in particular is only set on Windows.
+  for candidate in "${ANDROID_SDK_ROOT:-}" "$HOME/Library/Android/sdk" "$HOME/Android/Sdk" "${LOCALAPPDATA:-}/Android/Sdk"; do
+    if [ -n "$candidate" ] && [ -d "$candidate/platform-tools" ]; then
+      export ANDROID_HOME="$candidate"
+      break
+    fi
+  done
+fi
+[ -n "${ANDROID_HOME:-}" ] || fail "Android SDK not found — install it via Android Studio, or set ANDROID_HOME"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+printf '  %sok%s — SDK %s\n' "$C_GREEN" "$C_RESET" "$ANDROID_HOME"
+
 # --- Step 1: prebuild ---
 step 1 "expo prebuild --platform android --clean"
 npx expo prebuild --platform android --clean
