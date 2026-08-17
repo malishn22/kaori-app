@@ -85,32 +85,27 @@ close here.
 
 ### Canvas on mobile
 
-The Excalidraw-style whiteboard **has shipped on kaori-desktop** — see
-[canvas.md](canvas.md) for how it works. The open questions listed here
-previously are answered: it's a new top-level content type (`Canvas`, with its
-own storage adapter), built in-house rather than on a drawing library, and list
-rows show a title and edited time rather than a thumbnail.
+**Shipped.** See [canvas.md](canvas.md) for how it works on both platforms.
 
-What remains is the mobile half. The scene model, interaction reducer, geometry,
-and layout all live in `kaori-core` as platform-free TypeScript precisely so
-this is a rendering-and-input job rather than a rewrite:
+What was predicted here held up: the scene model, reducer, geometry and layout
+all came from `kaori-core` unchanged, so this was a rendering-and-input job.
+kaori-app took the dependency with metro `watchFolders`/`nodeModulesPaths`
+wiring, draws with `react-native-svg`, and stores one AsyncStorage key per
+document. Text measurement uses a character-width table — generated from the
+fonts' own `hmtx` tables by `scripts/gen-font-metrics.mjs` rather than
+hand-estimated, since guessed widths desync hit-testing from the glyphs drawn.
 
-- kaori-app adopts `kaori-core` **for the Canvas types only** — Note/Task/
-  Routine stay hand-mirrored for now (see the note atop `kaori-core/src/types.ts`).
-  Needs the dependency plus metro `watchFolders`/`nodeModulesPaths` wiring.
-- A surface on `react-native-svg` + Reanimated, no Skia: pan/zoom is one
-  Reanimated transform on the wrapper, so node count never affects gesture
-  smoothness. `strokeToPathD` already emits `d` strings react-native-svg accepts
-  verbatim.
-- Per-doc AsyncStorage keys (`@kaori_canvas_<id>`), _not_ the whole-collection
-  array every other entity uses — re-stringifying every scene on every stroke
-  would stall the JS thread. Android's ~2MB per-value limit matters here, and
-  `safeSet` currently swallows write errors, which for a scene is silent loss.
-- Text measurement has no synchronous API in RN, so `wrapText` needs a
-  character-width table rather than the desktop's offscreen canvas measurer.
-- Reanimated worklets can't call into `kaori-core` (the babel plugin doesn't
-  transform `node_modules`), so the ~30 lines of viewport math need duplicating
-  in the app.
+Two predictions were wrong and are worth remembering:
+
+- Pan/zoom is _not_ one Reanimated transform that makes node count irrelevant.
+  Translating the drawn surface exposes its edges, so it needs overdraw and a
+  periodic re-base, and that re-base is a fold between React state and a shared
+  value that can slip a frame. See the known-limitation section in canvas.md.
+- Worklets still can't call `kaori-core`, but the viewport math did not need
+  duplicating: panning accumulates a plain screen-space offset in the worklet
+  and every conversion stays on the JS side.
+
+**Left on mobile:** images (needs `expo-image-picker`).
 
 **Still open on desktop too:** export (PNG/SVG), list-row thumbnails, and
 duplicate. Curved arrows and binding for plain lines were both raised and

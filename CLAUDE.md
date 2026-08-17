@@ -3,6 +3,10 @@
 ## Dev Commands
 
 ```bash
+npm run device:mac   # Metro + QR for Expo Go. Runs in TUNNEL mode: plain LAN
+                     # does not work on this network. Builds kaori-core first,
+                     # which is required — core's entry is dist/ and dist/ is
+                     # gitignored. Pass --lan to opt out.
 npm start            # Start Expo dev server (scan QR with Expo Go)
 npm run ios          # Build & run on iOS simulator
 npm run android      # Build & run on Android emulator/device
@@ -71,7 +75,7 @@ EAS handles signing, certificates, and provisioning. Add `eas.json` to configure
 
 ```
 app/                    # Expo Router screens (file-based routing)
-  (tabs)/               # Tab group: index, tasks, routines, projects, settings
+  (tabs)/               # Tab group: index, tasks, routines, projects, canvas, settings
   note/[id].tsx         # Note detail/editor
   note/new.tsx          # New note
   task/[id].tsx         # Task detail/editor
@@ -80,6 +84,7 @@ app/                    # Expo Router screens (file-based routing)
   routine/new.tsx       # New routine
   folder/[id].tsx       # Folder detail
   folder/new.tsx        # New folder
+  canvas/[id].tsx       # Canvas editor (outside (tabs): the tab bar would cover the surface)
   archived.tsx          # Archived items
   profile.tsx           # User profile
 
@@ -91,10 +96,13 @@ src/
     pickers/            # CalendarPicker, FolderChipSelector, ReminderPicker, WeekdaySelector
     sheets/             # BottomSheet, ColorSwatchPicker
     settings/           # SettingSheet
+  components/canvas/    # Drawing surface, toolbar, style panel, text overlay,
+                        # selection chrome, generated font metrics
   providers/            # Context API state management
     StoreProvider.tsx   # Main store: notes, tasks, routines, folders, profile
     SettingsProvider.tsx  # Theme tone & accent color
     SettingSheetProvider.tsx  # Bottom sheet open/close state
+    CanvasProvider.tsx    # Canvas metadata (scenes load per document)
     actions/            # Action creators: noteActions, taskActions, routineActions, folderActions
   hooks/                # Custom hooks (useActiveNotes, useHapticFeedback, etc.)
   constants/            # Layout, style, color, and option constants
@@ -112,9 +120,10 @@ assets/
 
 ### State Management
 
-Three React Context providers, composed in `app/_layout.tsx`:
+Four React Context providers, composed in `app/_layout.tsx`:
 
 - **StoreProvider** — all app data (notes, tasks, routines, folders, profile); persists via AsyncStorage
+- **CanvasProvider** — canvas metadata only; scenes are loaded and saved per document by `useCanvasScene`, since re-stringifying every scene on every stroke would stall the JS thread
 - **SettingsProvider** — theme tone and accent; persists via AsyncStorage
 - **SettingSheetProvider** — ephemeral UI state for the settings bottom sheet
 
@@ -137,6 +146,8 @@ NativeWind v4 (Tailwind for React Native). Theme colors are injected as CSS vari
 - Icons are in `assets/icons/index.tsx`; import named exports like `{ PenIcon, TaskIcon }`
 - Hooks in `src/hooks/` derive filtered/computed data from the store; prefer these over inline `useMemo` in screens
 - Spacing and layout constants in `src/constants/layout.ts` and `src/constants/styles.ts` — use these rather than hardcoded numbers
+- `scripts/gen-font-metrics.mjs` regenerates `src/components/canvas/fontMetrics.ts`
+  from the TTFs. Re-run it only if Geist or Kalam is replaced; the output is checked in
 - kaori-app has no test suite. `kaori-core` does — `npm test` there runs the canvas
   scene-model tests (`node:test`, no extra dependency), and `dev-mac.sh` runs them on
   every desktop dev start

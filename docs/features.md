@@ -102,6 +102,26 @@ Color-coded containers for notes, tasks, and routines, with drag-to-reorder.
   [folder/[id].tsx](../app/folder/[id].tsx). Reorder UI:
   [DraggableFolderList](../src/components/ui/cards/DraggableFolderList.tsx).
 
+## Canvas
+
+An infinite Excalidraw-style drawing surface, as a fifth tab. Select, hand,
+pencil, rectangle, ellipse, line, arrow, text, frame and eraser; resize and
+rotate handles, endpoint grips on lines and arrows, marquee selection, layer
+ordering, and undo/redo. Two-finger pan and pinch are live under every tool;
+with the select tool a drag from empty canvas pans as well, since reaching for
+the hand tool on a phone costs more than rubber-banding is worth.
+
+The style controls are a floating panel opened from a button on the surface, so
+they take no space from the drawing and opening them shifts nothing underneath.
+Rows follow the selection — fill only for shapes, size and alignment only for
+text.
+
+Canvases can be renamed in place, pinned by swiping the row, archived (with
+their own page in the archived browser) and deleted. Pan speed is adjustable.
+
+The scene model, interaction reducer and geometry are `kaori-core`, shared with
+kaori-desktop — see [canvas.md](canvas.md).
+
 ## Theming
 
 Users pick a **tone** and **accent** from settings; the choice persists via

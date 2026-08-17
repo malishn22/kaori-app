@@ -32,16 +32,23 @@ GestureHandlerRootView
     SettingsProvider          ← theme tone/accent + app settings
       ThemeVarsRoot           ← injects CSS variables from settings
         StoreProvider         ← all app data
-          SettingSheetProvider ← ephemeral settings-sheet UI state
-            <Stack />          ← Expo Router screens
+          CanvasProvider      ← canvas metadata (scenes load per document)
+            SettingSheetProvider ← ephemeral settings-sheet UI state
+              <Stack />          ← Expo Router screens
 ```
 
 `StoreProvider` is nested inside `SettingsProvider`/`ThemeVarsRoot` so that
 theming is available app-wide and settings load before data renders.
 
+`CanvasProvider` is separate from `StoreProvider` on purpose: that store loads
+every entity up front and rewrites a whole collection on any change, which is
+right for notes and wrong for documents that are large, opened one at a time,
+and saved on a debounce while drawing. It holds only canvas _metadata_; a scene
+is loaded and saved per document by `useCanvasScene`.
+
 ## State management
 
-Three Context providers, each persisting independently to AsyncStorage.
+Four Context providers, each persisting independently to AsyncStorage.
 
 ### StoreProvider
 
