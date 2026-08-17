@@ -3,10 +3,11 @@
 An Excalidraw-style infinite drawing surface: a fifth top-level section in
 kaori-desktop, alongside notes, tasks, routines, and folders.
 
-**Desktop only today.** The scene model, interaction logic, and geometry all
-live in `kaori-core` as platform-free TypeScript, so a future React Native
-surface reuses them — only rendering and raw input are per-platform. See
-[roadmap.md](roadmap.md) for what mobile still needs.
+**On both platforms.** The scene model, interaction logic, and geometry all live
+in `kaori-core` as platform-free TypeScript; only rendering and raw input are
+per-platform, so kaori-app draws the same scenes with react-native-svg. Images
+are the one tool desktop has and mobile does not yet. See
+[roadmap.md](roadmap.md).
 
 ## The two data types
 
@@ -142,6 +143,10 @@ reads _persisted_ scenes while the editor saves on a debounce, so running it
 while an editor is open could delete a file referenced only by an unsaved
 in-memory scene. Startup is the one moment no editor can be open.
 
+An archived canvas drops out of the canvas list and appears in Settings →
+archived, which gained a fifth page for it; restoring is the same un-archive
+action every other entity uses.
+
 Scenes autosave 600ms after you stop and flush on close. A failed write is
 surfaced in the editor header rather than swallowed — a dropped scene write
 loses the drawing with nothing on screen to show for it.
@@ -180,3 +185,53 @@ Rendering is **SVG, not canvas 2D**, because theming is runtime CSS variables:
 SVG nodes take `stroke="var(--color-ink)"` and re-theme for free, where a 2D
 context would need a `getComputedStyle`-and-repaint subsystem invented purely to
 work around the renderer.
+
+**kaori-app** — `src/components/canvas/` (surface, toolbar, floating style panel,
+element renderer, text overlay, selection chrome, generated font metrics),
+`src/hooks/useCanvasScene.ts` and `useCanvasPanSpeed.ts`, and
+`src/utils/canvasStorage.ts`.
+
+## Known limitation: the one-frame slip when panning (mobile)
+
+Panning on mobile runs on the UI thread: the gesture accumulates a screen-space
+offset in a Reanimated shared value, and `SceneView` translates the drawn surface
+by it. Nothing crosses to JavaScript while a finger is down, which is what makes
+it smooth.
+
+The surface is finite, though — it is drawn `OVERDRAW` points larger than the
+visible box on each side — so once the offset approaches that edge the camera is
+**re-based**: `PAN_BY_SCREEN` moves the viewport in React state and the offset is
+reduced by the same amount. That fold is the problem. The state update and the
+shared-value reset happen on different threads and cannot be guaranteed to land
+on the same frame, so occasionally one frame shows the pan applied twice.
+
+Only the threshold is tunable, and it trades against surface size, which grows
+quadratically and costs pan smoothness. Both ends have been measured on a
+400×800 screen:
+
+| `OVERDRAW` | surface     | vs visible | result                |
+| ---------- | ----------- | ---------- | --------------------- |
+| 800        | 4.8M px     | 15×        | panning stutters      |
+| **320**    | **1.5M px** | **5×**     | current setting       |
+| 200        | 1.0M px     | 3×         | slip becomes frequent |
+
+Two things have been tried and are **not** worth retrying:
+
+- **Folding when the finger lifts** instead of mid-gesture. Makes it far worse:
+  every pan folds rather than roughly one in ten.
+- `useLayoutEffect` for the reset. Narrows the window but cannot close it.
+
+The real fix is to **transform the scene content rather than the surface it is
+drawn on**. Content transformed inside a stationary surface exposes no edge, so
+there is no window to run out of, no re-base, and no fold anywhere. That removes
+`OVERDRAW` and `REBASE_AT` entirely and should make drag frames cheaper too.
+
+One attempt failed for a mechanical reason worth recording: driving a
+`react-native-svg` `<G>`'s `translateX`/`translateY` through `useAnimatedProps`
+silently does nothing — the transform never applies and panning stops working
+altogether. The idea was never disproved, only that mechanism. Before building on
+it, verify on a device that a shape actually moves — likely candidates are an
+animated `matrix` prop or animating the `<Svg>`'s own transform.
+
+Desktop is unaffected: it has no offset and no fold, since the viewport lives in
+React state and every pan is a state update.

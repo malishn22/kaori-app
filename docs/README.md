@@ -15,8 +15,8 @@ see [CLAUDE.md](../CLAUDE.md).
   routines, reminders, folders, theming) and where its code lives.
 - **[canvas.md](canvas.md)** — the Excalidraw-style drawing canvas: scene
   model, the derive-don't-store relationships (bound text, arrow binding,
-  frames), tools, and how scenes and image bytes are stored. Desktop-only so
-  far; the shared half lives in `kaori-core`.
+  frames), tools, and how scenes and image bytes are stored on each platform.
+  The shared half lives in `kaori-core`.
 - **[conventions.md](conventions.md)** — coding conventions, the quality gate,
   and build/release workflows.
 - **[roadmap.md](roadmap.md)** — planned-but-unbuilt future work, shared with

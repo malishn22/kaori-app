@@ -9,6 +9,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="tasks" />
       <Tabs.Screen name="routines" />
       <Tabs.Screen name="projects" />
+      <Tabs.Screen name="canvas" />
       <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );

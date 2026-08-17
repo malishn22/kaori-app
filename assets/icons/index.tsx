@@ -23,6 +23,7 @@ import NumberedListSvg from './numberedlist.svg';
 import DotLineSvg from './dotline.svg';
 import RepeatSvg from './repeat.svg';
 import MicSvg from './mic.svg';
+import CanvasSvg from './canvas.svg';
 
 export type IconProps = { size?: number; color?: string; strokeWidth?: number };
 
@@ -55,6 +56,7 @@ export const StrikethroughIcon = icon(StrikethroughSvg, 20);
 export const NumberedListIcon = icon(NumberedListSvg, 20);
 export const DotLineIcon = icon(DotLineSvg, 20);
 export const RoutineIcon = icon(RepeatSvg, 20);
+export const CanvasIcon = icon(CanvasSvg, 20);
 export const MicIcon = icon(MicSvg, 20);
 
 export function BookmarkIcon({

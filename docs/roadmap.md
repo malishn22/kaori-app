@@ -112,8 +112,9 @@ this is a rendering-and-input job rather than a rewrite:
   transform `node_modules`), so the ~30 lines of viewport math need duplicating
   in the app.
 
-**Still open on desktop too:** export (PNG/SVG), list-row thumbnails, duplicate,
-and canvases appearing in the archived-items browser.
+**Still open on desktop too:** export (PNG/SVG), list-row thumbnails, and
+duplicate. Curved arrows and binding for plain lines were both raised and
+deliberately deferred.
 
 ## Keeping this current
 

@@ -11,6 +11,7 @@ import { IS_EXPO_GO } from '@/utils/notifications';
 import { useTheme, getColors, themeVars } from '@/theme';
 import { SettingsProvider, useSettings } from '@/providers/SettingsProvider';
 import { StoreProvider, useStore } from '@/providers/StoreProvider';
+import { CanvasProvider } from '@/providers/CanvasProvider';
 import { SettingSheetProvider, useSettingSheet } from '@/providers/SettingSheetProvider';
 import { SettingSheet } from '@/components/ui';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -121,28 +122,40 @@ export default function RootLayout() {
         <SettingsProvider>
           <ThemeVarsRoot>
             <StoreProvider>
-              <SettingSheetProvider>
-                <SplashHider fontsLoaded={loaded} />
-                <NotificationHandler />
-                <StatusBar style="light" />
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: getColors().bg },
-                  }}
-                >
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="folder/[id]" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="folder/new" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="note/[id]" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="note/new" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="task/new" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="task/[id]" options={{ animation: 'slide_from_right' }} />
-                </Stack>
-                <RootSettingSheets />
-                <AndroidNavBarFill />
-              </SettingSheetProvider>
+              <CanvasProvider>
+                <SettingSheetProvider>
+                  <SplashHider fontsLoaded={loaded} />
+                  <NotificationHandler />
+                  <StatusBar style="light" />
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: getColors().bg },
+                    }}
+                  >
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="folder/[id]" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="folder/new" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="note/[id]" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="note/new" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="task/new" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="task/[id]" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen
+                      name="canvas/[id]"
+                      options={{
+                        animation: 'slide_from_right',
+                        // iOS's swipe-back gesture starts at the left edge, which is exactly
+                        // where a stroke drawn near the edge of the canvas begins — it would
+                        // steal every one of them.
+                        gestureEnabled: false,
+                      }}
+                    />
+                  </Stack>
+                  <RootSettingSheets />
+                  <AndroidNavBarFill />
+                </SettingSheetProvider>
+              </CanvasProvider>
             </StoreProvider>
           </ThemeVarsRoot>
         </SettingsProvider>

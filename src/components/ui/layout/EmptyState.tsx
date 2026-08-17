@@ -7,7 +7,7 @@ import { FAB } from './FAB';
 import { SHADOW_EMPTY } from '@/constants';
 
 type Props = {
-  variant: 'notes' | 'tasks' | 'routines';
+  variant: 'notes' | 'tasks' | 'routines' | 'canvas';
   onFAB: () => void;
 };
 
@@ -18,16 +18,20 @@ const VARIANT_LABEL: Record<Props['variant'], string> = {
   notes: 'notebook',
   tasks: 'tasks',
   routines: 'routines',
+  canvas: 'canvas',
 };
 
 const VARIANT_FAB_LABEL: Record<Props['variant'], string> = {
   notes: 'first note',
   tasks: 'first task',
   routines: 'first routine',
+  canvas: 'first canvas',
 };
 
 export function EmptyState({ variant, onFAB }: Props) {
-  const isNotes = variant === 'notes';
+  // `canvas` joins the plain-line illustration for the same reason `notes` uses it: a
+  // drawing isn't a checkable item, so the checkbox rows would misdescribe it.
+  const isNotes = variant === 'notes' || variant === 'canvas';
 
   return (
     <View className="flex-1 bg-theme-bg">

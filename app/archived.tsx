@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Pressable } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useStore } from '@/providers/StoreProvider';
+import { useCanvases } from '@/providers/CanvasProvider';
 import { useHapticFeedback } from '@/hooks';
 import {
   ThemeText,
@@ -28,12 +29,16 @@ export default function ArchivedScreen() {
     archiveRoutine,
     toggleRoutineDone,
   } = useStore();
+  // Canvases live in their own provider, not StoreProvider — see the note in CanvasProvider
+  // on why a scene is not held in the whole-collection store.
+  const { canvases, archiveCanvas } = useCanvases();
   const { impact } = useHapticFeedback();
 
   const archivedFolders = folders.filter((f) => f.archived);
   const archivedNotes = notes.filter((n) => n.archived);
   const archivedTasks = tasks.filter((t) => t.archived);
   const archivedRoutines = routines.filter((r) => r.archived);
+  const archivedCanvases = canvases.filter((c) => c.archived);
 
   async function handleUnarchiveFolder(id: string) {
     await archiveFolder(id, false);
@@ -52,6 +57,11 @@ export default function ArchivedScreen() {
 
   async function handleUnarchiveRoutine(id: string) {
     await archiveRoutine(id, false);
+    impact();
+  }
+
+  async function handleUnarchiveCanvas(id: string) {
+    await archiveCanvas(id, false);
     impact();
   }
 
@@ -216,6 +226,55 @@ export default function ArchivedScreen() {
                     />
                   );
                 })}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Page 5: Canvases. A plain row rather than a card — there is no CanvasCard, and a
+            thumbnail would mean rendering every archived scene just to list its title, which
+            is exactly what keeping scenes out of the metadata read avoids. */}
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 8, paddingBottom: 60 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {archivedCanvases.length === 0 && (
+            <View className="items-center pt-[60px]">
+              <ThemeText variant="meta" color="ink4">
+                no archived canvases
+              </ThemeText>
+            </View>
+          )}
+
+          {archivedCanvases.length > 0 && (
+            <View>
+              <View className="px-1.5 mb-3">
+                <SectionTitle underlineWidth={52}>canvases</SectionTitle>
+              </View>
+
+              <View className="gap-3">
+                {archivedCanvases.map((canvas) => (
+                  <View
+                    key={canvas.id}
+                    className="flex-row items-center gap-3 rounded-xl border border-theme-line bg-theme-paper px-4 py-3"
+                  >
+                    <Pressable
+                      className="flex-1"
+                      onPress={() => router.push(`/canvas/${canvas.id}`)}
+                    >
+                      <ThemeText variant="title">{canvas.title || 'untitled'}</ThemeText>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleUnarchiveCanvas(canvas.id)}
+                      hitSlop={10}
+                      accessibilityLabel={`restore ${canvas.title || 'untitled'}`}
+                    >
+                      <ThemeText variant="meta" color="amber">
+                        restore
+                      </ThemeText>
+                    </Pressable>
+                  </View>
+                ))}
               </View>
             </View>
           )}
