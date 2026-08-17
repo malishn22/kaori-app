@@ -104,6 +104,12 @@ file is the whole gesture, so it never shows a pressed state.
   having to enclose deliberately. Enclosure is measured on world bounds, so a
   rotated element must be covered where it's actually drawn. Pressing on an
   element moves it instead.
+- **Hit-testing** treats shapes as solid whether or not they carry a fill — a
+  shape you can see but can't click reads as broken. The one exception is a
+  **frame**, whose interior stays click-through so a click inside reaches the
+  work it holds; you grab a frame by its border or name. A shape's label
+  resolves to the shape on click, but is dropped from band results entirely
+  (see above).
 - **Eraser** marks what the sweep touches (dimmed as a preview) and deletes it
   all on release, as one undo step.
 - **Images** arrive three ways: the toolbar button, drag-and-drop from Finder,
