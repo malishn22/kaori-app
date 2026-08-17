@@ -6,6 +6,9 @@ shared across kaori-app (mobile) and kaori-desktop. Update it when a new phase
 is decided on, and move an entry out (or mark it done and let the reference
 docs describe it) once it actually ships.
 
+Some entries here are partly shipped — where that's true the entry says so and
+describes only what's left.
+
 ## Planned phases
 
 ### Cloud sync
@@ -51,6 +54,7 @@ monotonic `seq`, ~90-day retention) — devices track a `lastSyncedCursor` and
 pull deltas, not full state. Deletes are tombstoned in the log, not inferred
 from absence. Conflict handling is per-record, not per-device (no
 Steam-Cloud-style "pick one" prompt on every reconnect):
+
 - `Note` text: fork on genuine same-field conflict ("conflicted copy from
   iPhone"), pending the Yjs/CRDT decision below, which would replace this
   with real merging.
@@ -60,10 +64,11 @@ Steam-Cloud-style "pick one" prompt on every reconnect):
 - Derived fields (e.g. `Folder.count`) are never synced — recomputed locally
   from synced children.
 
-**Interaction with the whiteboard phase.** If Excalidraw-style drawing
-adopts Yjs/CRDTs for the canvas (see below), adopting Yjs for `Note.text`
-too is nearly free and would replace the fork-on-conflict policy above with
-real merging. Decide together when the whiteboard phase is scoped.
+**Interaction with the canvas.** The shipped canvas does _not_ use Yjs — it
+stores a plain scene JSON per canvas with a snapshot-based undo, so a synced
+canvas would fork on conflict like `Note.text` rather than merge. If real
+merging is wanted for either, adopting Yjs would be one decision covering both;
+see [canvas.md](canvas.md) for the current model.
 
 **Groundwork, independent of the above:** finish migrating kaori-app off
 hand-mirrored types onto `kaori-core` as the single source of truth (see
@@ -78,14 +83,37 @@ Automated weekly restore-drill (restore into a scratch container, sanity
 check, alert on failure) — the untested-backup problem is the main risk to
 close here.
 
-### Excalidraw-style drawing/whiteboard integration
+### Canvas on mobile
 
-A freeform drawing canvas (infinite canvas, shapes, freehand strokes — in the
-spirit of Excalidraw), not yet designed. Open questions once this phase
-starts: whether it's a new top-level content type alongside Note/Task/Routine
-(its own `kaori-core` type + storage adapter) or an editing mode embedded
-inside notes, which drawing/canvas library to use on each platform, and how a
-drawing gets previewed in list rows.
+The Excalidraw-style whiteboard **has shipped on kaori-desktop** — see
+[canvas.md](canvas.md) for how it works. The open questions listed here
+previously are answered: it's a new top-level content type (`Canvas`, with its
+own storage adapter), built in-house rather than on a drawing library, and list
+rows show a title and edited time rather than a thumbnail.
+
+What remains is the mobile half. The scene model, interaction reducer, geometry,
+and layout all live in `kaori-core` as platform-free TypeScript precisely so
+this is a rendering-and-input job rather than a rewrite:
+
+- kaori-app adopts `kaori-core` **for the Canvas types only** — Note/Task/
+  Routine stay hand-mirrored for now (see the note atop `kaori-core/src/types.ts`).
+  Needs the dependency plus metro `watchFolders`/`nodeModulesPaths` wiring.
+- A surface on `react-native-svg` + Reanimated, no Skia: pan/zoom is one
+  Reanimated transform on the wrapper, so node count never affects gesture
+  smoothness. `strokeToPathD` already emits `d` strings react-native-svg accepts
+  verbatim.
+- Per-doc AsyncStorage keys (`@kaori_canvas_<id>`), _not_ the whole-collection
+  array every other entity uses — re-stringifying every scene on every stroke
+  would stall the JS thread. Android's ~2MB per-value limit matters here, and
+  `safeSet` currently swallows write errors, which for a scene is silent loss.
+- Text measurement has no synchronous API in RN, so `wrapText` needs a
+  character-width table rather than the desktop's offscreen canvas measurer.
+- Reanimated worklets can't call into `kaori-core` (the babel plugin doesn't
+  transform `node_modules`), so the ~30 lines of viewport math need duplicating
+  in the app.
+
+**Still open on desktop too:** export (PNG/SVG), list-row thumbnails, duplicate,
+and canvases appearing in the archived-items browser.
 
 ## Keeping this current
 

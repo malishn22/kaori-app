@@ -3,6 +3,10 @@
 All types are defined in [src/types/data.ts](../src/types/data.ts). Data is
 stored locally via AsyncStorage; there is no backend or remote schema.
 
+**Scope:** this file covers kaori-app's own types. The `Canvas` type and its
+scene model live in `kaori-core` and are used only by kaori-desktop today —
+see [canvas.md](canvas.md).
+
 ## Types
 
 ### Note

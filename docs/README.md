@@ -13,10 +13,14 @@ see [CLAUDE.md](../CLAUDE.md).
   `Folder` / `Profile` types, the storage layer, and the migration/load logic.
 - **[features.md](features.md)** — each user-facing feature (notes, tasks,
   routines, reminders, folders, theming) and where its code lives.
+- **[canvas.md](canvas.md)** — the Excalidraw-style drawing canvas: scene
+  model, the derive-don't-store relationships (bound text, arrow binding,
+  frames), tools, and how scenes and image bytes are stored. Desktop-only so
+  far; the shared half lives in `kaori-core`.
 - **[conventions.md](conventions.md)** — coding conventions, the quality gate,
   and build/release workflows.
 - **[roadmap.md](roadmap.md)** — planned-but-unbuilt future work, shared with
-  kaori-desktop. Unlike the files above, this describes what's *not* built yet.
+  kaori-desktop. Unlike the files above, this describes what's _not_ built yet.
 
 ## Keeping these docs current
 
